@@ -17,10 +17,10 @@
     /* ===== الثيم الداكن (افتراضي) ===== */
     [data-theme="dark"] {
       --bg: #060a14;
-      --bg2: #080d1a;
-      --card: #0c1220;
-      --card2: #101828;
-      --card3: #141f30;
+      --bg2: #0a0f1c;
+      --card: #0f1624;
+      --card2: #131b2c;
+      --card3: #182235;
       --accent: #f5a623;
       --accent2: #e07b00;
       --accent3: #fbbf24;
@@ -98,7 +98,6 @@
       z-index: 0;
     }
 
-    /* شريط التمرير */
     ::-webkit-scrollbar {
       width: 4px;
       height: 4px;
@@ -113,7 +112,7 @@
       border-radius: 4px;
     }
 
-    /* ===== مكونات أساسية ===== */
+    /* ===== شاشة الدخول ===== */
     .login-container {
       display: flex;
       flex-direction: column;
@@ -186,27 +185,10 @@
       color: #1f1f1f;
       border: 1px solid #ddd;
     }
-
-    .social-btn.facebook {
-      background: #1877f2;
-      color: white;
-    }
-
-    .social-btn.twitter {
-      background: #000;
-      color: white;
-      border: 1px solid #333;
-    }
-
-    .social-btn.demo {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #facc15;
-      border: 1px solid #334155;
-    }
-
-    .social-btn:active {
-      transform: scale(0.97);
-    }
+    .social-btn.facebook { background: #1877f2; color: white; }
+    .social-btn.twitter { background: #000; color: white; border: 1px solid #333; }
+    .social-btn.demo { background: linear-gradient(135deg, #1e293b, #0f172a); color: #facc15; border: 1px solid #334155; }
+    .social-btn:active { transform: scale(0.97); }
 
     .feature-list {
       display: grid;
@@ -214,7 +196,6 @@
       gap: 10px;
       margin-top: 20px;
     }
-
     .feature-item {
       background: var(--card2);
       border-radius: 16px;
@@ -239,7 +220,6 @@
       justify-content: center;
       padding: 20px;
     }
-
     .lock-card {
       background: var(--card);
       border-radius: 40px;
@@ -250,7 +230,6 @@
       border: 1px solid var(--border2);
       box-shadow: 0 24px 56px var(--shadow);
     }
-
     .pin-input {
       width: 100%;
       background: var(--card2);
@@ -264,7 +243,6 @@
       margin: 20px 0;
       font-family: monospace;
     }
-
     .btn-unlock {
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       border: none;
@@ -293,25 +271,48 @@
       top: 0;
       z-index: 100;
     }
-
     .hdr-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
     }
-
-    .avatar {
-      width: 44px;
-      height: 44px;
+    /* الدائرة التي في اليمين (avatar) */
+    .avatar-circle {
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
+      font-size: 18px;
       color: #0a0e1a;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       flex-shrink: 0;
       overflow: hidden;
+    }
+    .avatar-circle:active { transform: scale(0.95); }
+    .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hdr-title {
+      font-weight: 900;
+      color: var(--accent);
+      font-size: 18px;
+      letter-spacing: -0.3px;
+    }
+
+    .theme-toggle {
+      background: var(--glass);
+      border: 1px solid var(--border2);
+      border-radius: 40px;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--text2);
     }
 
     .stats-bar {
@@ -320,6 +321,7 @@
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid var(--border);
+      font-size: 13px;
     }
 
     .search-box {
@@ -332,13 +334,11 @@
       color: var(--text);
       outline: none;
     }
-
     .category-wrap {
       padding: 10px 16px;
       overflow-x: auto;
       white-space: nowrap;
     }
-
     .cat-btn {
       background: var(--card);
       border: 1px solid var(--border2);
@@ -351,7 +351,6 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-
     .cat-btn.active {
       background: var(--accent);
       color: #0a0e1a;
@@ -366,7 +365,6 @@
       flex-direction: column;
       gap: 14px;
     }
-
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -376,48 +374,16 @@
       transition: all 0.2s;
       box-shadow: 0 4px 12px var(--shadow);
     }
-
-    .card.expanded .card-body {
-      max-height: 800px;
-      opacity: 1;
-      margin-top: 14px;
-    }
-
-    .card-body {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.35s ease, opacity 0.25s;
-    }
-
-    .card-header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-title {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
+    .card.expanded .card-body { max-height: 800px; opacity: 1; margin-top: 14px; }
+    .card-body { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.25s; }
+    .card-header-row { display: flex; justify-content: space-between; align-items: center; }
+    .card-title { display: flex; gap: 12px; align-items: center; }
     .card-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      flex-shrink: 0;
+      width: 52px; height: 52px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; flex-shrink: 0;
     }
-
-    .card-name {
-      font-weight: 800;
-      font-size: 16px;
-    }
-
+    .card-name { font-weight: 800; font-size: 16px; }
     .field {
       background: var(--card2);
       border-radius: 16px;
@@ -427,7 +393,6 @@
       align-items: center;
       margin-bottom: 8px;
     }
-
     .btn-sm {
       padding: 6px 12px;
       border-radius: 40px;
@@ -449,7 +414,6 @@
       gap: 12px;
       z-index: 200;
     }
-
     .fab {
       padding: 14px 28px;
       border-radius: 60px;
@@ -459,7 +423,6 @@
       cursor: pointer;
       font-family: inherit;
     }
-
     .fab-add {
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       color: #0a0e1a;
@@ -475,11 +438,7 @@
       align-items: flex-end;
       backdrop-filter: blur(6px);
     }
-
-    .overlay.open {
-      display: flex;
-    }
-
+    .overlay.open { display: flex; }
     .modal {
       background: var(--card);
       border-radius: 32px 32px 0 0;
@@ -489,9 +448,7 @@
       overflow-y: auto;
       border-top: 1px solid var(--border2);
     }
-
-    .form-input,
-    .form-select {
+    .form-input, .form-select {
       width: 100%;
       background: var(--card2);
       border: 1px solid var(--border2);
@@ -499,82 +456,98 @@
       padding: 14px;
       color: var(--text);
       font-family: inherit;
+      margin-bottom: 12px;
     }
-
     .color-row {
       display: flex;
       gap: 12px;
       margin: 8px 0;
     }
-
     .color-dot {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      width: 40px; height: 40px; border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
     }
-
-    .color-dot.selected {
-      border-color: white;
-      transform: scale(1.1);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
-    }
-
-    .image-btns {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
+    .color-dot.selected { border-color: white; transform: scale(1.1); box-shadow: 0 0 12px rgba(255,255,255,0.5); }
+    .image-btns { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
     .btn-img {
-      flex: 1;
-      background: var(--card2);
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 10px;
-      font-weight: 700;
-      cursor: pointer;
+      flex: 1; background: var(--card2); border: 1px solid var(--border);
+      border-radius: 40px; padding: 10px; font-weight: 700; cursor: pointer;
     }
+    #imagePreview { width: 100%; height: 130px; border-radius: 20px; overflow: hidden; margin-top: 10px; background: var(--card2); display: none; }
+    #imagePreview img { width: 100%; height: 100%; object-fit: cover; }
+    .size-selector { display: flex; gap: 8px; margin-top: 10px; }
+    .size-option { flex:1; text-align: center; background: var(--card2); border-radius: 40px; padding: 8px; font-size: 12px; cursor: pointer; border:1px solid var(--border); }
+    .size-option.active { background: var(--accent); color:#0a0e1a; border-color: var(--accent); }
 
-    #imagePreview {
-      width: 100%;
-      height: 130px;
-      border-radius: 20px;
-      overflow: hidden;
-      margin-top: 10px;
-      background: var(--card2);
-      display: none;
+    /* القائمة الجانبية (تظهر من اليمين) */
+    #sidebarOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
     }
-
-    #imagePreview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .size-selector {
+    #sidebarOverlay.open { opacity: 1; pointer-events: all; }
+    #sidebarPanel {
+      position: fixed;
+      left: auto;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background: var(--card);
+      border-left: 1px solid var(--border2);
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      z-index: 801;
       display: flex;
-      gap: 8px;
-      margin-top: 10px;
+      flex-direction: column;
+      box-shadow: -4px 0 24px var(--shadow);
     }
-
-    .size-option {
-      flex: 1;
-      text-align: center;
-      background: var(--card2);
-      border-radius: 40px;
-      padding: 8px;
-      font-size: 12px;
+    #sidebarPanel.open { transform: translateX(0); }
+    .sb-head {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sb-close {
+      background: none;
+      border: none;
+      font-size: 22px;
       cursor: pointer;
-      border: 1px solid var(--border);
+      color: var(--muted2);
     }
-
-    .size-option.active {
-      background: var(--accent);
-      color: #0a0e1a;
-      border-color: var(--accent);
+    .sb-item {
+      width: 100%;
+      padding: 14px 20px;
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      text-align: right;
+      transition: background 0.15s;
+    }
+    .sb-item:hover { background: var(--card2); }
+    .sb-logout-btn {
+      margin: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--red);
+      border-radius: 60px;
+      padding: 12px;
+      font-weight: 700;
+      color: var(--red);
+      cursor: pointer;
+      text-align: center;
     }
 
     .toast {
@@ -592,80 +565,11 @@
       white-space: nowrap;
       font-size: 13px;
     }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* القائمة الجانبية */
-    #sidebarPanel {
-      position: fixed;
-      left: auto;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 280px;
-      background: var(--card);
-      border-left: 1px solid var(--border2);
-      transform: translateX(100%);
-      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-      z-index: 801;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #sidebarPanel.open {
-      transform: translateX(0);
-    }
-
-    #sidebarOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 800;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s;
-    }
-
-    #sidebarOverlay.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .sb-item {
-      width: 100%;
-      padding: 14px 20px;
-      background: transparent;
-      border: none;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--text);
-      cursor: pointer;
-      text-align: right;
-    }
-
-    .sb-logout-btn {
-      margin: 16px;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid var(--red);
-      border-radius: 60px;
-      padding: 12px;
-      font-weight: 700;
-      color: var(--red);
-      cursor: pointer;
-    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
 
     @media (max-width: 450px) {
-      .modal {
-        padding: 20px 16px;
-      }
-      .card-name {
-        font-size: 14px;
-      }
+      .modal { padding: 20px 16px; }
+      .avatar-circle { width: 42px; height: 42px; }
     }
   </style>
 </head>
@@ -708,15 +612,23 @@
 <!-- التطبيق الرئيسي -->
 <div id="appScreen" class="app">
   <div id="demoBar" style="display:none; background:#1e293b; padding:8px 16px; text-align:center; font-size:12px;">وضع تجريبي — لا يتم الحفظ السحابي <button onclick="window.exitDemo()" style="background:none; border:1px solid #facc15; border-radius:20px; padding:2px 12px; margin-right:8px;">خروج</button></div>
+  
   <div class="header">
     <div class="hdr-row">
-      <div class="avatar" id="userAvatar">👤</div>
-      <div style="font-weight:900; color:var(--accent);">خزنة 🔐</div>
-      <div><button class="hdr-btn" style="background:var(--glass); border-radius:30px; padding:6px 12px; margin:0 4px;" onclick="window.toggleTheme()">🌙</button><button class="hdr-btn" onclick="window.openSidebar()">☰</button></div>
+      <!-- الدائرة التي في اليمين (الجهة اليمنى في RTL) => توضع أولا في الترتيب ولكن في RTL تظهر على اليمين -->
+      <div class="avatar-circle" id="menuAvatar" onclick="window.openSidebar()">
+        <span id="avatarLetter">👤</span>
+      </div>
+      <div class="hdr-title">🔐 خزنة</div>
+      <button class="theme-toggle" onclick="window.toggleTheme()" id="themeBtn">🌙</button>
     </div>
   </div>
-  <div class="stats-bar"><span>📦 الحسابات: <span id="totalCount">0</span></span><span>☁️ محفوظة بالسحابة</span></div>
-  <div class="search-wrap" style="padding:12px;"><input class="search-box" id="searchInput" placeholder="🔍 بحث باسم الموقع أو الإيميل..."></div>
+
+  <div class="stats-bar">
+    <span>📦 الحسابات: <span id="totalCount">0</span></span>
+    <span>☁️ محفوظة بالسحابة</span>
+  </div>
+  <div style="padding:12px;"><input class="search-box" id="searchInput" placeholder="🔍 بحث باسم الموقع أو الإيميل..."></div>
   <div class="category-wrap" id="categoryBar"></div>
   <div class="cards" id="cardsList"></div>
   <div class="fabs"><button class="fab fab-add" onclick="window.openAddModal()">＋ إضافة حساب</button></div>
@@ -726,9 +638,7 @@
 <div class="overlay" id="overlay" onclick="if(event.target===this) closeModal()">
   <div class="modal">
     <div style="text-align:center; font-size:20px; font-weight:900; margin-bottom:20px;" id="modalTitle">إضافة حساب</div>
-    <input class="form-input" id="fName" placeholder="اسم الموقع أو التطبيق *" style="margin-bottom:12px;">
-    
-    <!-- قسم الصورة -->
+    <input class="form-input" id="fName" placeholder="اسم الموقع أو التطبيق *">
     <div style="margin-bottom:16px;">
       <div class="image-btns">
         <button class="btn-img" onclick="document.getElementById('fImageFile').click()">📁 رفع صورة</button>
@@ -743,40 +653,48 @@
         <div class="size-option" data-size="large">كبير</div>
       </div>
     </div>
-
-    <input class="form-input" id="fEmail" placeholder="الإيميل / اسم المستخدم" style="margin-bottom:12px;">
-    <input class="form-input" id="fPass" type="password" placeholder="كلمة المرور *" style="margin-bottom:12px;">
-    <select class="form-select" id="fCategory" style="margin-bottom:12px;">
+    <input class="form-input" id="fEmail" placeholder="الإيميل / اسم المستخدم">
+    <input class="form-input" id="fPass" type="password" placeholder="كلمة المرور *">
+    <select class="form-select" id="fCategory">
       <option value="work">💼 عمل</option><option value="personal">👤 شخصي</option><option value="banking">🏦 بنوك</option><option value="entertainment">🎬 ترفيه</option><option value="other">📁 أخرى</option>
     </select>
-    <input class="form-input" id="fUrl" placeholder="رابط الموقع (اختياري)" style="margin-bottom:12px;">
-    <input class="form-input" id="fNote" placeholder="ملاحظات إضافية" style="margin-bottom:12px;">
+    <input class="form-input" id="fUrl" placeholder="رابط الموقع (اختياري)">
+    <input class="form-input" id="fNote" placeholder="ملاحظات إضافية">
     <div class="color-row" id="colorRow"></div>
-    <div class="modal-btns" style="display:flex; gap:12px; margin-top:20px;">
+    <div style="display:flex; gap:12px; margin-top:20px;">
       <button class="btn-cancel" style="flex:1; background:var(--card2); border-radius:40px; padding:12px;" onclick="closeModal()">إلغاء</button>
       <button class="btn-save" style="flex:2; background:var(--accent); border-radius:40px; font-weight:900;" onclick="window.saveLocalEntry()">💾 حفظ</button>
     </div>
   </div>
 </div>
 
-<!-- مودال مشاركة -->
-<div class="overlay" id="shareOverlay" onclick="if(event.target===this) closeShare()"><div class="modal"><div style="font-weight:900;">📤 مشاركة الحساب</div><div id="sharePreview" style="margin:12px 0;"></div><div class="share-grid" style="display:flex; gap:8px; flex-wrap:wrap;"><button onclick="doShare('wa')">واتساب</button><button onclick="doShare('tg')">تيليجرام</button><button onclick="doShare('em')">بريد</button><button onclick="doShare('cp')">نسخ النص</button></div><button onclick="closeShare()">إغلاق</button></div></div>
+<!-- مودال مشاركة سريع -->
+<div class="overlay" id="shareOverlay" onclick="if(event.target===this) closeShare()"><div class="modal"><div style="font-weight:900;">📤 مشاركة الحساب</div><div id="sharePreview" style="margin:12px 0;"></div><div style="display:flex; gap:8px; flex-wrap:wrap;"><button onclick="doShare('wa')">واتساب</button><button onclick="doShare('tg')">تيليجرام</button><button onclick="doShare('em')">بريد</button><button onclick="doShare('cp')">نسخ النص</button></div><button onclick="closeShare()">إغلاق</button></div></div>
 
-<!-- القائمة الجانبية -->
+<!-- القائمة الجانبية (تظهر من اليمين) -->
 <div id="sidebarOverlay" onclick="closeSidebar()"></div>
 <div id="sidebarPanel">
-  <div style="padding:20px; display:flex; justify-content:space-between; border-bottom:1px solid var(--border);"><div class="avatar" id="sidebarAvatar">👤</div><button onclick="closeSidebar()" style="background:none; border:none; font-size:20px;">✕</button></div>
-  <button class="sb-item" onclick="window.toggleTheme(); updateSidebarTheme();"><span>🌓</span> تغيير المظهر</button>
-  <button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); closeSidebar();"><span>🔒</span> إعدادات الأمان</button>
-  <button class="sb-item" onclick="window.openAppShare(); closeSidebar();"><span>📤</span> مشاركة التطبيق</button>
+  <div class="sb-head">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="avatar-circle" style="width:44px; height:44px;" id="sidebarAvatar">👤</div>
+      <div><div id="sidebarUserName" style="font-weight:800;">الزائر</div><div style="font-size:11px; color:var(--accent);">خزنة المرور</div></div>
+    </div>
+    <button class="sb-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <div style="flex:1;">
+    <button class="sb-item" onclick="window.toggleTheme(); updateSidebarTheme(); closeSidebar();"><span>🌓</span> تغيير المظهر</button>
+    <button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); closeSidebar();"><span>🔒</span> إعدادات الأمان</button>
+    <button class="sb-item" onclick="window.openAppShare(); closeSidebar();"><span>📤</span> مشاركة التطبيق</button>
+    <button class="sb-item" onclick="window.openAppShare(); closeSidebar();"><span>🧩</span> إضافات المتصفح</button>
+  </div>
   <button class="sb-logout-btn" onclick="window.logoutUser()">🚪 تسجيل الخروج</button>
 </div>
 
 <!-- مودال الأمان -->
-<div class="overlay" id="securityOverlay" onclick="if(event.target===this) this.classList.remove('open')"><div class="modal"><div style="font-weight:900;">🔐 إعدادات الأمان</div><button class="btn-security" style="margin:12px 0; display:block; width:100%; padding:12px;" onclick="window.openPinSetup()">🔢 إعداد رقم سري</button><button class="btn-security" onclick="window.removePin()">❌ إزالة القفل</button><button onclick="document.getElementById('securityOverlay').classList.remove('open')">إغلاق</button></div></div>
+<div class="overlay" id="securityOverlay" onclick="if(event.target===this) this.classList.remove('open')"><div class="modal"><div style="font-weight:900;">🔐 إعدادات الأمان</div><button style="margin:12px 0; display:block; width:100%; padding:12px; background:var(--card2); border-radius:40px;" onclick="window.openPinSetup()">🔢 إعداد رقم سري</button><button style="margin-bottom:12px; width:100%; padding:12px; background:var(--card2); border-radius:40px;" onclick="window.removePin()">❌ إزالة القفل</button><button onclick="document.getElementById('securityOverlay').classList.remove('open')">إغلاق</button></div></div>
 
 <!-- مودال PIN -->
-<div id="pinSetupOverlay" onclick="if(event.target===this) closePinSetup()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:5000; align-items:center; justify-content:center;"><div class="modal" style="border-radius:32px;"><div>🔢 رقم سري جديد</div><input type="password" id="newPin" placeholder="4 أرقام على الأقل" class="form-input" style="margin:12px 0;"><input type="password" id="newPin2" placeholder="تأكيد الرقم" class="form-input"><div style="display:flex; gap:12px; margin-top:16px;"><button onclick="closePinSetup()">إلغاء</button><button onclick="window.setupPin()">تفعيل</button></div></div></div>
+<div id="pinSetupOverlay" onclick="if(event.target===this) closePinSetup()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:5000; align-items:center; justify-content:center;"><div class="modal" style="border-radius:32px;"><div>🔢 رقم سري جديد</div><input type="password" id="newPin" placeholder="4 أرقام على الأقل" class="form-input"><input type="password" id="newPin2" placeholder="تأكيد الرقم" class="form-input"><div style="display:flex; gap:12px; margin-top:16px;"><button onclick="closePinSetup()">إلغاء</button><button onclick="window.setupPin()">تفعيل</button></div></div></div>
 
 <div id="toast" class="toast"></div>
 
@@ -792,38 +710,40 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  let currentUser = null, entries = [], unsubscribe = null, isDemo = false, activeCategory = 'all', currentLang = 'ar', selectedImageData = null, currentEditId = null, selectedColorIdx = 0;
+  let currentUser = null, entries = [], unsubscribe = null, isDemo = false, activeCategory = 'all', selectedImageData = null, currentEditId = null, selectedColorIdx = 0;
   const DEMO_ENTRIES = [{ id: 'd1', name: 'Gmail', email: 'demo@gmail.com', pass: 'Demo@123', url: 'https://gmail.com', note: '', category: 'work', color: 0, imageUrl: null, imageSize: 'medium', createdAt: Date.now() }];
 
   function showToast(msg, bg = '#10b981') { let t = document.getElementById('toast'); t.textContent = msg; t.style.background = bg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+  function escapeHtml(s) { return String(s).replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]||m)); }
+  function escapeJs(s) { return String(s).replace(/'/g, "\\'"); }
+
   function renderCards() {
     let q = document.getElementById('searchInput')?.value.toLowerCase() || '';
     let filtered = entries.filter(e => activeCategory === 'all' || e.category === activeCategory).filter(e => e.name.toLowerCase().includes(q) || (e.email || '').toLowerCase().includes(q));
     let container = document.getElementById('cardsList');
-    if (!filtered.length) { container.innerHTML = '<div class="empty">🔒 لا توجد حسابات<br>➕ أضف حسابك الأول</div>'; document.getElementById('totalCount').innerText = entries.length; return; }
+    if (!filtered.length) { container.innerHTML = '<div class="empty" style="text-align:center; padding:60px;">🔒 لا توجد حسابات<br>➕ أضف حسابك الأول</div>'; document.getElementById('totalCount').innerText = entries.length; return; }
     document.getElementById('totalCount').innerText = entries.length;
     container.innerHTML = filtered.map(e => {
       let colorObj = [{ bg: '#1e3a5f', text: '#60a5fa' }, { bg: '#1a3a2a', text: '#34d399' }, { bg: '#3a1a1a', text: '#f87171' }, { bg: '#3a2a1a', text: '#fbbf24' }, { bg: '#2a1a3a', text: '#a78bfa' }][e.color % 5];
       let iconHtml = e.imageUrl ? `<div class="card-icon" style="padding:0; overflow:hidden;"><img src="${e.imageUrl}" style="width:100%;height:100%;object-fit:cover;"></div>` : `<div class="card-icon" style="background:${colorObj.bg};color:${colorObj.text};">${e.name.substring(0,2).toUpperCase()}</div>`;
-      return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')"><div class="card-header-row"><div class="card-title">${iconHtml}<div><div class="card-name">${escapeHtml(e.name)}</div><div style="font-size:11px;color:var(--muted2);">${e.category === 'work' ? '💼 عمل' : e.category === 'personal' ? '👤 شخصي' : '📁 أخرى'}</div></div></div><button class="btn-sm" onclick="event.stopPropagation();window.openEdit('${e.id}')">✏️</button></div><div class="card-body"><div class="field"><div>📧 ${escapeHtml(e.email || '')}</div><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeJs(e.email)}');showToast('تم نسخ الإيميل')">نسخ</button></div><div class="field"><div>🔑 <span id="pwd-${e.id}">••••••</span></div><div><button class="btn-sm" onclick="event.stopPropagation();let s=document.getElementById('pwd-${e.id}');s.innerText=s.innerText==='••••••'?'${escapeJs(e.pass)}':'••••••';">إظهار</button><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeJs(e.pass)}');showToast('تم نسخ كلمة المرور')">نسخ</button><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑</button></div></div>${e.url ? `<div class="field"><div>🔗 <a href="${escapeHtml(e.url)}" target="_blank">${e.url}</a></div></div>` : ''}</div></div>`;
+      return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')"><div class="card-header-row"><div class="card-title">${iconHtml}<div><div class="card-name">${escapeHtml(e.name)}</div><div style="font-size:11px;color:var(--muted2);">${e.category === 'work' ? '💼 عمل' : e.category === 'personal' ? '👤 شخصي' : e.category === 'banking' ? '🏦 بنوك' : '📁 أخرى'}</div></div></div><button class="btn-sm" onclick="event.stopPropagation();window.openEdit('${e.id}')">✏️</button></div><div class="card-body"><div class="field"><div>📧 ${escapeHtml(e.email || '')}</div><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeJs(e.email)}');showToast('تم نسخ الإيميل')">نسخ</button></div><div class="field"><div>🔑 <span id="pwd-${e.id}">••••••</span></div><div><button class="btn-sm" onclick="event.stopPropagation();let s=document.getElementById('pwd-${e.id}');s.innerText=s.innerText==='••••••'?'${escapeJs(e.pass)}':'••••••';">إظهار</button><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeJs(e.pass)}');showToast('تم نسخ كلمة المرور')">نسخ</button><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑</button></div></div>${e.url ? `<div class="field"><div>🔗 <a href="${escapeHtml(e.url)}" target="_blank" style="color:var(--accent);">${e.url}</a></div></div>` : ''}</div></div>`;
     }).join('');
   }
   window.toggleCard = (id) => document.getElementById(`card-${id}`)?.classList.toggle('expanded');
-  function escapeHtml(s) { return String(s).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-  function escapeJs(s) { return String(s).replace(/'/g, "\\'"); }
 
   async function uploadImageAndGetUrl(uid, entryId, base64) { if(!base64 || isDemo) return base64; try { let refPath = ref(storage, `users/${uid}/entries/${entryId}.jpg`); await uploadString(refPath, base64, 'data_url'); return await getDownloadURL(refPath); } catch(e){ return base64; } }
+  
   window.saveLocalEntry = async function() {
     let name = document.getElementById('fName').value.trim(), pass = document.getElementById('fPass').value.trim(), email = document.getElementById('fEmail').value.trim();
     if (!name || !pass) { showToast('الاسم وكلمة المرور مطلوبة', '#ef4444'); return; }
-    let url = document.getElementById('fUrl').value, note = document.getElementById('fNote').value, category = document.getElementById('fCategory').value, imageSize = document.querySelector('.size-option.active')?.dataset.size || 'medium';
-    let editMode = currentEditId;
-    if (editMode) {
-      let old = entries.find(e=>e.id===editMode);
+    let url = document.getElementById('fUrl').value, note = document.getElementById('fNote').value, category = document.getElementById('fCategory').value;
+    let imageSize = document.querySelector('.size-option.active')?.dataset.size || 'medium';
+    if (currentEditId) {
+      let old = entries.find(e=>e.id===currentEditId);
       let newImg = old.imageUrl;
-      if(selectedImageData) newImg = await uploadImageAndGetUrl(currentUser?.uid, editMode, selectedImageData);
+      if(selectedImageData) newImg = await uploadImageAndGetUrl(currentUser?.uid, currentEditId, selectedImageData);
       let updated = { ...old, name, email, pass, url, note, category, color: selectedColorIdx, imageUrl: newImg, imageSize, updatedAt: Date.now() };
-      if(isDemo) { entries = entries.map(e=>e.id===editMode?updated:e); renderCards(); showToast('تم التعديل'); } else { await setDoc(doc(db,'users',currentUser.uid,'entries',editMode), updated); showToast('تم التعديل والمزامنة'); }
+      if(isDemo) { entries = entries.map(e=>e.id===currentEditId?updated:e); renderCards(); showToast('تم التعديل'); } else { await setDoc(doc(db,'users',currentUser.uid,'entries',currentEditId), updated); showToast('تم التعديل والمزامنة'); }
     } else {
       let newId = Date.now().toString();
       let imgUrl = selectedImageData ? await uploadImageAndGetUrl(currentUser?.uid, newId, selectedImageData) : null;
@@ -840,23 +760,23 @@
   function closeModal() { document.getElementById('overlay').classList.remove('open'); currentEditId = null; selectedImageData = null; stopCamera(); }
   window.closeModal = closeModal;
 
-  // الكاميرا والصورة
   let stream = null;
   window.openCamera = async () => { let modal = document.createElement('div'); modal.id = 'camModal'; modal.style.cssText = 'position:fixed;inset:0;background:black;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center'; modal.innerHTML = `<video id="camVideo" autoplay playsinline style="width:100%;max-width:400px;border-radius:24px;"></video><div style="margin-top:20px;"><button id="captureBtn" style="padding:12px 28px;background:#f59e0b;border-radius:60px;">📸 تصوير</button><button id="closeCam" style="margin-right:12px;padding:12px 28px;background:#333;border-radius:60px;">إغلاق</button></div>`; document.body.appendChild(modal); let video = document.getElementById('camVideo'); try { stream = await navigator.mediaDevices.getUserMedia({ video: true }); video.srcObject = stream; video.play(); } catch(e) { showToast('تعذر الوصول للكاميرا', '#ef4444'); modal.remove(); return; } document.getElementById('captureBtn').onclick = () => { let canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video,0,0); selectedImageData = canvas.toDataURL('image/jpeg',0.9); let previewDiv = document.getElementById('imagePreview'); previewDiv.innerHTML = `<img src="${selectedImageData}">`; previewDiv.style.display = 'block'; document.getElementById('removeImageBtn').style.display = 'inline-flex'; modal.remove(); if(stream) stream.getTracks().forEach(t=>t.stop()); }; document.getElementById('closeCam').onclick = () => { if(stream) stream.getTracks().forEach(t=>t.stop()); modal.remove(); }; };
   window.removeImage = () => { selectedImageData = null; document.getElementById('imagePreview').style.display = 'none'; document.getElementById('removeImageBtn').style.display = 'none'; if(document.getElementById('fImageFile')) document.getElementById('fImageFile').value = ''; };
   document.getElementById('fImageFile')?.addEventListener('change', (e) => { if(e.target.files[0]) { let reader = new FileReader(); reader.onload = (ev) => { selectedImageData = ev.target.result; document.getElementById('imagePreview').innerHTML = `<img src="${selectedImageData}">`; document.getElementById('imagePreview').style.display = 'block'; document.getElementById('removeImageBtn').style.display = 'inline-flex'; }; reader.readAsDataURL(e.target.files[0]); } });
   document.querySelectorAll('.size-option').forEach(opt => opt.addEventListener('click', function(){ document.querySelectorAll('.size-option').forEach(o=>o.classList.remove('active')); this.classList.add('active'); }));
 
-  // المصادقة
   window.loginWithGoogle = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e){ showToast(e.message); } };
   window.loginWithFacebook = async () => { try { await signInWithPopup(auth, new FacebookAuthProvider()); } catch(e){ showToast(e.message); } };
   window.loginWithTwitter = async () => { try { await signInWithPopup(auth, new TwitterAuthProvider()); } catch(e){ showToast(e.message); } };
-  window.startDemo = () => { isDemo = true; entries = [...DEMO_ENTRIES]; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'block'; document.getElementById('demoBar').style.display = 'flex'; renderCards(); };
+  window.startDemo = () => { isDemo = true; entries = [...DEMO_ENTRIES]; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'block'; document.getElementById('demoBar').style.display = 'flex'; renderCards(); updateAvatarUI(); };
   window.exitDemo = () => { isDemo = false; entries = []; document.getElementById('appScreen').style.display = 'none'; document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('demoBar').style.display = 'none'; };
   window.logoutUser = async () => { if(unsubscribe) unsubscribe(); await signOut(auth); window.location.reload(); };
-  onAuthStateChanged(auth, (user) => { if(user && !isDemo) { currentUser = user; isDemo = false; document.getElementById('loginScreen').style.display = 'none'; if(localStorage.getItem('vault_pin_hash')) { document.getElementById('lockScreen').style.display = 'flex'; document.getElementById('appScreen').style.display = 'none'; } else { document.getElementById('appScreen').style.display = 'block'; } let q = query(collection(db,'users',user.uid,'entries'), orderBy('createdAt','desc')); unsubscribe = onSnapshot(q, snap => { entries = snap.docs.map(d=>({id:d.id,...d.data()})); renderCards(); }); renderCards(); } else if(!isDemo) { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('appScreen').style.display = 'none'; } });
-
-  // PIN و البصمة
+  
+  function updateAvatarUI() { let avatarDiv = document.getElementById('menuAvatar'); let sidebarAvatar = document.getElementById('sidebarAvatar'); let userNameSpan = document.getElementById('sidebarUserName'); if(currentUser && !isDemo) { let letter = (currentUser.displayName?.[0] || currentUser.email?.[0] || 'U').toUpperCase(); if(currentUser.photoURL) { avatarDiv.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;border-radius:50%;">`; sidebarAvatar.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;border-radius:50%;">`; } else { avatarDiv.innerHTML = `<span>${letter}</span>`; sidebarAvatar.innerHTML = `<span>${letter}</span>`; } userNameSpan.innerText = currentUser.displayName || currentUser.email?.split('@')[0] || 'مستخدم'; } else if(isDemo) { avatarDiv.innerHTML = `<span>🎮</span>`; sidebarAvatar.innerHTML = `<span>🎮</span>`; userNameSpan.innerText = 'الوضع التجريبي'; } else { avatarDiv.innerHTML = `<span>👤</span>`; sidebarAvatar.innerHTML = `<span>👤</span>`; userNameSpan.innerText = 'زائر'; } }
+  
+  onAuthStateChanged(auth, (user) => { if(user && !isDemo) { currentUser = user; isDemo = false; document.getElementById('loginScreen').style.display = 'none'; if(localStorage.getItem('vault_pin_hash')) { document.getElementById('lockScreen').style.display = 'flex'; document.getElementById('appScreen').style.display = 'none'; } else { document.getElementById('appScreen').style.display = 'block'; } updateAvatarUI(); let q = query(collection(db,'users',user.uid,'entries'), orderBy('createdAt','desc')); unsubscribe = onSnapshot(q, snap => { entries = snap.docs.map(d=>({id:d.id,...d.data()})); renderCards(); }); renderCards(); } else if(!isDemo) { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('appScreen').style.display = 'none'; } });
+  
   window.checkPin = async () => { let pin = document.getElementById('pinInput').value; let hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin)); let hashHex = Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join(''); if(hashHex === localStorage.getItem('vault_pin_hash')) { document.getElementById('lockScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'block'; } else showToast('رقم سري خاطئ', '#ef4444'); };
   window.setupPin = async () => { let p1 = document.getElementById('newPin').value, p2 = document.getElementById('newPin2').value; if(p1.length<4) { showToast('4 أرقام على الأقل'); return; } if(p1!==p2) { showToast('غير متطابقين'); return; } let hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p1)); let hashHex = Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join(''); localStorage.setItem('vault_pin_hash', hashHex); showToast('تم تفعيل القفل'); closePinSetup(); };
   window.removePin = () => { localStorage.removeItem('vault_pin_hash'); showToast('تم إزالة القفل'); };
@@ -864,10 +784,10 @@
   function closePinSetup() { document.getElementById('pinSetupOverlay').style.display = 'none'; }
   window.closePinSetup = closePinSetup;
   window.openPinSetup = () => { document.getElementById('pinSetupOverlay').style.display = 'flex'; };
-  window.toggleTheme = () => { let th = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', th); localStorage.setItem('vault_theme', th); };
+  window.toggleTheme = () => { let th = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', th); localStorage.setItem('vault_theme', th); let btn = document.getElementById('themeBtn'); if(btn) btn.textContent = th === 'dark' ? '🌙' : '☀️'; };
   if(localStorage.getItem('vault_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
   
-  window.openSidebar = () => { document.getElementById('sidebarOverlay').classList.add('open'); document.getElementById('sidebarPanel').classList.add('open'); };
+  window.openSidebar = () => { updateAvatarUI(); document.getElementById('sidebarOverlay').classList.add('open'); document.getElementById('sidebarPanel').classList.add('open'); };
   window.closeSidebar = () => { document.getElementById('sidebarOverlay').classList.remove('open'); document.getElementById('sidebarPanel').classList.remove('open'); };
   window.updateSidebarTheme = () => {};
   window.openAppShare = () => { alert('رابط التطبيق: https://aamer777.github.io/asd/\nيمكنك نسخه ومشاركته'); };
@@ -877,6 +797,7 @@
   document.getElementById('searchInput')?.addEventListener('input', renderCards);
   window.renderCategoryFilters();
   window.buildColorSelector();
+  document.querySelector('.size-option[data-size="medium"]')?.classList.add('active');
 </script>
 </body>
 </html>
