@@ -179,7 +179,6 @@
     if (isDemo) return base64;
     if (!uid) throw new Error('لا يوجد مستخدم مسجل دخول');
     showProgress(10);
-    // تحديد الامتداد من نوع MIME
     let extension = 'jpg';
     if (mimeType === 'image/png') extension = 'png';
     else if (mimeType === 'image/webp') extension = 'webp';
@@ -332,7 +331,7 @@
   function closeModalImage() { document.getElementById('overlayImage').classList.remove('open'); currentEditId = null; selectedImageBase64 = null; hideProgress(); }
   window.closeModalAccount = closeModalAccount; window.closeModalImage = closeModalImage;
 
-  // معالجة الصورة (بدون ضغط)
+  // معالجة الصورة (بدون ضغط) مع دعم السحب والإفلات واختيار الملف
   function handleImageSelection(file) {
     if (!file || !file.type.startsWith('image/')) { showToast('الرجاء اختيار ملف صورة صالح', '#ef4444'); return; }
     showProgress(5);
@@ -352,16 +351,27 @@
   }
   function setupDragDrop() {
     const dropZone = document.getElementById('imageDropZone');
+    const fileInput = document.getElementById('imgFileInput');
     if (!dropZone) return;
-    dropZone.addEventListener('click', () => document.getElementById('imgFileInput').click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault(); dropZone.classList.remove('drag-over');
+    // إزالة أي مستمعات سابقة لتجنب التكرار
+    const newDropZone = dropZone.cloneNode(true);
+    dropZone.parentNode.replaceChild(newDropZone, dropZone);
+    const newFileInput = fileInput.cloneNode(true);
+    fileInput.parentNode.replaceChild(newFileInput, fileInput);
+    
+    newDropZone.addEventListener('click', () => newFileInput.click());
+    newDropZone.addEventListener('dragover', (e) => { e.preventDefault(); newDropZone.classList.add('drag-over'); });
+    newDropZone.addEventListener('dragleave', () => newDropZone.classList.remove('drag-over'));
+    newDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      newDropZone.classList.remove('drag-over');
       const file = e.dataTransfer.files[0];
       if (file) handleImageSelection(file);
     });
-    document.getElementById('imgFileInput').addEventListener('change', (e) => { if (e.target.files[0]) handleImageSelection(e.target.files[0]); });
+    newFileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleImageSelection(e.target.files[0]); });
+    // تحديث المراجع العالمية
+    document.getElementById('imageDropZone').replaceWith(newDropZone);
+    document.getElementById('imgFileInput').replaceWith(newFileInput);
   }
 
   // المصادقة
