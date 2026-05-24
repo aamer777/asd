@@ -69,13 +69,12 @@
     .btn-img { flex: 1; background: var(--card2); border: 1px solid var(--border); border-radius: 40px; padding: 10px; font-weight: 700; cursor: pointer; }
     .drop-zone { border: 2px dashed var(--border2); border-radius: 24px; padding: 20px; text-align: center; margin: 12px 0; background: var(--card2); transition: 0.2s; cursor: pointer; }
     .drop-zone.drag-over { border-color: var(--accent); background: var(--card3); }
-    #imagePreview, #imagePreviewOnly { width: 100%; max-height: 160px; border-radius: 20px; overflow: hidden; margin-top: 10px; background: var(--card2); display: none; object-fit: contain; }
-    #imagePreview img, #imagePreviewOnly img { width: 100%; height: auto; max-height: 160px; object-fit: contain; }
+    #imagePreviewOnly { width: 100%; max-height: 160px; border-radius: 20px; overflow: hidden; margin-top: 10px; background: var(--card2); display: none; object-fit: contain; }
+    #imagePreviewOnly img { width: 100%; height: auto; max-height: 160px; object-fit: contain; }
     .progress-bar-container { width: 100%; background: var(--border); border-radius: 60px; margin: 10px 0; overflow: hidden; display: none; }
     .progress-bar { width: 0%; height: 8px; background: var(--accent); transition: width 0.2s; }
     .choice-buttons { display: flex; gap: 12px; margin-bottom: 20px; }
     .choice-btn { flex: 1; background: var(--card2); border: 1px solid var(--border2); border-radius: 60px; padding: 12px; font-weight: 800; cursor: pointer; text-align: center; }
-    .choice-btn.active { background: var(--accent); color: #0a0e1a; }
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--green); color: white; padding: 10px 24px; border-radius: 60px; z-index: 9999; transition: 0.25s; font-size: 13px; }
     .toast.show { transform: translateX(-50%) translateY(0); }
     .security-btn, .sb-item, .sb-logout-btn { width: 100%; padding: 12px; border-radius: 60px; margin-bottom: 8px; background: var(--card2); border: 1px solid var(--border); cursor: pointer; font-weight: 700; text-align: center; }
@@ -90,7 +89,7 @@
 <body>
 <div id="loadingToast" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9998; align-items:center; justify-content:center;">⏳ جاري التحميل...</div>
 <div id="lockScreen"><div class="lock-card"><div style="font-size:60px;">🔐</div><div style="font-size:22px; font-weight:900;">التطبيق مقفل</div><input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8"><button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button><button class="btn-unlock" style="background:var(--card2); color:var(--text);" onclick="window.tryBiometric()">👆 بصمة الوجه</button></div></div>
-<div id="loginScreen" class="login-container"><div class="login-card"><div class="login-logo">🔐</div><div class="login-title">خزنة المرور السحابية</div><div class="login-desc" style="text-align:center; margin-bottom:20px;">حفظ آمن · مزامنة فورية · ضغط تلقائي للصور</div><button class="social-btn google" onclick="window.loginWithGoogle()">🔐 Google</button><button class="social-btn demo" onclick="window.startDemo()">🎮 تجربة التطبيق (ديمو)</button><div class="feature-list"><div class="feature-item">☁️ حفظ سحابي</div><div class="feature-item">🖼️ ضغط WebP</div><div class="feature-item">📱 سحب وإفلات</div><div class="feature-item">⚡ أقل من 300KB</div></div></div></div>
+<div id="loginScreen" class="login-container"><div class="login-card"><div class="login-logo">🔐</div><div class="login-title">خزنة المرور السحابية</div><div class="login-desc" style="text-align:center; margin-bottom:20px;">حفظ آمن · مزامنة فورية · رفع صور أصلية</div><button class="social-btn google" onclick="window.loginWithGoogle()">🔐 Google</button><button class="social-btn demo" onclick="window.startDemo()">🎮 تجربة التطبيق (ديمو)</button><div class="feature-list"><div class="feature-item">☁️ حفظ سحابي</div><div class="feature-item">🖼️ رفع بدون ضغط</div><div class="feature-item">📱 سحب وإفلات</div><div class="feature-item">⚡ حجم أصلي</div></div></div></div>
 <div id="appScreen" class="app"><div id="demoBar" style="display:none; background:#1e293b; padding:8px 16px; text-align:center; font-size:12px;">وضع تجريبي — لا يتم الحفظ السحابي <button onclick="window.exitDemo()" style="background:none; border:1px solid #facc15; border-radius:20px; padding:2px 12px;">خروج</button></div>
 <div class="header"><div class="hdr-row"><div class="avatar-circle" id="menuAvatar" onclick="window.openSidebar()"><span>👤</span></div><div class="hdr-title">🔐 خزنة</div><button class="theme-toggle" style="background:var(--glass2); border-radius:40px; padding:8px 14px;" onclick="window.toggleTheme()" id="themeBtn">🌙</button></div></div>
 <div class="stats-bar"><span>📦 العناصر: <span id="totalCount">0</span></span><span>☁️ سحابية</span></div>
@@ -107,7 +106,7 @@
 <input class="form-input" id="fName" placeholder="اسم الموقع أو التطبيق *"><input class="form-input" id="fEmail" placeholder="الإيميل / اسم المستخدم"><input class="form-input" id="fPass" type="password" placeholder="كلمة المرور *"><select class="form-select" id="fCategory"><option value="work">💼 عمل</option><option value="personal">👤 شخصي</option><option value="banking">🏦 بنوك</option><option value="entertainment">🎬 ترفيه</option><option value="photos">🖼️ صور</option></select>
 <input class="form-input" id="fUrl" placeholder="رابط الموقع (اختياري)"><input class="form-input" id="fNote" placeholder="ملاحظات"><div class="color-row" id="colorRow"></div><div style="display:flex; gap:12px; margin-top:20px;"><button class="btn-cancel" style="flex:1; background:var(--card2); border-radius:40px; padding:12px;" onclick="closeModalAccount()">إلغاء</button><button class="btn-save" style="flex:2; background:var(--accent); border-radius:40px; font-weight:900;" onclick="window.saveAccountEntry()">💾 حفظ</button></div></div></div>
 
-<!-- مودال إضافة صورة فقط -->
+<!-- مودال إضافة صورة فقط (بدون ضغط) -->
 <div class="overlay" id="overlayImage" onclick="if(event.target===this) closeModalImage()"><div class="modal"><div style="text-align:center; font-size:20px; font-weight:900; margin-bottom:20px;">🖼️ إضافة صورة جديدة</div>
 <input class="form-input" id="imgName" placeholder="عنوان الصورة *">
 <div class="drop-zone" id="imageDropZone">📸 اسحب وأفلت الصورة هنا أو اضغط للاختيار</div>
@@ -153,17 +152,9 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  // متغيرات الحالة
-  let currentUser = null;
-  let entries = [];
-  let unsubscribe = null;
-  let isDemo = false;
-  let activeCategory = 'all';
-  let currentEditId = null;
-  let selectedColorIdx = 0;
-  let compressedImageBase64 = null;
+  let currentUser = null, entries = [], unsubscribe = null, isDemo = false, activeCategory = 'all';
+  let currentEditId = null, selectedColorIdx = 0, selectedImageBase64 = null, selectedImageType = null;
 
-  // دوال مساعدة
   function showToast(msg, bg = '#10b981') {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -172,9 +163,7 @@
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
-  }
+  function escapeHtml(s) { return String(s).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m]||m)); }
 
   function showProgress(percent) {
     const container = document.getElementById('progressContainer');
@@ -182,97 +171,35 @@
     if (container) container.style.display = 'block';
     if (bar) bar.style.width = percent + '%';
   }
-  function hideProgress() {
-    const c = document.getElementById('progressContainer');
-    if (c) c.style.display = 'none';
+  function hideProgress() { const c = document.getElementById('progressContainer'); if(c) c.style.display = 'none'; }
+
+  // رفع الصورة بدون ضغط (أصلية)
+  async function uploadOriginalImage(uid, entryId, base64, mimeType) {
+    if (!base64) return null;
+    if (isDemo) return base64;
+    if (!uid) throw new Error('لا يوجد مستخدم مسجل دخول');
+    showProgress(10);
+    // تحديد الامتداد من نوع MIME
+    let extension = 'jpg';
+    if (mimeType === 'image/png') extension = 'png';
+    else if (mimeType === 'image/webp') extension = 'webp';
+    else if (mimeType === 'image/gif') extension = 'gif';
+    const storageRef = ref(storage, `users/${uid}/images/${entryId}.${extension}`);
+    try {
+      await uploadString(storageRef, base64, 'data_url');
+      showProgress(80);
+      const url = await getDownloadURL(storageRef);
+      showProgress(100);
+      setTimeout(hideProgress, 500);
+      return url;
+    } catch (error) {
+      hideProgress();
+      console.error(error);
+      showToast('فشل رفع الصورة: ' + error.message, '#ef4444');
+      throw error;
+    }
   }
 
-  // ضغط الصورة
- async function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          let width = img.width;
-          let height = img.height;
-          const maxWidth = 1200;
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          // استخدام JPEG بدلاً من WebP لتجنب مشاكل التوافق
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              reject(new Error("فشل إنشاء blob للصورة"));
-              return;
-            }
-            const readerBlob = new FileReader();
-            readerBlob.onloadend = () => {
-              console.log(`✅ تم ضغط الصورة: الحجم الأصلي ${(file.size / 1024).toFixed(0)}KB → ${(blob.size / 1024).toFixed(0)}KB`);
-              resolve({ base64: readerBlob.result, size: blob.size });
-            };
-            readerBlob.onerror = (err) => reject(err);
-            readerBlob.readAsDataURL(blob);
-          }, 'image/jpeg', 0.8); // جودة 80%، صيغة JPEG
-        };
-        img.onerror = (err) => reject(err);
-        img.src = e.target.result;
-      };
-      reader.onerror = (err) => reject(err);
-      reader.readAsDataURL(file);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-  // رفع الصورة إلى Firebase Storage
- async function uploadCompressedImage(uid, entryId, base64, folder = 'images') {
-  console.log('🔵 بدء رفع الصورة:', { uid, entryId, hasBase64: !!base64, isDemo });
-  
-  if (!base64) {
-    console.error('❌ لا توجد بيانات صورة للرفع');
-    return null;
-  }
-  if (isDemo) {
-    console.log('⚠️ وضع تجريبي، لن يتم الرفع فعلياً');
-    return base64;
-  }
-  if (!uid) {
-    const error = new Error('لا يوجد مستخدم مسجل دخول (uid فارغ)');
-    console.error(error);
-    throw error;
-  }
-  
-  showProgress(10);
-  await new Promise(r => setTimeout(r, 100));
-  showProgress(30);
-  
-  const storageRef = ref(storage, `users/${uid}/${folder}/${entryId}.jpg`); // استخدم jpg بدلاً من webp
-  console.log('📤 مسار التخزين:', storageRef.fullPath);
-  
-  try {
-    await uploadString(storageRef, base64, 'data_url');
-    console.log('✅ تم رفع السلسلة بنجاح');
-    showProgress(80);
-    const url = await getDownloadURL(storageRef);
-    console.log('✅ تم الحصول على رابط التحميل:', url);
-    showProgress(100);
-    setTimeout(hideProgress, 500);
-    return url;
-  } catch (error) {
-    console.error('❌ فشل رفع الصورة:', error);
-    hideProgress();
-    showToast('فشل رفع الصورة: ' + error.message, '#ef4444');
-    throw error;
-  }
-}
   // عرض البطاقات
   function renderCards() {
     const q = document.getElementById('searchInput')?.value.toLowerCase() || '';
@@ -288,420 +215,224 @@
     container.innerHTML = filtered.map(e => {
       if (e.type === 'image') {
         return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')">
-          <div class="card-header-row">
-            <div class="card-title">
-              <div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl || '')}" style="width:100%;height:100%;object-fit:cover;"></div>
-              <div><div class="card-name">🖼️ ${escapeHtml(e.name)}</div><div style="font-size:11px;color:var(--muted2);">📷 صورة مضغوطة WebP</div></div>
-            </div>
-            <button class="btn-sm" onclick="event.stopPropagation();window.openEditImage('${e.id}')">✏️</button>
-          </div>
-          <div class="card-body">
-            <div class="field"><div>📝 ${escapeHtml(e.note || '')}</div></div>
-            <div class="field"><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑 حذف</button></div>
-          </div>
-        </div>`;
+          <div class="card-header-row"><div class="card-title"><div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl)}" style="width:100%;height:100%;object-fit:cover;"></div><div><div class="card-name">🖼️ ${escapeHtml(e.name)}</div><div style="font-size:11px;">📷 صورة أصلية</div></div></div><button class="btn-sm" onclick="event.stopPropagation();window.openEditImage('${e.id}')">✏️</button></div>
+          <div class="card-body"><div class="field"><div>📝 ${escapeHtml(e.note || '')}</div></div><div class="field"><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑 حذف</button></div></div></div>`;
       } else {
-        const colorObj = [{ bg: '#1e3a5f', text: '#60a5fa' }, { bg: '#1a3a2a', text: '#34d399' }, { bg: '#3a1a1a', text: '#f87171' }, { bg: '#3a2a1a', text: '#fbbf24' }, { bg: '#2a1a3a', text: '#a78bfa' }][e.color % 5];
-        const iconHtml = e.imageUrl ? `<div class="card-icon" style="padding:0;"><img src="${e.imageUrl}" style="width:100%;height:100%;object-fit:cover;"></div>` : `<div class="card-icon" style="background:${colorObj.bg};color:${colorObj.text};">${e.name.substring(0, 2).toUpperCase()}</div>`;
-        return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')">
-          <div class="card-header-row">
-            <div class="card-title">${iconHtml}<div><div class="card-name">${escapeHtml(e.name)}</div><div style="font-size:11px;">${e.category === 'work' ? '💼 عمل' : e.category === 'personal' ? '👤 شخصي' : e.category === 'banking' ? '🏦 بنوك' : '📁 أخرى'}</div></div></div>
-            <button class="btn-sm" onclick="event.stopPropagation();window.openEdit('${e.id}')">✏️</button>
-          </div>
-          <div class="card-body">
-            <div class="field"><div>📧 ${escapeHtml(e.email || '')}</div><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeHtml(e.email || '')}');showToast('تم نسخ الإيميل')">نسخ</button></div>
-            <div class="field"><div>🔑 <span id="pwd-${e.id}">••••••</span></div><div><button class="btn-sm" onclick="event.stopPropagation();let s=document.getElementById('pwd-${e.id}');s.innerText=s.innerText==='••••••'?'${escapeHtml(e.pass || '')}':'••••••';">إظهار</button><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeHtml(e.pass || '')}');showToast('تم نسخ كلمة المرور')">نسخ</button><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑</button></div></div>
-            ${e.url ? `<div class="field"><div>🔗 <a href="${escapeHtml(e.url)}" target="_blank">${e.url}</a></div></div>` : ''}
-          </div>
-        </div>`;
+        const colorObj = [{bg:'#1e3a5f',text:'#60a5fa'},{bg:'#1a3a2a',text:'#34d399'},{bg:'#3a1a1a',text:'#f87171'},{bg:'#3a2a1a',text:'#fbbf24'},{bg:'#2a1a3a',text:'#a78bfa'}][e.color%5];
+        const iconHtml = e.imageUrl ? `<div class="card-icon" style="padding:0;"><img src="${e.imageUrl}" style="width:100%;height:100%;object-fit:cover;"></div>` : `<div class="card-icon" style="background:${colorObj.bg};color:${colorObj.text};">${e.name.substring(0,2).toUpperCase()}</div>`;
+        return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')"><div class="card-header-row"><div class="card-title">${iconHtml}<div><div class="card-name">${escapeHtml(e.name)}</div><div style="font-size:11px;">${e.category==='work'?'💼 عمل':e.category==='personal'?'👤 شخصي':e.category==='banking'?'🏦 بنوك':'📁 أخرى'}</div></div></div><button class="btn-sm" onclick="event.stopPropagation();window.openEdit('${e.id}')">✏️</button></div><div class="card-body"><div class="field"><div>📧 ${escapeHtml(e.email||'')}</div><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeHtml(e.email||'')}');showToast('تم نسخ الإيميل')">نسخ</button></div><div class="field"><div>🔑 <span id="pwd-${e.id}">••••••</span></div><div><button class="btn-sm" onclick="event.stopPropagation();let s=document.getElementById('pwd-${e.id}');s.innerText=s.innerText==='••••••'?'${escapeHtml(e.pass||'')}':'••••••';">إظهار</button><button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText('${escapeHtml(e.pass||'')}');showToast('تم نسخ كلمة المرور')">نسخ</button><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑</button></div></div>${e.url ? `<div class="field"><div>🔗 <a href="${escapeHtml(e.url)}" target="_blank">${e.url}</a></div></div>` : ''}</div></div>`;
       }
     }).join('');
   }
   window.toggleCard = (id) => document.getElementById(`card-${id}`)?.classList.toggle('expanded');
 
-  // حفظ حساب عادي مع تحقق صارم من المستخدم
+  // حفظ حساب عادي
   window.saveAccountEntry = async function() {
-    // التأكد من أن المستخدم مسجل دخول وليس في وضع demo
-    if (!isDemo && (!currentUser || !currentUser.uid)) {
-      showToast('يجب تسجيل الدخول أولاً باستخدام Google', '#ef4444');
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('appScreen').style.display = 'none';
-      return;
-    }
-    const name = document.getElementById('fName').value.trim();
-    const pass = document.getElementById('fPass').value.trim();
-    if (!name || !pass) {
-      showToast('الاسم وكلمة المرور مطلوبة', '#ef4444');
-      return;
-    }
-    const email = document.getElementById('fEmail').value;
-    const url = document.getElementById('fUrl').value;
-    const note = document.getElementById('fNote').value;
-    const category = document.getElementById('fCategory').value;
+    if (!isDemo && (!currentUser || !currentUser.uid)) { showToast('يجب تسجيل الدخول أولاً', '#ef4444'); return; }
+    const name = document.getElementById('fName').value.trim(), pass = document.getElementById('fPass').value.trim();
+    if (!name || !pass) { showToast('الاسم وكلمة المرور مطلوبة', '#ef4444'); return; }
+    const email = document.getElementById('fEmail').value, url = document.getElementById('fUrl').value, note = document.getElementById('fNote').value, category = document.getElementById('fCategory').value;
     try {
       if (currentEditId) {
         const old = entries.find(e => e.id === currentEditId);
-        if (!old) throw new Error('العنصر غير موجود');
         const updated = { ...old, name, email, pass, url, note, category, color: selectedColorIdx, updatedAt: Date.now() };
-        if (isDemo) {
-          entries = entries.map(e => e.id === currentEditId ? updated : e);
-          renderCards();
-          showToast('تم التعديل (تجريبي)');
-        } else {
-          await setDoc(doc(db, 'users', currentUser.uid, 'entries', currentEditId), updated);
-          showToast('تم التعديل والمزامنة');
-        }
+        if (isDemo) { entries = entries.map(e => e.id === currentEditId ? updated : e); renderCards(); showToast('تم التعديل (تجريبي)'); }
+        else { await setDoc(doc(db, 'users', currentUser.uid, 'entries', currentEditId), updated); showToast('تم التعديل والمزامنة'); }
       } else {
         const newId = Date.now().toString();
         const newEntry = { id: newId, name, email, pass, url, note, category, color: selectedColorIdx, type: 'account', createdAt: Date.now() };
-        if (isDemo) {
-          entries.unshift(newEntry);
-          renderCards();
-          showToast('تمت الإضافة (تجريبي)');
-        } else {
-          await setDoc(doc(db, 'users', currentUser.uid, 'entries', newId), newEntry);
-          showToast('تم الحفظ في السحابة');
-        }
+        if (isDemo) { entries.unshift(newEntry); renderCards(); showToast('تمت الإضافة (تجريبي)'); }
+        else { await setDoc(doc(db, 'users', currentUser.uid, 'entries', newId), newEntry); showToast('تم الحفظ في السحابة'); }
       }
       closeModalAccount();
-    } catch (error) {
-      console.error('Firestore save error:', error);
-      let errorMsg = error.message;
-      if (errorMsg.includes('permission') || errorMsg.includes('Missing or insufficient permissions')) {
-        showToast('خطأ في الصلاحيات: تأكد من قواعد Firebase (Rules) وتأكد من تسجيل الدخول', '#ef4444');
+    } catch (error) { showToast('خطأ في الحفظ: ' + error.message, '#ef4444'); }
+  };
+
+  // حفظ صورة (بدون ضغط)
+  window.saveImageEntry = async function() {
+    if (!isDemo && (!currentUser || !currentUser.uid)) { showToast('يجب تسجيل الدخول أولاً', '#ef4444'); return; }
+    const name = document.getElementById('imgName').value.trim();
+    if (!name) { showToast('عنوان الصورة مطلوب', '#ef4444'); return; }
+    let finalImageUrl = null;
+    if (currentEditId) {
+      const old = entries.find(e => e.id === currentEditId && e.type === 'image');
+      if (old && !selectedImageBase64) finalImageUrl = old.imageUrl;
+    }
+    if (selectedImageBase64 && !finalImageUrl) {
+      try {
+        const newId = currentEditId || Date.now().toString();
+        finalImageUrl = await uploadOriginalImage(currentUser?.uid, newId, selectedImageBase64, selectedImageType);
+      } catch (error) { return; }
+    }
+    if (!finalImageUrl && !isDemo) { showToast('لا توجد صورة للرفع', '#ef4444'); return; }
+    const note = document.getElementById('imgNote').value;
+    try {
+      if (currentEditId) {
+        const old = entries.find(e => e.id === currentEditId);
+        const updated = { ...old, name, note, imageUrl: finalImageUrl || old.imageUrl, updatedAt: Date.now() };
+        if (isDemo) { entries = entries.map(e => e.id === currentEditId ? updated : e); renderCards(); showToast('تم تعديل الصورة (تجريبي)'); }
+        else { await setDoc(doc(db, 'users', currentUser.uid, 'entries', currentEditId), updated); showToast('تم تحديث الصورة'); }
       } else {
-        showToast('خطأ في الحفظ: ' + errorMsg, '#ef4444');
+        const newId = Date.now().toString();
+        const newEntry = { id: newId, name, type: 'image', imageUrl: finalImageUrl, note, category: 'photos', createdAt: Date.now() };
+        if (isDemo) { entries.unshift(newEntry); renderCards(); showToast('تمت إضافة الصورة (تجريبي)'); }
+        else { await setDoc(doc(db, 'users', currentUser.uid, 'entries', newId), newEntry); showToast('تم حفظ الصورة في السحابة'); }
       }
+      closeModalImage();
+      selectedImageBase64 = null; selectedImageType = null;
+      currentEditId = null;
+    } catch (error) { showToast('خطأ في حفظ الصورة: ' + error.message, '#ef4444'); }
+  };
+
+  window.deleteEntry = async (id) => {
+    if (confirm('حذف نهائي؟')) {
+      if (isDemo) { entries = entries.filter(e => e.id !== id); renderCards(); showToast('تم الحذف', '#ef4444'); }
+      else { try { await deleteDoc(doc(db, 'users', currentUser.uid, 'entries', id)); showToast('تم الحذف', '#ef4444'); } catch(e) { showToast('خطأ في الحذف', '#ef4444'); } }
     }
   };
 
-  // حفظ صورة فقط مع تحقق صارم
-window.saveImageEntry = async function() {
-  console.log('🔵 بدء حفظ الصورة');
-  
-  if (!isDemo && (!currentUser || !currentUser.uid)) {
-    console.error('❌ المستخدم غير مسجل دخول');
-    showToast('يجب تسجيل الدخول أولاً', '#ef4444');
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('appScreen').style.display = 'none';
-    return;
-  }
-  
-  const name = document.getElementById('imgName').value.trim();
-  if (!name) {
-    showToast('عنوان الصورة مطلوب', '#ef4444');
-    return;
-  }
-  
-  console.log('📝 عنوان الصورة:', name);
-  console.log('📦 compressedImageBase64 موجود؟', !!compressedImageBase64);
-  
-  let finalImageUrl = null;
-  
-  if (currentEditId) {
-    const oldEntry = entries.find(e => e.id === currentEditId && e.type === 'image');
-    if (oldEntry && !compressedImageBase64) {
-      console.log('🖼️ استخدام الصورة القديمة (لا توجد صورة جديدة)');
-      finalImageUrl = oldEntry.imageUrl;
-    }
-  }
-  
-  if (compressedImageBase64 && !finalImageUrl) {
-    try {
-      const newId = currentEditId || Date.now().toString();
-      console.log('🚀 سيتم رفع صورة جديدة، ID:', newId);
-      finalImageUrl = await uploadCompressedImage(currentUser?.uid, newId, compressedImageBase64, 'images');
-      if (!finalImageUrl) throw new Error('لم يتم الحصول على رابط الصورة');
-    } catch (error) {
-      console.error('❌ فشل رفع الصورة في saveImageEntry:', error);
-      return; // التوقف لأن الخطأ ظهر بالفعل
-    }
-  }
-  
-  if (!finalImageUrl && !isDemo) {
-    console.error('❌ لا توجد صورة للرفع ولا صورة قديمة');
-    showToast('لا توجد صورة للرفع، يرجى اختيار صورة أولاً', '#ef4444');
-    return;
-  }
-  
-  const note = document.getElementById('imgNote').value;
-  
-  try {
-    if (currentEditId) {
-      const old = entries.find(e => e.id === currentEditId);
-      if (!old) throw new Error('العنصر غير موجود');
-      const updated = { ...old, name, note, imageUrl: finalImageUrl || old.imageUrl, updatedAt: Date.now() };
-      if (isDemo) {
-        entries = entries.map(e => e.id === currentEditId ? updated : e);
-        renderCards();
-        showToast('تم تعديل الصورة (تجريبي)');
-      } else {
-        await setDoc(doc(db, 'users', currentUser.uid, 'entries', currentEditId), updated);
-        showToast('تم تحديث الصورة بنجاح');
-      }
-    } else {
-      const newId = Date.now().toString();
-      const newEntry = { 
-        id: newId, 
-        name, 
-        type: 'image', 
-        imageUrl: finalImageUrl, 
-        note, 
-        category: 'photos', 
-        createdAt: Date.now() 
-      };
-      if (isDemo) {
-        entries.unshift(newEntry);
-        renderCards();
-        showToast('تمت إضافة الصورة (تجريبي)');
-      } else {
-        await setDoc(doc(db, 'users', currentUser.uid, 'entries', newId), newEntry);
-        showToast('تم حفظ الصورة في السحابة بنجاح ✅');
-      }
-    }
-    closeModalImage();
-    compressedImageBase64 = null;
-    currentEditId = null;
-  } catch (error) {
-    console.error('❌ خطأ في حفظ بيانات الصورة في Firestore:', error);
-    showToast('خطأ في حفظ الصورة: ' + error.message, '#ef4444');
-  }
-};
-  // إدارة الواجهات
+  // واجهات الإضافة
   window.showAddChoice = () => document.getElementById('choiceOverlay').classList.add('open');
   function closeChoice() { document.getElementById('choiceOverlay').classList.remove('open'); }
   window.openAddAccount = () => {
-    closeChoice();
-    currentEditId = null;
-    selectedColorIdx = 0;
-    document.getElementById('fName').value = '';
-    document.getElementById('fEmail').value = '';
-    document.getElementById('fPass').value = '';
-    document.getElementById('fUrl').value = '';
-    document.getElementById('fNote').value = '';
-    document.getElementById('fCategory').value = 'work';
-    buildColorSelector();
-    document.getElementById('overlayAccount').classList.add('open');
+    closeChoice(); currentEditId = null; selectedColorIdx = 0;
+    document.getElementById('fName').value = ''; document.getElementById('fEmail').value = ''; document.getElementById('fPass').value = '';
+    document.getElementById('fUrl').value = ''; document.getElementById('fNote').value = ''; document.getElementById('fCategory').value = 'work';
+    buildColorSelector(); document.getElementById('overlayAccount').classList.add('open');
   };
   window.openAddImage = () => {
-    closeChoice();
-    currentEditId = null;
-    compressedImageBase64 = null;
-    document.getElementById('imgName').value = '';
-    document.getElementById('imgNote').value = '';
+    closeChoice(); currentEditId = null; selectedImageBase64 = null; selectedImageType = null;
+    document.getElementById('imgName').value = ''; document.getElementById('imgNote').value = '';
     document.getElementById('imagePreviewOnly').style.display = 'none';
-    document.getElementById('imgFileInput').value = '';
-    hideProgress();
+    document.getElementById('imgFileInput').value = ''; hideProgress();
     document.getElementById('overlayImage').classList.add('open');
     setupDragDrop();
   };
   window.openEdit = (id) => {
-    const e = entries.find(x => x.id === id);
-    if (!e || e.type === 'image') return;
-    currentEditId = id;
-    selectedColorIdx = e.color || 0;
-    document.getElementById('fName').value = e.name;
-    document.getElementById('fEmail').value = e.email || '';
-    document.getElementById('fPass').value = e.pass;
-    document.getElementById('fUrl').value = e.url || '';
-    document.getElementById('fNote').value = e.note || '';
-    document.getElementById('fCategory').value = e.category || 'work';
-    buildColorSelector();
-    document.getElementById('overlayAccount').classList.add('open');
+    const e = entries.find(x => x.id === id); if (!e || e.type === 'image') return;
+    currentEditId = id; selectedColorIdx = e.color || 0;
+    document.getElementById('fName').value = e.name; document.getElementById('fEmail').value = e.email || '';
+    document.getElementById('fPass').value = e.pass; document.getElementById('fUrl').value = e.url || '';
+    document.getElementById('fNote').value = e.note || ''; document.getElementById('fCategory').value = e.category || 'work';
+    buildColorSelector(); document.getElementById('overlayAccount').classList.add('open');
   };
   window.openEditImage = (id) => {
-    const e = entries.find(x => x.id === id);
-    if (!e || e.type !== 'image') return;
-    currentEditId = id;
-    compressedImageBase64 = null;
-    document.getElementById('imgName').value = e.name;
-    document.getElementById('imgNote').value = e.note || '';
-    const previewDiv = document.getElementById('imagePreviewOnly');
-    previewDiv.style.display = 'block';
-    document.getElementById('previewImgOnly').src = e.imageUrl;
-    hideProgress();
+    const e = entries.find(x => x.id === id); if (!e || e.type !== 'image') return;
+    currentEditId = id; selectedImageBase64 = null; selectedImageType = null;
+    document.getElementById('imgName').value = e.name; document.getElementById('imgNote').value = e.note || '';
+    const previewDiv = document.getElementById('imagePreviewOnly'); previewDiv.style.display = 'block';
+    document.getElementById('previewImgOnly').src = e.imageUrl; hideProgress();
     document.getElementById('overlayImage').classList.add('open');
   };
   function buildColorSelector() {
     const colors = ['#60a5fa', '#34d399', '#f87171', '#fbbf24', '#a78bfa'];
     document.getElementById('colorRow').innerHTML = colors.map((col, i) => `<div class="color-dot ${selectedColorIdx === i ? 'selected' : ''}" style="background:${col}" onclick="selectedColorIdx=${i};buildColorSelector()"></div>`).join('');
   }
-  window.buildColorSelector = buildColorSelector;
   function closeModalAccount() { document.getElementById('overlayAccount').classList.remove('open'); currentEditId = null; }
-  function closeModalImage() { document.getElementById('overlayImage').classList.remove('open'); currentEditId = null; compressedImageBase64 = null; hideProgress(); }
-  window.closeModalAccount = closeModalAccount;
-  window.closeModalImage = closeModalImage;
+  function closeModalImage() { document.getElementById('overlayImage').classList.remove('open'); currentEditId = null; selectedImageBase64 = null; hideProgress(); }
+  window.closeModalAccount = closeModalAccount; window.closeModalImage = closeModalImage;
 
-  // معالجة الصورة
- function handleImageSelection(file) {
-  console.log('🔵 تم اختيار ملف:', file?.name, file?.size);
-  
-  if (!file || !file.type.startsWith('image/')) {
-    showToast('الرجاء اختيار ملف صورة صالح (jpg, png, etc)', '#ef4444');
-    return;
+  // معالجة الصورة (بدون ضغط)
+  function handleImageSelection(file) {
+    if (!file || !file.type.startsWith('image/')) { showToast('الرجاء اختيار ملف صورة صالح', '#ef4444'); return; }
+    showProgress(5);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      selectedImageBase64 = e.target.result;
+      selectedImageType = file.type;
+      const preview = document.getElementById('imagePreviewOnly');
+      const imgEl = document.getElementById('previewImgOnly');
+      if (preview && imgEl) { imgEl.src = selectedImageBase64; preview.style.display = 'block'; }
+      showProgress(100);
+      setTimeout(hideProgress, 500);
+      showToast(`✅ تم اختيار الصورة (حجم ${(file.size/1024).toFixed(0)}KB)`, '#10b981');
+    };
+    reader.onerror = () => { hideProgress(); showToast('فشل قراءة الصورة', '#ef4444'); };
+    reader.readAsDataURL(file);
   }
-  
-  showProgress(5);
-  
-  compressImage(file).then(({ base64, size }) => {
-    console.log('✅ تم ضغط الصورة بنجاح، الحجم النهائي:', size, 'bytes');
-    compressedImageBase64 = base64;
-    
-    const preview = document.getElementById('imagePreviewOnly');
-    const imgEl = document.getElementById('previewImgOnly');
-    if (preview && imgEl) {
-      imgEl.src = base64;
-      preview.style.display = 'block';
-    }
-    
-    showProgress(100);
-    setTimeout(hideProgress, 500);
-    
-    if (size > 300 * 1024) {
-      showToast(`⚠️ الحجم بعد الضغط: ${(size / 1024).toFixed(0)}KB (تم الضغط تلقائياً)`, '#f59e0b');
-    } else {
-      showToast(`✅ تم ضغط الصورة (${(size / 1024).toFixed(0)}KB)`, '#10b981');
-    }
-  }).catch(err => {
-    console.error('❌ فشل ضغط الصورة:', err);
-    hideProgress();
-    showToast('فشل ضغط الصورة: ' + err.message, '#ef4444');
-  });
-
+  function setupDragDrop() {
+    const dropZone = document.getElementById('imageDropZone');
+    if (!dropZone) return;
+    dropZone.addEventListener('click', () => document.getElementById('imgFileInput').click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault(); dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) handleImageSelection(file);
+    });
+    document.getElementById('imgFileInput').addEventListener('change', (e) => { if (e.target.files[0]) handleImageSelection(e.target.files[0]); });
   }
 
   // المصادقة
-  window.loginWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
-    } catch (e) { showToast(e.message, '#ef4444'); }
-  };
+  window.loginWithGoogle = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e) { showToast(e.message, '#ef4444'); } };
   const DEMO_ENTRIES = [
     { id: 'd1', name: 'Gmail', email: 'demo@gmail.com', pass: 'Demo@123', type: 'account', category: 'work', color: 0, note: '', url: '', createdAt: Date.now() },
     { id: 'd2', name: 'صورة تجريبية', type: 'image', imageUrl: 'https://picsum.photos/id/1015/200/200', note: 'منظر طبيعي', category: 'photos', createdAt: Date.now() }
   ];
-  window.startDemo = () => {
-    isDemo = true;
-    entries = [...DEMO_ENTRIES];
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display = 'block';
-    document.getElementById('demoBar').style.display = 'flex';
-    renderCards();
-    updateSidebarUI();
-  };
-  window.exitDemo = () => {
-    isDemo = false;
-    entries = [];
-    document.getElementById('appScreen').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('demoBar').style.display = 'none';
-  };
-  window.logoutUser = async () => {
-    if (unsubscribe) unsubscribe();
-    await signOut(auth);
-    window.location.reload();
-  };
+  window.startDemo = () => { isDemo = true; entries = [...DEMO_ENTRIES]; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'block'; document.getElementById('demoBar').style.display = 'flex'; renderCards(); updateSidebarUI(); };
+  window.exitDemo = () => { isDemo = false; entries = []; document.getElementById('appScreen').style.display = 'none'; document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('demoBar').style.display = 'none'; };
+  window.logoutUser = async () => { if (unsubscribe) unsubscribe(); await signOut(auth); window.location.reload(); };
   function updateSidebarUI() {
-    const avatarDiv = document.getElementById('sidebarAvatar');
-    const userNameSpan = document.getElementById('sidebarUserName');
-    const emailSpan = document.getElementById('sidebarEmail');
+    const avatarDiv = document.getElementById('sidebarAvatar'), userNameSpan = document.getElementById('sidebarUserName'), emailSpan = document.getElementById('sidebarEmail');
     if (currentUser && !isDemo) {
       const letter = (currentUser.displayName?.[0] || currentUser.email?.[0] || 'U').toUpperCase();
-      if (currentUser.photoURL) avatarDiv.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
-      else avatarDiv.innerHTML = `<span>${letter}</span>`;
+      avatarDiv.innerHTML = currentUser.photoURL ? `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">` : `<span>${letter}</span>`;
       userNameSpan.innerText = currentUser.displayName || currentUser.email?.split('@')[0] || 'مستخدم';
       emailSpan.innerText = currentUser.email || '';
-    } else if (isDemo) {
-      avatarDiv.innerHTML = '<span>🎮</span>';
-      userNameSpan.innerText = 'الوضع التجريبي';
-      emailSpan.innerText = 'demo@example.com';
-    } else {
-      avatarDiv.innerHTML = '<span>👤</span>';
-      userNameSpan.innerText = 'زائر';
-      emailSpan.innerText = 'غير مسجل';
-    }
+    } else if (isDemo) { avatarDiv.innerHTML = '<span>🎮</span>'; userNameSpan.innerText = 'الوضع التجريبي'; emailSpan.innerText = 'demo@example.com'; }
+    else { avatarDiv.innerHTML = '<span>👤</span>'; userNameSpan.innerText = 'زائر'; emailSpan.innerText = 'غير مسجل'; }
   }
   onAuthStateChanged(auth, (user) => {
     if (user && !isDemo) {
-      currentUser = user;
-      isDemo = false;
+      currentUser = user; isDemo = false;
       document.getElementById('loginScreen').style.display = 'none';
-      if (localStorage.getItem('vault_pin_hash')) {
-        document.getElementById('lockScreen').style.display = 'flex';
-        document.getElementById('appScreen').style.display = 'none';
-      } else {
-        document.getElementById('appScreen').style.display = 'block';
-      }
+      if (localStorage.getItem('vault_pin_hash')) { document.getElementById('lockScreen').style.display = 'flex'; document.getElementById('appScreen').style.display = 'none'; }
+      else { document.getElementById('appScreen').style.display = 'block'; }
       updateSidebarUI();
       const q = query(collection(db, 'users', user.uid, 'entries'), orderBy('createdAt', 'desc'));
-      unsubscribe = onSnapshot(q, snap => {
-        entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderCards();
-      }, error => {
-        console.error('Firestore listen error:', error);
-        if (error.message.includes('permission')) {
-          showToast('خطأ في الصلاحيات: تحقق من قواعد Firebase وقم بتسجيل الخروج والدخول مرة أخرى', '#ef4444');
-        }
-      });
+      unsubscribe = onSnapshot(q, snap => { entries = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderCards(); });
       renderCards();
-    } else if (!isDemo) {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('appScreen').style.display = 'none';
-    }
+    } else if (!isDemo) { document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('appScreen').style.display = 'none'; }
   });
 
   // PIN
   window.checkPin = async () => {
     const pin = document.getElementById('pinInput').value;
     const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
-    const hashHex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-    if (hashHex === localStorage.getItem('vault_pin_hash')) {
-      document.getElementById('lockScreen').style.display = 'none';
-      document.getElementById('appScreen').style.display = 'block';
-    } else showToast('رقم سري خاطئ', '#ef4444');
+    const hashHex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+    if (hashHex === localStorage.getItem('vault_pin_hash')) { document.getElementById('lockScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'block'; }
+    else showToast('رقم سري خاطئ', '#ef4444');
   };
   window.setupPin = async () => {
-    const p1 = document.getElementById('newPin').value;
-    const p2 = document.getElementById('newPin2').value;
+    const p1 = document.getElementById('newPin').value, p2 = document.getElementById('newPin2').value;
     if (p1.length < 4) { showToast('4 أرقام على الأقل'); return; }
     if (p1 !== p2) { showToast('غير متطابقين'); return; }
     const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p1));
-    const hashHex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-    localStorage.setItem('vault_pin_hash', hashHex);
-    showToast('تم تفعيل القفل');
-    closePinSetup();
+    const hashHex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+    localStorage.setItem('vault_pin_hash', hashHex); showToast('تم تفعيل القفل'); closePinSetup();
   };
   window.removePin = () => { localStorage.removeItem('vault_pin_hash'); showToast('تم إزالة القفل'); };
   window.tryBiometric = () => {
     if (window.PublicKeyCredential) {
-      navigator.credentials.get({
-        publicKey: { challenge: new Uint8Array(32), rpId: location.hostname, userVerification: 'required' }
-      }).then(() => {
-        document.getElementById('lockScreen').style.display = 'none';
-        document.getElementById('appScreen').style.display = 'block';
-      }).catch(() => showToast('غير مدعوم'));
+      navigator.credentials.get({ publicKey: { challenge: new Uint8Array(32), rpId: location.hostname, userVerification: 'required' } })
+        .then(() => { document.getElementById('lockScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'block'; })
+        .catch(() => showToast('غير مدعوم'));
     } else showToast('جهازك لا يدعم البصمة');
   };
   function closePinSetup() { document.getElementById('pinSetupOverlay').style.display = 'none'; }
-  window.closePinSetup = closePinSetup;
-  window.openPinSetup = () => { document.getElementById('pinSetupOverlay').style.display = 'flex'; };
+  window.closePinSetup = closePinSetup; window.openPinSetup = () => { document.getElementById('pinSetupOverlay').style.display = 'flex'; };
 
-  // الثيم
-  window.toggleTheme = () => {
-    const th = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', th);
-    localStorage.setItem('vault_theme', th);
-  };
+  window.toggleTheme = () => { const th = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', th); localStorage.setItem('vault_theme', th); };
   if (localStorage.getItem('vault_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
-  // القائمة الجانبية
   window.openSidebar = () => { updateSidebarUI(); document.getElementById('sidebarOverlay').classList.add('open'); document.getElementById('sidebarPanel').classList.add('open'); };
   window.closeSidebar = () => { document.getElementById('sidebarOverlay').classList.remove('open'); document.getElementById('sidebarPanel').classList.remove('open'); };
   window.openShareApp = () => { document.getElementById('shareAppOverlay').classList.add('open'); };
   window.closeShareApp = () => { document.getElementById('shareAppOverlay').classList.remove('open'); };
   window.shareAppLink = (type) => {
     const url = 'https://aamer777.github.io/asd/';
-    const msg = `🔐 خزنة المرور السحابية\nحفظ آمن مع ضغط تلقائي للصور\n${url}`;
+    const msg = `🔐 خزنة المرور السحابية\nحفظ آمن مع رفع صور أصلية\n${url}`;
     if (type === 'wa') window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     else if (type === 'tg') window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(msg)}`, '_blank');
     else if (type === 'em') window.open(`mailto:?subject=تطبيق خزنة المرور&body=${encodeURIComponent(msg)}`, '_blank');
@@ -709,16 +440,13 @@ window.saveImageEntry = async function() {
     closeShareApp();
   };
 
-  // الفلاتر
   window.renderCategoryFilters = () => {
     const bar = document.getElementById('categoryBar');
-    bar.innerHTML = `
-      <button class="cat-btn ${activeCategory === 'all' ? 'active' : ''}" onclick="window.setCategory('all')">🌐 الكل</button>
+    bar.innerHTML = `<button class="cat-btn ${activeCategory === 'all' ? 'active' : ''}" onclick="window.setCategory('all')">🌐 الكل</button>
       <button class="cat-btn ${activeCategory === 'work' ? 'active' : ''}" onclick="window.setCategory('work')">💼 عمل</button>
       <button class="cat-btn ${activeCategory === 'personal' ? 'active' : ''}" onclick="window.setCategory('personal')">👤 شخصي</button>
       <button class="cat-btn ${activeCategory === 'banking' ? 'active' : ''}" onclick="window.setCategory('banking')">🏦 بنوك</button>
-      <button class="cat-btn ${activeCategory === 'photos' ? 'active' : ''}" onclick="window.setCategory('photos')">🖼️ صور</button>
-    `;
+      <button class="cat-btn ${activeCategory === 'photos' ? 'active' : ''}" onclick="window.setCategory('photos')">🖼️ صور</button>`;
   };
   window.setCategory = (c) => { activeCategory = c; renderCategoryFilters(); renderCards(); };
   document.getElementById('searchInput')?.addEventListener('input', renderCards);
