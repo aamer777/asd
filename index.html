@@ -188,8 +188,9 @@
   }
 
   // ضغط الصورة
-  async function compressImage(file) {
-    return new Promise((resolve, reject) => {
+ async function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    try {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
@@ -206,45 +207,72 @@
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
+          // استخدام JPEG بدلاً من WebP لتجنب مشاكل التوافق
           canvas.toBlob((blob) => {
-            if (!blob) reject(new Error("فشل ضغط الصورة"));
+            if (!blob) {
+              reject(new Error("فشل إنشاء blob للصورة"));
+              return;
+            }
             const readerBlob = new FileReader();
-            readerBlob.onloadend = () => resolve({ base64: readerBlob.result, size: blob.size });
+            readerBlob.onloadend = () => {
+              console.log(`✅ تم ضغط الصورة: الحجم الأصلي ${(file.size / 1024).toFixed(0)}KB → ${(blob.size / 1024).toFixed(0)}KB`);
+              resolve({ base64: readerBlob.result, size: blob.size });
+            };
+            readerBlob.onerror = (err) => reject(err);
             readerBlob.readAsDataURL(blob);
-          }, 'image/webp', 0.7);
+          }, 'image/jpeg', 0.8); // جودة 80%، صيغة JPEG
         };
-        img.onerror = reject;
+        img.onerror = (err) => reject(err);
         img.src = e.target.result;
       };
-      reader.onerror = reject;
+      reader.onerror = (err) => reject(err);
       reader.readAsDataURL(file);
-    });
-  }
-
-  // رفع الصورة إلى Firebase Storage
-  async function uploadCompressedImage(uid, entryId, base64, folder = 'images') {
-    if (!base64) return null;
-    if (isDemo) return base64;
-    if (!uid) throw new Error('لا يوجد مستخدم مسجل دخول');
-    showProgress(10);
-    await new Promise(r => setTimeout(r, 100));
-    showProgress(40);
-    const storageRef = ref(storage, `users/${uid}/${folder}/${entryId}.webp`);
-    try {
-      await uploadString(storageRef, base64, 'data_url');
-      showProgress(90);
-      const url = await getDownloadURL(storageRef);
-      showProgress(100);
-      setTimeout(hideProgress, 500);
-      return url;
     } catch (error) {
-      hideProgress();
-      console.error('فشل رفع الصورة:', error);
-      showToast('فشل رفع الصورة: ' + error.message, '#ef4444');
-      throw error;
+      reject(error);
     }
+  });
+}
+  // رفع الصورة إلى Firebase Storage
+ async function uploadCompressedImage(uid, entryId, base64, folder = 'images') {
+  console.log('🔵 بدء رفع الصورة:', { uid, entryId, hasBase64: !!base64, isDemo });
+  
+  if (!base64) {
+    console.error('❌ لا توجد بيانات صورة للرفع');
+    return null;
   }
-
+  if (isDemo) {
+    console.log('⚠️ وضع تجريبي، لن يتم الرفع فعلياً');
+    return base64;
+  }
+  if (!uid) {
+    const error = new Error('لا يوجد مستخدم مسجل دخول (uid فارغ)');
+    console.error(error);
+    throw error;
+  }
+  
+  showProgress(10);
+  await new Promise(r => setTimeout(r, 100));
+  showProgress(30);
+  
+  const storageRef = ref(storage, `users/${uid}/${folder}/${entryId}.jpg`); // استخدم jpg بدلاً من webp
+  console.log('📤 مسار التخزين:', storageRef.fullPath);
+  
+  try {
+    await uploadString(storageRef, base64, 'data_url');
+    console.log('✅ تم رفع السلسلة بنجاح');
+    showProgress(80);
+    const url = await getDownloadURL(storageRef);
+    console.log('✅ تم الحصول على رابط التحميل:', url);
+    showProgress(100);
+    setTimeout(hideProgress, 500);
+    return url;
+  } catch (error) {
+    console.error('❌ فشل رفع الصورة:', error);
+    hideProgress();
+    showToast('فشل رفع الصورة: ' + error.message, '#ef4444');
+    throw error;
+  }
+}
   // عرض البطاقات
   function renderCards() {
     const q = document.getElementById('searchInput')?.value.toLowerCase() || '';
@@ -348,90 +376,97 @@
   };
 
   // حفظ صورة فقط مع تحقق صارم
-  window.saveImageEntry = async function() {
-    if (!isDemo && (!currentUser || !currentUser.uid)) {
-      showToast('يجب تسجيل الدخول أولاً باستخدام Google', '#ef4444');
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('appScreen').style.display = 'none';
-      return;
+window.saveImageEntry = async function() {
+  console.log('🔵 بدء حفظ الصورة');
+  
+  if (!isDemo && (!currentUser || !currentUser.uid)) {
+    console.error('❌ المستخدم غير مسجل دخول');
+    showToast('يجب تسجيل الدخول أولاً', '#ef4444');
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display = 'none';
+    return;
+  }
+  
+  const name = document.getElementById('imgName').value.trim();
+  if (!name) {
+    showToast('عنوان الصورة مطلوب', '#ef4444');
+    return;
+  }
+  
+  console.log('📝 عنوان الصورة:', name);
+  console.log('📦 compressedImageBase64 موجود؟', !!compressedImageBase64);
+  
+  let finalImageUrl = null;
+  
+  if (currentEditId) {
+    const oldEntry = entries.find(e => e.id === currentEditId && e.type === 'image');
+    if (oldEntry && !compressedImageBase64) {
+      console.log('🖼️ استخدام الصورة القديمة (لا توجد صورة جديدة)');
+      finalImageUrl = oldEntry.imageUrl;
     }
-    const name = document.getElementById('imgName').value.trim();
-    if (!name) {
-      showToast('عنوان الصورة مطلوب', '#ef4444');
-      return;
-    }
-    let finalImageUrl = null;
-    let imageToUpload = compressedImageBase64;
-    if (currentEditId) {
-      const oldEntry = entries.find(e => e.id === currentEditId && e.type === 'image');
-      if (oldEntry && !imageToUpload) {
-        finalImageUrl = oldEntry.imageUrl;
-      }
-    }
-    if (imageToUpload) {
-      try {
-        const newId = currentEditId || Date.now().toString();
-        finalImageUrl = await uploadCompressedImage(currentUser?.uid, newId, imageToUpload, 'images');
-      } catch (error) {
-        return;
-      }
-    }
-    if (!finalImageUrl && !isDemo) {
-      showToast('لا توجد صورة للرفع', '#ef4444');
-      return;
-    }
-    const note = document.getElementById('imgNote').value;
+  }
+  
+  if (compressedImageBase64 && !finalImageUrl) {
     try {
-      if (currentEditId) {
-        const old = entries.find(e => e.id === currentEditId);
-        if (!old) throw new Error('العنصر غير موجود');
-        const updated = { ...old, name, note, imageUrl: finalImageUrl || old.imageUrl, updatedAt: Date.now() };
-        if (isDemo) {
-          entries = entries.map(e => e.id === currentEditId ? updated : e);
-          renderCards();
-          showToast('تم تعديل الصورة (تجريبي)');
-        } else {
-          await setDoc(doc(db, 'users', currentUser.uid, 'entries', currentEditId), updated);
-          showToast('تم تحديث الصورة');
-        }
-      } else {
-        const newId = Date.now().toString();
-        const newEntry = { id: newId, name, type: 'image', imageUrl: finalImageUrl, note, category: 'photos', createdAt: Date.now() };
-        if (isDemo) {
-          entries.unshift(newEntry);
-          renderCards();
-          showToast('تمت إضافة الصورة (تجريبي)');
-        } else {
-          await setDoc(doc(db, 'users', currentUser.uid, 'entries', newId), newEntry);
-          showToast('تم حفظ الصورة في السحابة');
-        }
-      }
-      closeModalImage();
-      compressedImageBase64 = null;
-      currentEditId = null;
+      const newId = currentEditId || Date.now().toString();
+      console.log('🚀 سيتم رفع صورة جديدة، ID:', newId);
+      finalImageUrl = await uploadCompressedImage(currentUser?.uid, newId, compressedImageBase64, 'images');
+      if (!finalImageUrl) throw new Error('لم يتم الحصول على رابط الصورة');
     } catch (error) {
-      console.error(error);
-      showToast('خطأ في حفظ الصورة: ' + error.message, '#ef4444');
+      console.error('❌ فشل رفع الصورة في saveImageEntry:', error);
+      return; // التوقف لأن الخطأ ظهر بالفعل
     }
-  };
-
-  window.deleteEntry = async (id) => {
-    if (confirm('حذف نهائي؟')) {
+  }
+  
+  if (!finalImageUrl && !isDemo) {
+    console.error('❌ لا توجد صورة للرفع ولا صورة قديمة');
+    showToast('لا توجد صورة للرفع، يرجى اختيار صورة أولاً', '#ef4444');
+    return;
+  }
+  
+  const note = document.getElementById('imgNote').value;
+  
+  try {
+    if (currentEditId) {
+      const old = entries.find(e => e.id === currentEditId);
+      if (!old) throw new Error('العنصر غير موجود');
+      const updated = { ...old, name, note, imageUrl: finalImageUrl || old.imageUrl, updatedAt: Date.now() };
       if (isDemo) {
-        entries = entries.filter(e => e.id !== id);
+        entries = entries.map(e => e.id === currentEditId ? updated : e);
         renderCards();
-        showToast('تم الحذف', '#ef4444');
+        showToast('تم تعديل الصورة (تجريبي)');
       } else {
-        try {
-          await deleteDoc(doc(db, 'users', currentUser.uid, 'entries', id));
-          showToast('تم الحذف', '#ef4444');
-        } catch (error) {
-          showToast('خطأ في الحذف', '#ef4444');
-        }
+        await setDoc(doc(db, 'users', currentUser.uid, 'entries', currentEditId), updated);
+        showToast('تم تحديث الصورة بنجاح');
+      }
+    } else {
+      const newId = Date.now().toString();
+      const newEntry = { 
+        id: newId, 
+        name, 
+        type: 'image', 
+        imageUrl: finalImageUrl, 
+        note, 
+        category: 'photos', 
+        createdAt: Date.now() 
+      };
+      if (isDemo) {
+        entries.unshift(newEntry);
+        renderCards();
+        showToast('تمت إضافة الصورة (تجريبي)');
+      } else {
+        await setDoc(doc(db, 'users', currentUser.uid, 'entries', newId), newEntry);
+        showToast('تم حفظ الصورة في السحابة بنجاح ✅');
       }
     }
-  };
-
+    closeModalImage();
+    compressedImageBase64 = null;
+    currentEditId = null;
+  } catch (error) {
+    console.error('❌ خطأ في حفظ بيانات الصورة في Firestore:', error);
+    showToast('خطأ في حفظ الصورة: ' + error.message, '#ef4444');
+  }
+};
   // إدارة الواجهات
   window.showAddChoice = () => document.getElementById('choiceOverlay').classList.add('open');
   function closeChoice() { document.getElementById('choiceOverlay').classList.remove('open'); }
@@ -498,47 +533,41 @@
   window.closeModalImage = closeModalImage;
 
   // معالجة الصورة
-  function handleImageSelection(file) {
-    if (!file || !file.type.startsWith('image/')) {
-      showToast('الرجاء اختيار ملف صورة صالح', '#ef4444');
-      return;
-    }
-    showProgress(5);
-    compressImage(file).then(({ base64, size }) => {
-      compressedImageBase64 = base64;
-      const preview = document.getElementById('imagePreviewOnly');
-      const imgEl = document.getElementById('previewImgOnly');
-      if (preview && imgEl) {
-        imgEl.src = base64;
-        preview.style.display = 'block';
-      }
-      showProgress(100);
-      setTimeout(hideProgress, 300);
-      if (size > 300 * 1024) {
-        showToast(`⚠️ الحجم بعد الضغط: ${(size / 1024).toFixed(0)}KB (تم الضغط تلقائياً)`, '#f59e0b');
-      } else {
-        showToast(`✅ تم ضغط الصورة (${(size / 1024).toFixed(0)}KB)`, '#10b981');
-      }
-    }).catch(err => {
-      hideProgress();
-      showToast('فشل ضغط الصورة', '#ef4444');
-    });
+ function handleImageSelection(file) {
+  console.log('🔵 تم اختيار ملف:', file?.name, file?.size);
+  
+  if (!file || !file.type.startsWith('image/')) {
+    showToast('الرجاء اختيار ملف صورة صالح (jpg, png, etc)', '#ef4444');
+    return;
   }
-  function setupDragDrop() {
-    const dropZone = document.getElementById('imageDropZone');
-    if (!dropZone) return;
-    dropZone.addEventListener('click', () => document.getElementById('imgFileInput').click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
-      if (file) handleImageSelection(file);
-    });
-    document.getElementById('imgFileInput').addEventListener('change', (e) => {
-      if (e.target.files[0]) handleImageSelection(e.target.files[0]);
-    });
+  
+  showProgress(5);
+  
+  compressImage(file).then(({ base64, size }) => {
+    console.log('✅ تم ضغط الصورة بنجاح، الحجم النهائي:', size, 'bytes');
+    compressedImageBase64 = base64;
+    
+    const preview = document.getElementById('imagePreviewOnly');
+    const imgEl = document.getElementById('previewImgOnly');
+    if (preview && imgEl) {
+      imgEl.src = base64;
+      preview.style.display = 'block';
+    }
+    
+    showProgress(100);
+    setTimeout(hideProgress, 500);
+    
+    if (size > 300 * 1024) {
+      showToast(`⚠️ الحجم بعد الضغط: ${(size / 1024).toFixed(0)}KB (تم الضغط تلقائياً)`, '#f59e0b');
+    } else {
+      showToast(`✅ تم ضغط الصورة (${(size / 1024).toFixed(0)}KB)`, '#10b981');
+    }
+  }).catch(err => {
+    console.error('❌ فشل ضغط الصورة:', err);
+    hideProgress();
+    showToast('فشل ضغط الصورة: ' + err.message, '#ef4444');
+  });
+
   }
 
   // المصادقة
