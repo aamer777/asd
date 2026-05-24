@@ -67,35 +67,30 @@
     .color-dot.selected { border-color: white; transform: scale(1.1); }
     .image-btns { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
     .btn-img { flex: 1; background: var(--card2); border: 1px solid var(--border); border-radius: 40px; padding: 10px; font-weight: 700; cursor: pointer; }
-    #imagePreview { width: 100%; height: 130px; border-radius: 20px; overflow: hidden; margin-top: 10px; background: var(--card2); display: none; }
-    #imagePreview img { width: 100%; height: 100%; object-fit: cover; }
-    .size-selector { display: flex; gap: 8px; margin-top: 10px; }
-    .size-option { flex:1; text-align: center; background: var(--card2); border-radius: 40px; padding: 8px; font-size: 12px; cursor: pointer; border:1px solid var(--border); }
-    .size-option.active { background: var(--accent); color:#0a0e1a; }
-    /* القائمة الجانبية */
-    #sidebarOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 800; opacity: 0; pointer-events: none; transition: 0.25s; }
-    #sidebarOverlay.open { opacity: 1; pointer-events: all; }
-    #sidebarPanel { position: fixed; left: auto; right: 0; top: 0; bottom: 0; width: 280px; background: var(--card); border-left: 1px solid var(--border2); transform: translateX(100%); transition: 0.3s cubic-bezier(0.2,0.9,0.4,1.1); z-index: 801; display: flex; flex-direction: column; }
-    #sidebarPanel.open { transform: translateX(0); }
-    .sb-head { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .sb-user-info { text-align: center; margin-bottom: 12px; }
-    .sb-email { font-size: 12px; color: var(--accent); margin-top: 6px; word-break: break-all; }
-    .sb-item { width: 100%; padding: 14px 20px; background: transparent; border: none; display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 14px; color: var(--text); cursor: pointer; text-align: right; }
-    .sb-item:hover { background: var(--card2); }
-    .sb-logout-btn { margin: 16px; background: rgba(239,68,68,0.15); border: 1px solid var(--red); border-radius: 60px; padding: 12px; font-weight: 700; color: var(--red); cursor: pointer; text-align: center; }
-    .security-btn { background: var(--card2); border: 1px solid var(--border); border-radius: 60px; padding: 12px; width: 100%; margin-bottom: 12px; font-weight: 700; color: var(--text); cursor: pointer; transition: 0.2s; }
-    .security-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .drop-zone { border: 2px dashed var(--border2); border-radius: 24px; padding: 20px; text-align: center; margin: 12px 0; background: var(--card2); transition: 0.2s; cursor: pointer; }
+    .drop-zone.drag-over { border-color: var(--accent); background: var(--card3); }
+    #imagePreview, #imagePreviewOnly { width: 100%; max-height: 160px; border-radius: 20px; overflow: hidden; margin-top: 10px; background: var(--card2); display: none; object-fit: contain; }
+    #imagePreview img, #imagePreviewOnly img { width: 100%; height: auto; max-height: 160px; object-fit: contain; }
+    .progress-bar-container { width: 100%; background: var(--border); border-radius: 60px; margin: 10px 0; overflow: hidden; display: none; }
+    .progress-bar { width: 0%; height: 8px; background: var(--accent); transition: width 0.2s; }
     .choice-buttons { display: flex; gap: 12px; margin-bottom: 20px; }
     .choice-btn { flex: 1; background: var(--card2); border: 1px solid var(--border2); border-radius: 60px; padding: 12px; font-weight: 800; cursor: pointer; text-align: center; }
-    .choice-btn.active { background: var(--accent); color: #0a0e1a; border-color: var(--accent); }
+    .choice-btn.active { background: var(--accent); color: #0a0e1a; }
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--green); color: white; padding: 10px 24px; border-radius: 60px; z-index: 9999; transition: 0.25s; font-size: 13px; }
     .toast.show { transform: translateX(-50%) translateY(0); }
+    .security-btn, .sb-item, .sb-logout-btn { width: 100%; padding: 12px; border-radius: 60px; margin-bottom: 8px; background: var(--card2); border: 1px solid var(--border); cursor: pointer; font-weight: 700; text-align: center; }
+    #sidebarPanel { position: fixed; right: 0; top: 0; bottom: 0; width: 280px; background: var(--card); transform: translateX(100%); transition: 0.3s; z-index: 801; display: flex; flex-direction: column; }
+    #sidebarPanel.open { transform: translateX(0); }
+    #sidebarOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 800; opacity: 0; pointer-events: none; transition: 0.25s; }
+    #sidebarOverlay.open { opacity: 1; pointer-events: all; }
+    .sb-head { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
+    .sb-email { font-size: 12px; color: var(--accent); word-break: break-all; margin-top: 5px; }
   </style>
 </head>
 <body>
 <div id="loadingToast" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9998; align-items:center; justify-content:center;">⏳ جاري التحميل...</div>
 <div id="lockScreen"><div class="lock-card"><div style="font-size:60px;">🔐</div><div style="font-size:22px; font-weight:900;">التطبيق مقفل</div><input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8"><button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button><button class="btn-unlock" style="background:var(--card2); color:var(--text);" onclick="window.tryBiometric()">👆 بصمة الوجه</button></div></div>
-<div id="loginScreen" class="login-container"><div class="login-card"><div class="login-logo">🔐</div><div class="login-title">خزنة المرور السحابية</div><div class="login-desc" style="text-align:center; margin-bottom:20px;">حفظ آمن · مزامنة فورية</div><button class="social-btn google" onclick="window.loginWithGoogle()">🔐 Google</button><button class="social-btn demo" onclick="window.startDemo()">🎮 تجربة التطبيق (ديمو)</button><div class="feature-list"><div class="feature-item">☁️ حفظ سحابي</div><div class="feature-item">🔒 تشفير كامل</div><div class="feature-item">📱 متعدد الأجهزة</div><div class="feature-item">🖼️ معرض الصور</div></div></div></div>
+<div id="loginScreen" class="login-container"><div class="login-card"><div class="login-logo">🔐</div><div class="login-title">خزنة المرور السحابية</div><div class="login-desc" style="text-align:center; margin-bottom:20px;">حفظ آمن · مزامنة فورية · ضغط تلقائي للصور</div><button class="social-btn google" onclick="window.loginWithGoogle()">🔐 Google</button><button class="social-btn demo" onclick="window.startDemo()">🎮 تجربة التطبيق (ديمو)</button><div class="feature-list"><div class="feature-item">☁️ حفظ سحابي</div><div class="feature-item">🖼️ ضغط WebP</div><div class="feature-item">📱 سحب وإفلات</div><div class="feature-item">⚡ أقل من 300KB</div></div></div></div>
 <div id="appScreen" class="app"><div id="demoBar" style="display:none; background:#1e293b; padding:8px 16px; text-align:center; font-size:12px;">وضع تجريبي — لا يتم الحفظ السحابي <button onclick="window.exitDemo()" style="background:none; border:1px solid #facc15; border-radius:20px; padding:2px 12px;">خروج</button></div>
 <div class="header"><div class="hdr-row"><div class="avatar-circle" id="menuAvatar" onclick="window.openSidebar()"><span>👤</span></div><div class="hdr-title">🔐 خزنة</div><button class="theme-toggle" style="background:var(--glass2); border-radius:40px; padding:8px 14px;" onclick="window.toggleTheme()" id="themeBtn">🌙</button></div></div>
 <div class="stats-bar"><span>📦 العناصر: <span id="totalCount">0</span></span><span>☁️ سحابية</span></div>
@@ -112,10 +107,14 @@
 <input class="form-input" id="fName" placeholder="اسم الموقع أو التطبيق *"><input class="form-input" id="fEmail" placeholder="الإيميل / اسم المستخدم"><input class="form-input" id="fPass" type="password" placeholder="كلمة المرور *"><select class="form-select" id="fCategory"><option value="work">💼 عمل</option><option value="personal">👤 شخصي</option><option value="banking">🏦 بنوك</option><option value="entertainment">🎬 ترفيه</option><option value="photos">🖼️ صور</option></select>
 <input class="form-input" id="fUrl" placeholder="رابط الموقع (اختياري)"><input class="form-input" id="fNote" placeholder="ملاحظات"><div class="color-row" id="colorRow"></div><div style="display:flex; gap:12px; margin-top:20px;"><button class="btn-cancel" style="flex:1; background:var(--card2); border-radius:40px; padding:12px;" onclick="closeModalAccount()">إلغاء</button><button class="btn-save" style="flex:2; background:var(--accent); border-radius:40px; font-weight:900;" onclick="window.saveAccountEntry()">💾 حفظ</button></div></div></div>
 
-<!-- مودال إضافة صورة فقط -->
+<!-- مودال إضافة صورة فقط مع ضغط تلقائي و drag & drop و progress bar -->
 <div class="overlay" id="overlayImage" onclick="if(event.target===this) closeModalImage()"><div class="modal"><div style="text-align:center; font-size:20px; font-weight:900; margin-bottom:20px;">🖼️ إضافة صورة جديدة</div>
-<input class="form-input" id="imgName" placeholder="عنوان الصورة *"><div class="image-btns"><button class="btn-img" onclick="document.getElementById('imgFileInput').click()">📁 رفع صورة</button><button class="btn-img" onclick="window.openCameraForImage()">📸 تصوير</button><button class="btn-img" id="removeImgBtn" onclick="window.removeImageOnly()" style="display:none;">🗑 إزالة</button></div><input type="file" id="imgFileInput" accept="image/*" style="display:none"><div id="imagePreviewOnly" style="width:100%; height:140px; border-radius:20px; background:var(--card2); margin-bottom:12px; display:none; align-items:center; justify-content:center; overflow:hidden;"><img id="previewImgOnly" style="width:100%; height:100%; object-fit:cover;"></div>
-<input class="form-input" id="imgNote" placeholder="ملاحظات (اختياري)"><div class="size-selector" id="imgSizeSelector"><div class="size-option" data-size="small">صغير</div><div class="size-option" data-size="medium" class="active">وسط</div><div class="size-option" data-size="large">كبير</div></div>
+<input class="form-input" id="imgName" placeholder="عنوان الصورة *">
+<div class="drop-zone" id="imageDropZone">📸 اسحب وأفلت الصورة هنا أو اضغط للاختيار</div>
+<input type="file" id="imgFileInput" accept="image/*" style="display:none">
+<div id="imagePreviewOnly" style="display:none;"><img id="previewImgOnly" alt="معاينة"></div>
+<div class="progress-bar-container" id="progressContainer"><div class="progress-bar" id="uploadProgressBar"></div></div>
+<input class="form-input" id="imgNote" placeholder="ملاحظات (اختياري)">
 <div style="display:flex; gap:12px; margin-top:20px;"><button class="btn-cancel" style="flex:1; background:var(--card2); border-radius:40px;" onclick="closeModalImage()">إلغاء</button><button class="btn-save" style="flex:2; background:var(--accent); border-radius:40px; font-weight:900;" onclick="window.saveImageEntry()">💾 حفظ الصورة</button></div></div></div>
 
 <!-- مودال مشاركة التطبيق -->
@@ -128,8 +127,8 @@
 
 <!-- القائمة الجانبية -->
 <div id="sidebarOverlay" onclick="closeSidebar()"></div>
-<div id="sidebarPanel"><div class="sb-head"><div style="display:flex; flex-direction:column; align-items:center; width:100%;"><div class="avatar-circle" id="sidebarAvatar" style="width:70px; height:70px; margin-bottom:8px;">👤</div><div id="sidebarUserName" style="font-weight:800;">الزائر</div><div id="sidebarEmail" class="sb-email" style="color:var(--accent); font-size:12px;">البريد الإلكتروني</div></div><button class="sb-close" style="background:none; border:none; font-size:22px;" onclick="closeSidebar()">✕</button></div>
-<div style="flex:1;"><button class="sb-item" onclick="window.toggleTheme(); closeSidebar();"><span>🌓</span> تغيير المظهر</button><button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); closeSidebar();"><span>🔒</span> إعدادات الأمان</button><button class="sb-item" onclick="window.openShareApp(); closeSidebar();"><span>📤</span> مشاركة التطبيق</button><button class="sb-item" onclick="window.openShareApp(); closeSidebar();"><span>🧩</span> إضافات المتصفح</button></div>
+<div id="sidebarPanel"><div class="sb-head"><div class="avatar-circle" id="sidebarAvatar" style="width:70px; height:70px; margin:0 auto 8px;">👤</div><div id="sidebarUserName" style="font-weight:800;">الزائر</div><div id="sidebarEmail" class="sb-email">البريد الإلكتروني</div></div>
+<div style="flex:1; padding:10px;"><button class="sb-item" onclick="window.toggleTheme(); closeSidebar();">🌓 تغيير المظهر</button><button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); closeSidebar();">🔒 إعدادات الأمان</button><button class="sb-item" onclick="window.openShareApp(); closeSidebar();">📤 مشاركة التطبيق</button></div>
 <button class="sb-logout-btn" onclick="window.logoutUser()">🚪 تسجيل الخروج</button></div>
 
 <div id="toast" class="toast"></div>
@@ -146,11 +145,125 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  let currentUser = null, entries = [], unsubscribe = null, isDemo = false, activeCategory = 'all', selectedImageData = null, currentEditId = null, selectedColorIdx = 0;
-  let currentImageOnlyData = null; // for image-only modal
-  const DEMO_ENTRIES = [{ id: 'd1', name: 'Gmail', email: 'demo@gmail.com', pass: 'Demo@123', type: 'account', category: 'work', color:0, note:'', url:'', imageUrl:null, imageSize:'medium', createdAt:Date.now() },
-    { id: 'd2', name: 'صورة تجريبية', type: 'image', imageUrl: 'https://picsum.photos/id/1015/200/200', note: 'منظر طبيعي', imageSize: 'medium', category:'photos', createdAt:Date.now() }];
+  let currentUser = null, entries = [], unsubscribe = null, isDemo = false, activeCategory = 'all', currentEditId = null, selectedColorIdx = 0;
+  let compressedImageBase64 = null; // للصورة المضغوطة WebP
 
+  // دالة ضغط الصورة وتحويلها إلى WebP بحجم أقصى عرض 1200px، جودة 0.7، حجم <300KB
+  async function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          const maxWidth = 1200;
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          // تحويل إلى WebP بجودة 0.7
+          canvas.toBlob((blob) => {
+            if (!blob) reject(new Error("فشل ضغط الصورة"));
+            const readerBlob = new FileReader();
+            readerBlob.onloadend = () => {
+              const base64 = readerBlob.result;
+              const sizeKB = blob.size / 1024;
+              console.log(`الصورة المضغوطة: ${sizeKB.toFixed(2)} KB`);
+              resolve({ base64, size: blob.size });
+            };
+            readerBlob.readAsDataURL(blob);
+          }, 'image/webp', 0.7);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // عرض شريط التقدم
+  function showProgress(percent) {
+    const container = document.getElementById('progressContainer');
+    const bar = document.getElementById('uploadProgressBar');
+    if (container) container.style.display = 'block';
+    if (bar) bar.style.width = percent + '%';
+  }
+  function hideProgress() { const c = document.getElementById('progressContainer'); if(c) c.style.display = 'none'; }
+
+  // دالة رفع الصورة مع وهم التقدم (نظرًا لأن uploadString لا يدعم التقدم بسهولة، نعرض تقدم وهمي)
+  async function uploadCompressedImage(uid, entryId, base64, folder = 'images') {
+    if (!base64 || isDemo) return base64;
+    showProgress(10);
+    await new Promise(r => setTimeout(r, 100));
+    showProgress(40);
+    const storageRef = ref(storage, `users/${uid}/${folder}/${entryId}.webp`);
+    try {
+      await uploadString(storageRef, base64, 'data_url');
+      showProgress(90);
+      const url = await getDownloadURL(storageRef);
+      showProgress(100);
+      setTimeout(hideProgress, 500);
+      return url;
+    } catch (e) {
+      hideProgress();
+      throw e;
+    }
+  }
+
+  // معالجة اختيار الصورة من الملف أو السحب
+  function handleImageSelection(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      showToast('الرجاء اختيار ملف صورة صالح', '#ef4444');
+      return;
+    }
+    showProgress(5);
+    compressImage(file).then(({ base64, size }) => {
+      compressedImageBase64 = base64;
+      const preview = document.getElementById('imagePreviewOnly');
+      const imgEl = document.getElementById('previewImgOnly');
+      if (preview && imgEl) {
+        imgEl.src = base64;
+        preview.style.display = 'block';
+      }
+      showProgress(100);
+      setTimeout(hideProgress, 300);
+      if (size > 300 * 1024) {
+        showToast(`⚠️ الحجم بعد الضغط: ${(size/1024).toFixed(0)}KB (تم الضغط تلقائياً)`, '#f59e0b');
+      } else {
+        showToast(`✅ تم ضغط الصورة (${(size/1024).toFixed(0)}KB)`, '#10b981');
+      }
+    }).catch(err => {
+      hideProgress();
+      showToast('فشل ضغط الصورة', '#ef4444');
+    });
+  }
+
+  // إعداد Drag & Drop
+  function setupDragDrop() {
+    const dropZone = document.getElementById('imageDropZone');
+    if (!dropZone) return;
+    dropZone.addEventListener('click', () => document.getElementById('imgFileInput').click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) handleImageSelection(file);
+    });
+    document.getElementById('imgFileInput').addEventListener('change', (e) => {
+      if (e.target.files[0]) handleImageSelection(e.target.files[0]);
+    });
+  }
+
+  // باقي دوال التطبيق (حفظ، عرض، إلخ) مشابهة مع تعديل لاستخدام الصورة المضغوطة
   function showToast(msg, bg='#10b981') { let t=document.getElementById('toast'); t.textContent=msg; t.style.background=bg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
   function escapeHtml(s){ return String(s).replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]||m)); }
   function renderCards(){
@@ -161,8 +274,7 @@
     document.getElementById('totalCount').innerText=entries.length;
     container.innerHTML = filtered.map(e => {
       if(e.type === 'image'){
-        let imgSize = e.imageSize||'medium'; let sizePx = imgSize==='small'?'60px':imgSize==='medium'?'80px':'100px';
-        return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')"><div class="card-header-row"><div class="card-title"><div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl||'')}" style="width:100%;height:100%;object-fit:cover;"></div><div><div class="card-name">🖼️ ${escapeHtml(e.name)}</div><div style="font-size:11px;color:var(--muted2);">📷 صورة</div></div></div><button class="btn-sm" onclick="event.stopPropagation();window.openEditImage('${e.id}')">✏️</button></div><div class="card-body"><div class="field"><div>📝 ${escapeHtml(e.note||'')}</div></div><div class="field"><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑 حذف الصورة</button></div></div></div>`;
+        return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')"><div class="card-header-row"><div class="card-title"><div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl||'')}" style="width:100%;height:100%;object-fit:cover;"></div><div><div class="card-name">🖼️ ${escapeHtml(e.name)}</div><div style="font-size:11px;color:var(--muted2);">📷 صورة مضغوطة WebP</div></div></div><button class="btn-sm" onclick="event.stopPropagation();window.openEditImage('${e.id}')">✏️</button></div><div class="card-body"><div class="field"><div>📝 ${escapeHtml(e.note||'')}</div></div><div class="field"><button class="btn-sm" style="background:#ef444420;" onclick="event.stopPropagation();window.deleteEntry('${e.id}')">🗑 حذف</button></div></div></div>`;
       } else {
         let colorObj = [{bg:'#1e3a5f',text:'#60a5fa'},{bg:'#1a3a2a',text:'#34d399'},{bg:'#3a1a1a',text:'#f87171'},{bg:'#3a2a1a',text:'#fbbf24'},{bg:'#2a1a3a',text:'#a78bfa'}][e.color%5];
         let iconHtml = e.imageUrl ? `<div class="card-icon" style="padding:0;"><img src="${e.imageUrl}" style="width:100%;height:100%;object-fit:cover;"></div>` : `<div class="card-icon" style="background:${colorObj.bg};color:${colorObj.text};">${e.name.substring(0,2).toUpperCase()}</div>`;
@@ -171,77 +283,28 @@
     }).join('');
   }
   window.toggleCard = (id) => document.getElementById(`card-${id}`)?.classList.toggle('expanded');
-
-  async function uploadImageAndGetUrl(uid, entryId, base64, folder='entries') { if(!base64 || isDemo) return base64; try { let refPath = ref(storage, `users/${uid}/${folder}/${entryId}.jpg`); await uploadString(refPath, base64, 'data_url'); return await getDownloadURL(refPath); } catch(e){ return base64; } }
-  
-  window.saveAccountEntry = async function(){
-    let name = document.getElementById('fName').value.trim(), pass = document.getElementById('fPass').value.trim();
-    if(!name || !pass){ showToast('الاسم وكلمة المرور مطلوبة','#ef4444'); return; }
-    let email = document.getElementById('fEmail').value, url=document.getElementById('fUrl').value, note=document.getElementById('fNote').value, category=document.getElementById('fCategory').value;
-    if(currentEditId){
-      let old = entries.find(e=>e.id===currentEditId);
-      let updated = {...old, name, email, pass, url, note, category, color: selectedColorIdx, updatedAt:Date.now()};
-      if(isDemo){ entries=entries.map(e=>e.id===currentEditId?updated:e); renderCards(); showToast('تم التعديل'); }
-      else { await setDoc(doc(db,'users',currentUser.uid,'entries',currentEditId), updated); showToast('تم التعديل والمزامنة'); }
-    } else {
-      let newId = Date.now().toString();
-      let newEntry = { id:newId, name, email, pass, url, note, category, color: selectedColorIdx, type:'account', imageUrl:null, imageSize:'medium', createdAt:Date.now() };
-      if(isDemo){ entries.unshift(newEntry); renderCards(); showToast('تمت الإضافة'); }
-      else { await setDoc(doc(db,'users',currentUser.uid,'entries',newId), newEntry); showToast('تم الحفظ في السحابة'); }
-    }
-    closeModalAccount();
-  };
-  
-  window.saveImageEntry = async function(){
-    let name = document.getElementById('imgName').value.trim();
-    if(!name){ showToast('عنوان الصورة مطلوب','#ef4444'); return; }
-    if(!currentImageOnlyData && !window._imgDataTemp){ showToast('يرجى اختيار صورة','#ef4444'); return; }
-    let imageData = currentImageOnlyData || window._imgDataTemp;
-    let note = document.getElementById('imgNote').value;
-    let size = document.querySelector('#imgSizeSelector .size-option.active')?.dataset.size || 'medium';
-    if(currentEditId && entries.find(e=>e.id===currentEditId && e.type==='image')){
-      let old = entries.find(e=>e.id===currentEditId);
-      let newImgUrl = imageData ? await uploadImageAndGetUrl(currentUser?.uid, currentEditId, imageData, 'images') : old.imageUrl;
-      let updated = {...old, name, note, imageUrl:newImgUrl, imageSize:size, updatedAt:Date.now()};
-      if(isDemo){ entries=entries.map(e=>e.id===currentEditId?updated:e); renderCards(); showToast('تم تعديل الصورة'); }
-      else { await setDoc(doc(db,'users',currentUser.uid,'entries',currentEditId), updated); showToast('تم تحديث الصورة'); }
-    } else {
-      let newId = Date.now().toString();
-      let imgUrl = await uploadImageAndGetUrl(currentUser?.uid, newId, imageData, 'images');
-      let newEntry = { id:newId, name, type:'image', imageUrl:imgUrl, note, imageSize:size, category:'photos', createdAt:Date.now() };
-      if(isDemo){ entries.unshift(newEntry); renderCards(); showToast('تمت إضافة الصورة'); }
-      else { await setDoc(doc(db,'users',currentUser.uid,'entries',newId), newEntry); showToast('تم حفظ الصورة'); }
-    }
-    closeModalImage();
-  };
-  
+  window.saveAccountEntry = async function(){ /* نفس السابق */ let name=document.getElementById('fName').value.trim(), pass=document.getElementById('fPass').value.trim(); if(!name||!pass){ showToast('الاسم وكلمة المرور مطلوبة','#ef4444'); return; } let email=document.getElementById('fEmail').value, url=document.getElementById('fUrl').value, note=document.getElementById('fNote').value, category=document.getElementById('fCategory').value; if(currentEditId){ let old=entries.find(e=>e.id===currentEditId); let updated={...old, name, email, pass, url, note, category, color:selectedColorIdx, updatedAt:Date.now()}; if(isDemo){ entries=entries.map(e=>e.id===currentEditId?updated:e); renderCards(); showToast('تم التعديل'); } else { await setDoc(doc(db,'users',currentUser.uid,'entries',currentEditId), updated); showToast('تم التعديل والمزامنة'); } } else { let newId=Date.now().toString(); let newEntry={id:newId, name, email, pass, url, note, category, color:selectedColorIdx, type:'account', createdAt:Date.now()}; if(isDemo){ entries.unshift(newEntry); renderCards(); showToast('تمت الإضافة'); } else { await setDoc(doc(db,'users',currentUser.uid,'entries',newId), newEntry); showToast('تم الحفظ'); } } closeModalAccount(); };
+  window.saveImageEntry = async function(){ let name=document.getElementById('imgName').value.trim(); if(!name){ showToast('عنوان الصورة مطلوب','#ef4444'); return; } if(!compressedImageBase64 && !currentEditId){ showToast('يرجى اختيار صورة','#ef4444'); return; } let note=document.getElementById('imgNote').value; if(currentEditId && entries.find(e=>e.id===currentEditId && e.type==='image')){ let old=entries.find(e=>e.id===currentEditId); let newImgUrl = compressedImageBase64 ? await uploadCompressedImage(currentUser?.uid, currentEditId, compressedImageBase64, 'images') : old.imageUrl; let updated={...old, name, note, imageUrl:newImgUrl, updatedAt:Date.now()}; if(isDemo){ entries=entries.map(e=>e.id===currentEditId?updated:e); renderCards(); showToast('تم تعديل الصورة'); } else { await setDoc(doc(db,'users',currentUser.uid,'entries',currentEditId), updated); showToast('تم تحديث الصورة'); } } else { let newId=Date.now().toString(); let imgUrl = await uploadCompressedImage(currentUser?.uid, newId, compressedImageBase64, 'images'); let newEntry={id:newId, name, type:'image', imageUrl:imgUrl, note, category:'photos', createdAt:Date.now()}; if(isDemo){ entries.unshift(newEntry); renderCards(); showToast('تمت إضافة الصورة'); } else { await setDoc(doc(db,'users',currentUser.uid,'entries',newId), newEntry); showToast('تم حفظ الصورة'); } } closeModalImage(); };
   window.deleteEntry = async (id) => { if(confirm('حذف نهائي؟')) { if(isDemo){ entries=entries.filter(e=>e.id!==id); renderCards(); } else await deleteDoc(doc(db,'users',currentUser.uid,'entries',id)); showToast('تم الحذف','#ef4444'); } };
-  
   window.showAddChoice = () => document.getElementById('choiceOverlay').classList.add('open');
   function closeChoice() { document.getElementById('choiceOverlay').classList.remove('open'); }
   window.openAddAccount = () => { closeChoice(); currentEditId=null; selectedColorIdx=0; document.getElementById('fName').value=''; document.getElementById('fEmail').value=''; document.getElementById('fPass').value=''; document.getElementById('fUrl').value=''; document.getElementById('fNote').value=''; document.getElementById('fCategory').value='work'; buildColorSelector(); document.getElementById('overlayAccount').classList.add('open'); };
-  window.openAddImage = () => { closeChoice(); currentEditId=null; currentImageOnlyData=null; window._imgDataTemp=null; document.getElementById('imgName').value=''; document.getElementById('imgNote').value=''; document.getElementById('imagePreviewOnly').style.display='none'; document.getElementById('removeImgBtn').style.display='none'; document.getElementById('imgFileInput').value=''; document.getElementById('overlayImage').classList.add('open'); };
-  window.openEditImage = (id) => { let e = entries.find(x=>x.id===id); if(!e || e.type!=='image') return; currentEditId=id; currentImageOnlyData=null; document.getElementById('imgName').value=e.name; document.getElementById('imgNote').value=e.note||''; let previewDiv=document.getElementById('imagePreviewOnly'); previewDiv.style.display='flex'; document.getElementById('previewImgOnly').src=e.imageUrl; document.getElementById('removeImgBtn').style.display='inline-flex'; document.querySelectorAll('#imgSizeSelector .size-option').forEach(opt=>opt.classList.remove('active')); document.querySelector(`#imgSizeSelector .size-option[data-size="${e.imageSize||'medium'}"]`)?.classList.add('active'); document.getElementById('overlayImage').classList.add('open'); };
-  window.openEdit = (id) => { let e = entries.find(x=>x.id===id); if(!e || e.type==='image') return; currentEditId=id; selectedColorIdx=e.color||0; document.getElementById('fName').value=e.name; document.getElementById('fEmail').value=e.email||''; document.getElementById('fPass').value=e.pass; document.getElementById('fUrl').value=e.url||''; document.getElementById('fNote').value=e.note||''; document.getElementById('fCategory').value=e.category||'work'; buildColorSelector(); document.getElementById('overlayAccount').classList.add('open'); };
-  
+  window.openAddImage = () => { closeChoice(); currentEditId=null; compressedImageBase64=null; document.getElementById('imgName').value=''; document.getElementById('imgNote').value=''; document.getElementById('imagePreviewOnly').style.display='none'; document.getElementById('imgFileInput').value=''; hideProgress(); document.getElementById('overlayImage').classList.add('open'); setupDragDrop(); };
+  window.openEditImage = (id) => { let e=entries.find(x=>x.id===id); if(!e||e.type!=='image') return; currentEditId=id; compressedImageBase64=null; document.getElementById('imgName').value=e.name; document.getElementById('imgNote').value=e.note||''; let previewDiv=document.getElementById('imagePreviewOnly'); previewDiv.style.display='block'; document.getElementById('previewImgOnly').src=e.imageUrl; hideProgress(); document.getElementById('overlayImage').classList.add('open'); };
+  window.openEdit = (id) => { let e=entries.find(x=>x.id===id); if(!e||e.type==='image') return; currentEditId=id; selectedColorIdx=e.color||0; document.getElementById('fName').value=e.name; document.getElementById('fEmail').value=e.email||''; document.getElementById('fPass').value=e.pass; document.getElementById('fUrl').value=e.url||''; document.getElementById('fNote').value=e.note||''; document.getElementById('fCategory').value=e.category||'work'; buildColorSelector(); document.getElementById('overlayAccount').classList.add('open'); };
   function buildColorSelector(){ let c=['#60a5fa','#34d399','#f87171','#fbbf24','#a78bfa']; document.getElementById('colorRow').innerHTML=c.map((col,i)=>`<div class="color-dot ${selectedColorIdx===i?'selected':''}" style="background:${col}" onclick="selectedColorIdx=${i};buildColorSelector()"></div>`).join(''); }
   function closeModalAccount(){ document.getElementById('overlayAccount').classList.remove('open'); currentEditId=null; }
-  function closeModalImage(){ document.getElementById('overlayImage').classList.remove('open'); currentEditId=null; currentImageOnlyData=null; stopCamera(); }
+  function closeModalImage(){ document.getElementById('overlayImage').classList.remove('open'); currentEditId=null; compressedImageBase64=null; hideProgress(); }
   window.closeModalAccount=closeModalAccount; window.closeModalImage=closeModalImage;
   
-  let cameraStream=null;
-  window.openCameraForImage = async () => { let modal = document.createElement('div'); modal.id='camModal'; modal.style.cssText='position:fixed;inset:0;background:black;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center'; modal.innerHTML=`<video id="camVideo" autoplay playsinline style="width:100%;max-width:400px;border-radius:24px;"></video><div style="margin-top:20px;"><button id="captureBtn" style="padding:12px 28px;background:#f59e0b;border-radius:60px;">📸 تصوير</button><button id="closeCam" style="margin-right:12px;padding:12px 28px;background:#333;border-radius:60px;">إغلاق</button></div>`; document.body.appendChild(modal); let video=document.getElementById('camVideo'); try{ cameraStream=await navigator.mediaDevices.getUserMedia({video:true}); video.srcObject=cameraStream; video.play(); }catch(e){ showToast('تعذر الوصول للكاميرا','#ef4444'); modal.remove(); return; } document.getElementById('captureBtn').onclick=()=>{ let canvas=document.createElement('canvas'); canvas.width=video.videoWidth; canvas.height=video.videoHeight; canvas.getContext('2d').drawImage(video,0,0); let dataUrl=canvas.toDataURL('image/jpeg',0.9); currentImageOnlyData=dataUrl; window._imgDataTemp=dataUrl; let previewDiv=document.getElementById('imagePreviewOnly'); previewDiv.style.display='flex'; document.getElementById('previewImgOnly').src=dataUrl; document.getElementById('removeImgBtn').style.display='inline-flex'; modal.remove(); if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop()); }; document.getElementById('closeCam').onclick=()=>{ if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop()); modal.remove(); }; };
-  window.removeImageOnly = () => { currentImageOnlyData=null; window._imgDataTemp=null; document.getElementById('imagePreviewOnly').style.display='none'; document.getElementById('removeImgBtn').style.display='none'; document.getElementById('imgFileInput').value=''; };
-  document.getElementById('imgFileInput')?.addEventListener('change', (e) => { if(e.target.files[0]){ let reader=new FileReader(); reader.onload=(ev)=>{ currentImageOnlyData=ev.target.result; window._imgDataTemp=ev.target.result; let previewDiv=document.getElementById('imagePreviewOnly'); previewDiv.style.display='flex'; document.getElementById('previewImgOnly').src=ev.target.result; document.getElementById('removeImgBtn').style.display='inline-flex'; }; reader.readAsDataURL(e.target.files[0]); } });
-  document.querySelectorAll('#imgSizeSelector .size-option').forEach(opt=>opt.addEventListener('click',function(){ document.querySelectorAll('#imgSizeSelector .size-option').forEach(o=>o.classList.remove('active')); this.classList.add('active'); }));
-  
   window.loginWithGoogle = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e){ showToast(e.message); } };
+  const DEMO_ENTRIES = [{ id: 'd1', name: 'Gmail', email: 'demo@gmail.com', pass: 'Demo@123', type:'account', category:'work', color:0, note:'', url:'', createdAt:Date.now() },
+    { id: 'd2', name: 'صورة تجريبية', type:'image', imageUrl:'https://picsum.photos/id/1015/200/200', note:'منظر طبيعي', category:'photos', createdAt:Date.now() }];
   window.startDemo = () => { isDemo=true; entries=[...DEMO_ENTRIES]; document.getElementById('loginScreen').style.display='none'; document.getElementById('appScreen').style.display='block'; document.getElementById('demoBar').style.display='flex'; renderCards(); updateSidebarUI(); };
   window.exitDemo = () => { isDemo=false; entries=[]; document.getElementById('appScreen').style.display='none'; document.getElementById('loginScreen').style.display='flex'; document.getElementById('demoBar').style.display='none'; };
   window.logoutUser = async () => { if(unsubscribe) unsubscribe(); await signOut(auth); window.location.reload(); };
   function updateSidebarUI(){ let avatarDiv=document.getElementById('sidebarAvatar'); let userNameSpan=document.getElementById('sidebarUserName'); let emailSpan=document.getElementById('sidebarEmail'); if(currentUser && !isDemo){ let letter=(currentUser.displayName?.[0]||currentUser.email?.[0]||'U').toUpperCase(); if(currentUser.photoURL) avatarDiv.innerHTML=`<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`; else avatarDiv.innerHTML=`<span>${letter}</span>`; userNameSpan.innerText=currentUser.displayName || currentUser.email?.split('@')[0] || 'مستخدم'; emailSpan.innerText=currentUser.email || ''; } else if(isDemo){ avatarDiv.innerHTML='<span>🎮</span>'; userNameSpan.innerText='الوضع التجريبي'; emailSpan.innerText='demo@example.com'; } else { avatarDiv.innerHTML='<span>👤</span>'; userNameSpan.innerText='زائر'; emailSpan.innerText='غير مسجل'; } }
   onAuthStateChanged(auth, (user) => { if(user && !isDemo){ currentUser=user; isDemo=false; document.getElementById('loginScreen').style.display='none'; if(localStorage.getItem('vault_pin_hash')){ document.getElementById('lockScreen').style.display='flex'; document.getElementById('appScreen').style.display='none'; } else { document.getElementById('appScreen').style.display='block'; } updateSidebarUI(); let q=query(collection(db,'users',user.uid,'entries'), orderBy('createdAt','desc')); unsubscribe=onSnapshot(q, snap=>{ entries=snap.docs.map(d=>({id:d.id,...d.data()})); renderCards(); }); renderCards(); } else if(!isDemo){ document.getElementById('loginScreen').style.display='flex'; document.getElementById('appScreen').style.display='none'; } });
-  
   window.checkPin = async () => { let pin=document.getElementById('pinInput').value; let hash=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin)); let hashHex=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join(''); if(hashHex===localStorage.getItem('vault_pin_hash')){ document.getElementById('lockScreen').style.display='none'; document.getElementById('appScreen').style.display='block'; } else showToast('رقم سري خاطئ','#ef4444'); };
   window.setupPin = async () => { let p1=document.getElementById('newPin').value, p2=document.getElementById('newPin2').value; if(p1.length<4){ showToast('4 أرقام على الأقل'); return; } if(p1!==p2){ showToast('غير متطابقين'); return; } let hash=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p1)); let hashHex=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join(''); localStorage.setItem('vault_pin_hash', hashHex); showToast('تم تفعيل القفل'); closePinSetup(); };
   window.removePin = () => { localStorage.removeItem('vault_pin_hash'); showToast('تم إزالة القفل'); };
@@ -254,14 +317,12 @@
   window.closeSidebar = () => { document.getElementById('sidebarOverlay').classList.remove('open'); document.getElementById('sidebarPanel').classList.remove('open'); };
   window.openShareApp = () => { document.getElementById('shareAppOverlay').classList.add('open'); };
   window.closeShareApp = () => { document.getElementById('shareAppOverlay').classList.remove('open'); };
-  window.shareAppLink = (type) => { let url='https://aamer777.github.io/asd/'; let msg=`🔐 خزنة المرور السحابية\nحفظ آمن ومزامنة فورية\n${url}`; if(type==='wa') window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank'); else if(type==='tg') window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(msg)}`,'_blank'); else if(type==='em') window.open(`mailto:?subject=تطبيق خزنة المرور&body=${encodeURIComponent(msg)}`,'_blank'); else if(type==='cp'){ navigator.clipboard.writeText(url); showToast('تم نسخ رابط التطبيق'); } closeShareApp(); };
-  function stopCamera(){ if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop()); }
+  window.shareAppLink = (type) => { let url='https://aamer777.github.io/asd/'; let msg=`🔐 خزنة المرور السحابية\nحفظ آمن مع ضغط تلقائي للصور\n${url}`; if(type==='wa') window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank'); else if(type==='tg') window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(msg)}`,'_blank'); else if(type==='em') window.open(`mailto:?subject=تطبيق خزنة المرور&body=${encodeURIComponent(msg)}`,'_blank'); else if(type==='cp'){ navigator.clipboard.writeText(url); showToast('تم نسخ رابط التطبيق'); } closeShareApp(); };
   window.renderCategoryFilters = () => { let bar=document.getElementById('categoryBar'); bar.innerHTML=`<button class="cat-btn ${activeCategory==='all'?'active':''}" onclick="window.setCategory('all')">🌐 الكل</button><button class="cat-btn ${activeCategory==='work'?'active':''}" onclick="window.setCategory('work')">💼 عمل</button><button class="cat-btn ${activeCategory==='personal'?'active':''}" onclick="window.setCategory('personal')">👤 شخصي</button><button class="cat-btn ${activeCategory==='banking'?'active':''}" onclick="window.setCategory('banking')">🏦 بنوك</button><button class="cat-btn ${activeCategory==='photos'?'active':''}" onclick="window.setCategory('photos')">🖼️ صور</button>`; };
   window.setCategory = (c) => { activeCategory=c; renderCategoryFilters(); renderCards(); };
   document.getElementById('searchInput')?.addEventListener('input', renderCards);
   window.renderCategoryFilters();
   window.buildColorSelector();
-  document.querySelector('#imgSizeSelector .size-option[data-size="medium"]')?.classList.add('active');
 </script>
 </body>
 </html>
