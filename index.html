@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <script>
+    // ── فرض HTTPS ──
+    if (location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      location.replace('https:' + location.href.substring(location.protocol.length));
+    }
+    // ── توليد CSRF Token ──
+    (function() {
+      let token = sessionStorage.getItem('csrf_token');
+      if (!token) {
+        token = Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2,'0')).join('');
+        sessionStorage.setItem('csrf_token', token);
+      }
+      window._csrfToken = token;
+    })();
+    // ── التحقق من CSRF قبل أي عملية حساسة ──
+    window.verifyCsrf = function(token) {
+      return token === window._csrfToken;
+    };
+  </script>
   <title>خزنة المرور السحابية 🔐</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -22,6 +41,30 @@
   </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    /* ── تحسينات التفاعلية للأزرار والصور ── */
+    button, .cat-btn, .social-btn, .fab, .btn-sm, .choice-btn, .security-btn, .sb-item, .sb-logout-btn {
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease !important;
+    }
+    button:hover:not(:disabled), .cat-btn:hover, .social-btn:hover, .fab:hover, .btn-sm:hover, .choice-btn:hover, .security-btn:hover, .sb-item:hover, .sb-logout-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      opacity: 0.92;
+    }
+    button:active:not(:disabled), .cat-btn:active, .social-btn:active, .fab:active, .btn-sm:active, .choice-btn:active, .security-btn:active, .sb-item:active, .sb-logout-btn:active {
+      transform: scale(0.97) !important;
+      opacity: 0.85 !important;
+    }
+    button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+    /* تفاعلية الصور */
+    .card-icon img, #previewImgOnly, .card img {
+      transition: transform 0.25s ease, filter 0.25s ease;
+      cursor: pointer;
+    }
+    .card-icon img:hover { transform: scale(1.08); filter: brightness(1.08); }
+    .card img:hover { filter: brightness(1.05); }
+    /* تأثير الكارد عند الضغط */
+    .card { transition: transform 0.2s ease, box-shadow 0.2s ease !important; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--shadow); }
+    .card:active { transform: scale(0.99); }
     [data-theme="dark"] {
       --bg: #060a14; --bg2: #0a0f1c; --card: #0f1624; --card2: #131b2c;
       --accent: #f5a623; --accent2: #e07b00; --text: #f1f5f9; --text2: #cbd5e1;
@@ -106,7 +149,7 @@
   </style>
 </head>
 <body>
-<div id="lockScreen"><div class="lock-card"><div style="font-size:60px;">🔐</div><div style="font-size:22px; font-weight:900; margin-bottom:8px;">التطبيق مقفل</div><input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8"><button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button><button class="btn-unlock" style="background:var(--card2); color:var(--text); margin-top:4px;" onclick="window.tryBiometric()">👆 بصمة الوجه</button></div></div>
+<div id="lockScreen"><div class="lock-card"><div style="font-size:60px;">🔐</div><div style="font-size:22px; font-weight:900; margin-bottom:8px;">التطبيق مقفل</div><input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8"><button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button></div></div>
 
 <div id="loginScreen" class="login-container">
   <div class="login-card">
@@ -263,15 +306,44 @@
 <!-- مودال مشاركة التطبيق -->
 <div class="overlay" id="shareAppOverlay" onclick="if(event.target===this) window.closeShareApp()">
   <div class="modal">
-    <div style="font-weight:900; font-size:18px; margin-bottom:12px;">📱 مشاركة التطبيق</div>
-    <div style="margin:12px 0; padding:12px; background:var(--card2); border-radius:20px; text-align:center; font-size:13px; word-break:break-all;">🔗 https://aamer777.github.io/asd/</div>
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <button class="choice-btn" onclick="window.shareAppLink('wa')">💬 واتساب</button>
-      <button class="choice-btn" onclick="window.shareAppLink('tg')">✈️ تليجرام</button>
-      <button class="choice-btn" onclick="window.shareAppLink('em')">📧 بريد</button>
-      <button class="choice-btn" onclick="window.shareAppLink('cp')">📋 نسخ</button>
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="font-size:48px; margin-bottom:8px;">🔐</div>
+      <div style="font-weight:900; font-size:20px; color:var(--accent);">مشاركة خزنة المرور</div>
+      <div style="font-size:12px; color:var(--muted2); margin-top:4px;">شارك التطبيق مع أصدقائك وعائلتك</div>
     </div>
-    <button onclick="window.closeShareApp()" style="width:100%; margin-top:16px; padding:12px; background:var(--card2); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text);">إغلاق</button>
+
+    <!-- معاينة الرسالة -->
+    <div style="background:linear-gradient(135deg,rgba(245,166,35,0.12),rgba(224,123,0,0.08)); border:1px solid rgba(245,166,35,0.3); border-radius:20px; padding:16px; margin-bottom:18px;">
+      <div style="font-size:11px; color:var(--muted2); margin-bottom:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">📨 الرسالة التي ستُرسَل</div>
+      <div style="font-size:13px; color:var(--text); line-height:1.8; white-space:pre-line; font-family:'Cairo',sans-serif;">🔐 <strong style="color:var(--accent);">خزنة المرور السحابية</strong>
+تطبيق مجاني لحفظ كلمات المرور بأمان مع مزامنة سحابية فورية ورفع صور أصلية.
+
+🌐 الرابط: https://aamer777.github.io/asd/
+
+<span style="font-size:11px; color:var(--muted2);">📤 أرسلها: <span id="shareFromName" style="color:var(--accent);">مستخدم</span> عبر موقع خزنة</span></div>
+    </div>
+
+    <!-- أزرار المشاركة -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+      <button onclick="window.shareAppLink('wa')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:#25D366;color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;box-shadow:0 4px 12px rgba(37,211,102,0.3);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        واتساب
+      </button>
+      <button onclick="window.shareAppLink('tg')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:#229ED9;color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;box-shadow:0 4px 12px rgba(34,158,217,0.3);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        تليجرام
+      </button>
+      <button onclick="window.shareAppLink('em')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:var(--card2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        بريد إلكتروني
+      </button>
+      <button onclick="window.shareAppLink('cp')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:var(--accent);color:#0a0e1a;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;box-shadow:0 4px 12px rgba(245,166,35,0.3);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        نسخ الرابط
+      </button>
+    </div>
+
+    <button onclick="window.closeShareApp()" style="width:100%; padding:13px; background:var(--card2); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--muted2); font-size:14px;">إغلاق</button>
   </div>
 </div>
 
@@ -281,7 +353,6 @@
     <div style="font-weight:900; font-size:18px; margin-bottom:16px;">🔒 إعدادات الأمان</div>
     <button class="security-btn" onclick="window.openPinSetup()">🔢 إعداد رقم سري (PIN)</button>
     <button class="security-btn" onclick="window.removePin()">❌ إزالة القفل السري</button>
-    <button class="security-btn" onclick="window.tryBiometric()">👆 إعداد البصمة / Face ID</button>
     <button onclick="document.getElementById('securityOverlay').classList.remove('open')" style="background:var(--card2); border-radius:40px; padding:12px; width:100%; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text);">إغلاق</button>
   </div>
 </div>
@@ -308,7 +379,6 @@
     <div id="sidebarEmail" class="sb-email">البريد الإلكتروني</div>
   </div>
   <div style="flex:1; padding:10px; overflow-y:auto;">
-    <button class="sb-item" onclick="window.toggleTheme(); window.closeSidebar();">🌓 تغيير المظهر</button>
     <button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); window.closeSidebar();">🔒 إعدادات الأمان</button>
     <button class="sb-item" onclick="window.openShareApp(); window.closeSidebar();">📤 مشاركة التطبيق</button>
     <button class="sb-item" onclick="window.openSendMessage(); window.closeSidebar();">✉️ إرسال رسالة</button>
@@ -587,13 +657,12 @@
           <div class="card-body">
             <div class="field">
               <span>📧 ${safeEmail}</span>
-              <button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText(${JSON.stringify(e.email||'')});showToast('تم نسخ الإيميل')">نسخ</button>
+              <button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText(${JSON.stringify(e.email||'')}).then(()=>showToast('✅ تم نسخ الإيميل')).catch(()=>{const ta=document.createElement('textarea');ta.value=${JSON.stringify(e.email||'')};document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✅ تم نسخ الإيميل')})">نسخ</button>
             </div>
             <div class="field">
-              <span>🔑 <span id="pwd-${e.id}">••••••</span></span>
+              <span>🔑 <span id="pwd-${e.id}">${safePass}</span></span>
               <div style="display:flex;gap:6px;">
-                <button class="btn-sm" onclick="event.stopPropagation();(function(){const s=document.getElementById('pwd-${e.id}');s.textContent=s.textContent==='••••••'?${JSON.stringify(e.pass||'')}:'••••••';})()">إظهار</button>
-                <button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText(${JSON.stringify(e.pass||'')});showToast('تم نسخ كلمة المرور')">نسخ</button>
+                <button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText(${JSON.stringify(e.pass||'')}).then(()=>showToast('✅ تم نسخ كلمة المرور')).catch(()=>{const ta=document.createElement('textarea');ta.value=${JSON.stringify(e.pass||'')};document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✅ تم نسخ كلمة المرور')})">نسخ</button>
               </div>
             </div>
             ${e.url ? `<div class="field"><span>🔗 <a href="${escapeHtml(e.url)}" target="_blank" style="color:var(--blue);">${escapeHtml(e.url)}</a></span></div>` : ''}
@@ -623,7 +692,6 @@
     const pass = document.getElementById('fPass').value.trim();
     if (!name) { showToast('اسم الحساب مطلوب', '#ef4444'); return; }
     if (!pass) { showToast('كلمة المرور مطلوبة', '#ef4444'); return; }
-
     const entryData = {
       name,
       email: document.getElementById('fEmail').value,
@@ -1171,6 +1239,23 @@
     if (!email || !pass) { showToast('أدخل الإيميل والرقم السري', '#ef4444'); return; }
     if (pass.length < 6) { showToast('الرقم السري 6 أحرف على الأقل', '#ef4444'); return; }
 
+    // التحقق من أن الإيميل غير مسجل مسبقاً في Firebase
+    showToast('⏳ جاري التحقق من الإيميل...', '#f5a623');
+    try {
+      // محاولة تسجيل دخول بكلمة مرور عشوائية — إذا أعطى خطأ wrong-password فالإيميل موجود
+      await signInWithEmailAndPassword(auth, email, '__CHECK_EXISTS__' + Math.random());
+    } catch(checkErr) {
+      if (checkErr.code === 'auth/user-not-found' || checkErr.code === 'auth/invalid-credential') {
+        // الإيميل غير مسجل — متابعة عملية التسجيل
+      } else if (checkErr.code === 'auth/wrong-password' || checkErr.code === 'auth/email-already-in-use') {
+        showToast('❌ هذا الإيميل مسجل مسبقاً — حاول تسجيل الدخول', '#ef4444'); return;
+      } else if (checkErr.code === 'auth/invalid-email') {
+        showToast('❌ إيميل غير صالح', '#ef4444'); return;
+      }
+      // للأكواد الأخرى (مثل invalid-credential في Firebase v9+) يعني الإيميل موجود أو غير موجود
+      // نتحقق بطريقة أخرى: نحاول التسجيل مباشرة ونتعامل مع الخطأ
+    }
+
     // إرسال كود التحقق أولاً
     showToast('⏳ جاري إرسال رمز التحقق...', '#f5a623');
     _pendingVerifyEmail = email;
@@ -1178,14 +1263,13 @@
 
     const sent = await sendVerifyCode(email);
     if (!sent) {
-      showToast('تعذّر إرسال الرمز — تحقق من EmailJS أو سجّل مباشرة', '#ef4444');
-      // fallback: تسجيل مباشر بدون تأكيد
+      showToast('تعذّر إرسال الرمز — جاري المحاولة مباشرة...', '#ef4444');
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
         localStorage.setItem('vault_last_email', email);
         showToast('✅ تم إنشاء الحساب');
       } catch(e) {
-        const msgs = { 'auth/email-already-in-use': 'الإيميل مسجل مسبقاً', 'auth/invalid-email': 'إيميل غير صالح', 'auth/weak-password': 'الرقم السري ضعيف جداً' };
+        const msgs = { 'auth/email-already-in-use': '❌ الإيميل مسجل مسبقاً — حاول تسجيل الدخول', 'auth/invalid-email': 'إيميل غير صالح', 'auth/weak-password': 'الرقم السري ضعيف جداً' };
         showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
       }
       return;
@@ -1474,16 +1558,25 @@
   };
 
   // ── المشاركة ──
-  window.openShareApp = () => document.getElementById('shareAppOverlay').classList.add('open');
+  window.openShareApp = () => {
+    // تحديث اسم المرسل في معاينة الرسالة
+    const nameEl = document.getElementById('shareFromName');
+    if (nameEl) {
+      const senderName = currentUser?.displayName || currentUser?.email?.split('@')[0] || (isDemo ? 'المستخدم التجريبي' : 'مستخدم');
+      nameEl.textContent = senderName;
+    }
+    document.getElementById('shareAppOverlay').classList.add('open');
+  };
   window.closeShareApp = () => document.getElementById('shareAppOverlay').classList.remove('open');
   window.shareAppLink = (type) => {
     const url = 'https://aamer777.github.io/asd/';
-    const msg = `🔐 خزنة المرور السحابية\nحفظ آمن مع رفع صور أصلية\n${url}`;
+    const senderName = currentUser?.displayName || currentUser?.email?.split('@')[0] || (isDemo ? 'المستخدم التجريبي' : 'مستخدم');
+    const msg = `🔐 خزنة المرور السحابية\nتطبيق مجاني لحفظ كلمات المرور بأمان مع مزامنة سحابية فورية ورفع صور أصلية.\n\n🌐 الرابط: ${url}\n\n📤 أرسلها: ${senderName} عبر موقع خزنة`;
     if (type === 'wa') window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     else if (type === 'tg') window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(msg)}`, '_blank');
-    else if (type === 'em') window.open(`mailto:?subject=تطبيق خزنة المرور&body=${encodeURIComponent(msg)}`, '_blank');
-    else if (type === 'cp') { navigator.clipboard.writeText(url); showToast('تم نسخ رابط التطبيق'); }
-    window.closeShareApp();
+    else if (type === 'em') window.open(`mailto:?subject=تطبيق خزنة المرور السحابية&body=${encodeURIComponent(msg)}`, '_blank');
+    else if (type === 'cp') { navigator.clipboard.writeText(url).then(()=>showToast('✅ تم نسخ رابط التطبيق')).catch(()=>{const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✅ تم نسخ رابط التطبيق')}); }
+    if (type !== 'cp') window.closeShareApp();
   };
 
   // ── فلاتر التصنيف ──
