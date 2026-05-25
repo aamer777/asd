@@ -6,6 +6,18 @@
   <title>خزنة المرور السحابية 🔐</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    // EmailJS - أضف هنا بياناتك من emailjs.com (مجاني 200 رسالة/شهر)
+    // 1. سجّل على https://www.emailjs.com
+    // 2. أنشئ service (Gmail) واحفظ Service ID
+    // 3. أنشئ template واحفظ Template ID
+    // 4. من Account > API Keys انسخ Public Key
+    const EMAILJS_PUBLIC_KEY  = 'AAqRxMl4frLp82l-7';
+    const EMAILJS_SERVICE_ID  = 'service_jmk7uc5';
+    const EMAILJS_TEMPLATE_ID = 'template_5qrk29k';
+    const OWNER_EMAIL         = 'aamer777@gmail.com';
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     [data-theme="dark"] {
@@ -126,7 +138,7 @@
     </div>
     <div id="emailAuthSection">
       <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:10px;">
-      <input class="form-input" id="authPass" type="password" placeholder="🔑 الرقم السري" style="margin-bottom:10px;">
+      <input class="form-input" id="authPass" type="text" placeholder="🔑 الرقم السري" style="margin-bottom:10px;">
       <div style="display:flex; gap:10px; margin-bottom:10px;">
         <button class="social-btn" onclick="window.loginWithEmail()" style="flex:1; background:var(--accent); color:#0a0e1a; margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; font-weight:800;">دخول</button>
         <button class="social-btn" onclick="window.registerWithEmail()" style="flex:1; background:var(--card2); color:var(--text); margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; border:1px solid var(--border2);">تسجيل جديد</button>
@@ -309,9 +321,10 @@
     <div style="text-align:center; font-size:20px; font-weight:900; margin-bottom:20px;">✉️ إرسال رسالة</div>
     <input class="form-input" id="msgSubject" placeholder="موضوع الرسالة *">
     <textarea class="form-input" id="msgBody" placeholder="نص الرسالة *" rows="5" style="resize:vertical; min-height:120px;"></textarea>
-    <div style="display:flex; gap:12px; margin-top:16px;">
+    <div id="msgStatus" style="font-size:13px; text-align:center; margin:6px 0; min-height:18px;"></div>
+    <div style="display:flex; gap:12px; margin-top:10px;">
       <button style="flex:1; background:var(--card2); border-radius:40px; padding:12px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text);" onclick="window.closeSendMessage()">إلغاء</button>
-      <button style="flex:2; background:var(--accent); border-radius:40px; padding:12px; font-weight:900; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:15px; color:#0a0e1a;" onclick="window.sendMessageToEmail()">📨 إرسال</button>
+      <button id="btnSendMsg" style="flex:2; background:var(--accent); border-radius:40px; padding:12px; font-weight:900; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:15px; color:#0a0e1a;" onclick="window.sendMessageToEmail()">📨 إرسال</button>
     </div>
   </div>
 </div>
@@ -333,7 +346,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -347,6 +360,20 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
+  // معالجة نتيجة redirect (Twitter / Facebook)
+  getRedirectResult(auth).then(result => {
+    if (result?.user) showToast('✅ تم تسجيل الدخول بنجاح');
+  }).catch(e => {
+    if (e.code && e.code !== 'auth/null-user') {
+      const msgs = {
+        'auth/account-exists-with-different-credential': 'الإيميل مسجّل بطريقة أخرى — جرّب Google أو الإيميل',
+        'auth/invalid-credential': 'بيانات الاعتماد غير صالحة — تأكد من إعداد Twitter/Facebook في Firebase Console',
+        'auth/operation-not-allowed': 'هذا مزوّد غير مفعَّل في Firebase Console'
+      };
+      showToast(msgs[e.code] || ('خطأ دخول: ' + e.code), '#ef4444');
+    }
+  });
 
   // ── Cloudinary — مجاني بدون فوترة ──
   const CLOUDINARY_CLOUD  = 'dwbhzpobd';
@@ -1129,20 +1156,19 @@
   window.loginWithFacebook = async () => {
     try {
       const provider = new FacebookAuthProvider();
-      await signInWithPopup(auth, provider);
+      // نستخدم redirect بدل popup لأن popup يُحجب في كثير من المتصفحات
+      await signInWithRedirect(auth, provider);
     } catch(e) {
-      if (e.code === 'auth/popup-blocked') showToast('السماح بالنوافذ المنبثقة مطلوب', '#ef4444');
-      else showToast('فشل Facebook: ' + (e.message || e.code), '#ef4444');
+      showToast('فشل Facebook: ' + (e.message || e.code), '#ef4444');
     }
   };
 
   window.loginWithTwitter = async () => {
     try {
       const provider = new TwitterAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
     } catch(e) {
-      if (e.code === 'auth/popup-blocked') showToast('السماح بالنوافذ المنبثقة مطلوب', '#ef4444');
-      else showToast('فشل Twitter/X: ' + (e.message || e.code), '#ef4444');
+      showToast('فشل Twitter/X: ' + (e.message || e.code), '#ef4444');
     }
   };
 
@@ -1306,24 +1332,57 @@
     document.getElementById('sidebarPanel').classList.remove('open');
   };
 
-  // ── إرسال رسالة ──
+  // ── إرسال رسالة عبر EmailJS ──
   window.openSendMessage = () => {
     document.getElementById('msgSubject').value = '';
     document.getElementById('msgBody').value = '';
+    document.getElementById('msgStatus').textContent = '';
     document.getElementById('sendMessageOverlay').classList.add('open');
   };
   window.closeSendMessage = () => {
     document.getElementById('sendMessageOverlay').classList.remove('open');
   };
-  window.sendMessageToEmail = () => {
+  window.sendMessageToEmail = async () => {
     const subject = document.getElementById('msgSubject').value.trim();
     const body = document.getElementById('msgBody').value.trim();
+    const statusEl = document.getElementById('msgStatus');
     if (!subject) { showToast('موضوع الرسالة مطلوب', '#ef4444'); return; }
     if (!body) { showToast('نص الرسالة مطلوب', '#ef4444'); return; }
-    const mailto = `mailto:aamer777@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailto, '_blank');
-    showToast('✅ تم فتح تطبيق البريد');
-    window.closeSendMessage();
+
+    // إذا لم يُعيَّن EmailJS بعد → افتح mailto كبديل
+    if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+      const mailto = `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(mailto, '_blank');
+      showToast('✅ تم فتح تطبيق البريد');
+      window.closeSendMessage();
+      return;
+    }
+
+    const btn = document.getElementById('btnSendMsg');
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري الإرسال...';
+    statusEl.textContent = '';
+
+    try {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        subject,
+        message: body,
+        to_email: OWNER_EMAIL,
+        from_name: currentUser?.displayName || currentUser?.email || 'زائر'
+      });
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = '✅ تم إرسال الرسالة بنجاح!';
+      showToast('✅ تم إرسال الرسالة');
+      setTimeout(() => window.closeSendMessage(), 1500);
+    } catch(err) {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = '❌ فشل الإرسال — تحقق من إعدادات EmailJS';
+      showToast('فشل الإرسال', '#ef4444');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '📨 إرسال';
+    }
   };
 
   // ── المشاركة ──
