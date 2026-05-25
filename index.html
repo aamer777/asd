@@ -1296,19 +1296,69 @@
 
   window.loginWithEmail = async () => {
     const email = document.getElementById('authEmail').value.trim();
-    const pass = document.getElementById('authPass').value;
+    const pass  = document.getElementById('authPass').value;
     if (!email || !pass) { showToast('أدخل الإيميل والرقم السري', '#ef4444'); return; }
+
+    // ── محاولة الدخول بالإيميل وكلمة المرور ──
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       localStorage.setItem('vault_last_email', email);
+      return; // ✅ نجح
     } catch(e) {
-      const msgs = {
-        'auth/user-not-found': 'الإيميل غير مسجل',
-        'auth/wrong-password': 'الرقم السري خاطئ',
-        'auth/invalid-email': 'إيميل غير صالح',
-        'auth/invalid-credential': 'بيانات خاطئة — تحقق من الإيميل والرقم السري'
-      };
-      showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
+
+      // الإيميل صحيح لكن كلمة المرور خاطئة
+      if (e.code === 'auth/wrong-password') {
+        showToast('❌ الرقم السري خاطئ', '#ef4444'); return;
+      }
+      if (e.code === 'auth/invalid-email') {
+        showToast('❌ صيغة الإيميل غير صحيحة', '#ef4444'); return;
+      }
+      if (e.code === 'auth/too-many-requests') {
+        showToast('⏳ محاولات كثيرة — انتظر قليلاً', '#ef4444'); return;
+      }
+
+      // auth/invalid-credential أو auth/user-not-found
+      // → نتحقق هل الإيميل مسجل بـ Google أو طريقة أخرى
+      if (e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found') {
+        showToast('⏳ جاري التحقق من الحساب...', '#f5a623');
+
+        // نحاول إنشاء حساب جديد — إذا فشل بـ email-already-in-use
+        // فهذا يعني الإيميل موجود لكن بطريقة أخرى (Google مثلاً)
+        try {
+          const testCred = await createUserWithEmailAndPassword(auth, email, '__PROBE__' + Math.random());
+          // نجح = الإيميل غير مسجل أصلاً → نحذف الحساب التجريبي ونُبلّغ
+          try { await testCred.user.delete(); } catch(_) {}
+          await signOut(auth);
+          showToast('❌ هذا الإيميل غير مسجل — سجّل حساباً جديداً', '#ef4444');
+          const hint = document.getElementById('authEmailHint');
+          if (hint) { hint.textContent = '⚠️ الإيميل غير موجود — اضغط "تسجيل جديد"'; hint.style.display = 'block'; }
+        } catch(probeErr) {
+          if (probeErr.code === 'auth/email-already-in-use') {
+            // الإيميل موجود لكن بطريقة أخرى (Google / Facebook...)
+            showToast('ℹ️ هذا الإيميل مسجل بـ Google — استخدم زر Google للدخول', '#3b82f6');
+            // إبراز زر Google
+            const hint = document.getElementById('authEmailHint');
+            if (hint) {
+              hint.innerHTML = '🔵 هذا الحساب مسجل عبر <strong>Google</strong> — استخدم زر <strong>"تسجيل الدخول بـ Google"</strong> أعلاه';
+              hint.style.display = 'block';
+              hint.style.background = 'rgba(59,130,246,0.12)';
+              hint.style.color = '#3b82f6';
+            }
+            // تمييز زر Google بصرياً
+            const googleBtn = document.querySelector('.social-btn[onclick*="loginWithGoogle"]');
+            if (googleBtn) {
+              googleBtn.style.transform = 'scale(1.04)';
+              googleBtn.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.5)';
+              setTimeout(() => { googleBtn.style.transform = ''; googleBtn.style.boxShadow = ''; }, 3000);
+            }
+          } else {
+            showToast('خطأ: ' + probeErr.message, '#ef4444');
+          }
+        }
+        return;
+      }
+
+      showToast('خطأ: ' + e.message, '#ef4444');
     }
   };
 
