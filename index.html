@@ -227,25 +227,6 @@
       تجربة التطبيق (ديمو)
     </button>
 
-    <!-- قسم الإيميل والرقم السري -->
-    <div style="margin:16px 0; display:flex; align-items:center; gap:10px;">
-      <div style="flex:1; height:1px; background:var(--border2);"></div>
-      <span style="color:var(--muted2); font-size:12px;">أو بالإيميل</span>
-      <div style="flex:1; height:1px; background:var(--border2);"></div>
-    </div>
-    <div id="emailAuthSection">
-      <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:6px;" oninput="window.saveEmailDraft(this.value);document.getElementById('authEmailHint').style.display='none'">
-      <div id="authEmailHint" style="display:none; font-size:11px; color:#f59e0b; background:rgba(245,158,11,0.1); border-radius:12px; padding:8px 12px; margin-bottom:8px; text-align:center;"></div>
-      <input class="form-input" id="authPass" type="text" placeholder="🔑 الرقم السري" style="margin-bottom:6px;">
-      <div style="text-align:left; margin-bottom:12px;">
-        <button onclick="window.forgotPassword()" style="background:none; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:12px; color:var(--accent); padding:0; text-decoration:underline;">🔑 نسيت كلمة المرور؟</button>
-      </div>
-      <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <button class="social-btn" onclick="window.loginWithEmail()" style="flex:1; background:var(--accent); color:#0a0e1a; margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; font-weight:800;">دخول</button>
-        <button class="social-btn" onclick="window.registerWithEmail()" style="flex:1; background:var(--card2); color:var(--text); margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; border:1px solid var(--border2);">تسجيل جديد</button>
-      </div>
-    </div>
-
     <!-- نافذة تأكيد البريد -->
     <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; margin-top:8px; text-align:center;">
       <div style="font-size:32px; margin-bottom:8px;">📨</div>
