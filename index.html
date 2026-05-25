@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>خزنة المرور السحابية 🔐</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -111,20 +113,10 @@
     <div class="login-logo">🔐</div>
     <div class="login-title">خزنة المرور السحابية</div>
     <div style="text-align:center; margin-bottom:20px; color:var(--muted2);">حفظ آمن · مزامنة فورية · رفع صور أصلية</div>
-    <button class="social-btn google" onclick="window.loginWithGoogle()">
-      <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+    <button class="social-btn" onclick="window.loginWithGoogle()" style="background:linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853); color:#fff; font-weight:800; margin-bottom:14px; border-radius:60px; padding:15px; font-size:15px; border:none; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 4px 18px rgba(66,133,244,0.35);">
+      <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       تسجيل الدخول بـ Google
     </button>
-    <div style="display:flex;gap:10px;margin-bottom:10px;">
-      <button class="social-btn" onclick="window.loginWithFacebook()" style="flex:1;background:#1877f2;color:#fff;margin-bottom:0;border-radius:60px;padding:13px 8px;font-size:13px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.514c-1.491 0-1.956.93-1.956 1.887v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-        Facebook
-      </button>
-      <button class="social-btn" onclick="window.loginWithTwitter()" style="flex:1;background:#000;color:#fff;margin-bottom:0;border-radius:60px;padding:13px 8px;font-size:13px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        X (Twitter)
-      </button>
-    </div>
     <button class="social-btn demo" onclick="window.startDemo()">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       تجربة التطبيق (ديمو)
@@ -137,12 +129,25 @@
       <div style="flex:1; height:1px; background:var(--border2);"></div>
     </div>
     <div id="emailAuthSection">
-      <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:10px;">
+      <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:10px;" oninput="window.saveEmailDraft(this.value)">
       <input class="form-input" id="authPass" type="text" placeholder="🔑 الرقم السري" style="margin-bottom:10px;">
       <div style="display:flex; gap:10px; margin-bottom:10px;">
         <button class="social-btn" onclick="window.loginWithEmail()" style="flex:1; background:var(--accent); color:#0a0e1a; margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; font-weight:800;">دخول</button>
         <button class="social-btn" onclick="window.registerWithEmail()" style="flex:1; background:var(--card2); color:var(--text); margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; border:1px solid var(--border2);">تسجيل جديد</button>
       </div>
+    </div>
+
+    <!-- نافذة تأكيد البريد -->
+    <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; margin-top:8px; text-align:center;">
+      <div style="font-size:32px; margin-bottom:8px;">📨</div>
+      <div style="font-weight:800; font-size:15px; color:var(--accent); margin-bottom:6px;">تأكيد البريد الإلكتروني</div>
+      <div style="font-size:12px; color:var(--muted2); margin-bottom:14px;" id="verifyEmailHint">تم إرسال رمز التحقق إلى بريدك</div>
+      <input class="form-input" id="verifyCode" type="text" placeholder="أدخل الرمز المكوّن من 6 أرقام" maxlength="6" style="text-align:center; letter-spacing:8px; font-size:22px; font-weight:900; margin-bottom:10px;">
+      <div style="display:flex; gap:10px;">
+        <button onclick="window.cancelVerify()" style="flex:1; padding:11px; background:var(--card); border-radius:40px; border:1px solid var(--border2); cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text); font-size:13px;">إلغاء</button>
+        <button onclick="window.checkVerifyCode()" style="flex:2; padding:11px; background:var(--accent); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:13px; color:#0a0e1a;">✅ تحقق</button>
+      </div>
+      <button onclick="window.resendVerifyCode()" style="width:100%; margin-top:8px; padding:10px; background:transparent; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--muted2); font-size:12px;">إعادة إرسال الرمز</button>
     </div>
   </div>
 </div>
@@ -346,7 +351,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -361,21 +366,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // معالجة نتيجة redirect (Twitter / Facebook)
-  getRedirectResult(auth).then(result => {
-    if (result?.user) showToast('✅ تم تسجيل الدخول بنجاح');
-  }).catch(e => {
-    if (e.code && e.code !== 'auth/null-user') {
-      const msgs = {
-        'auth/account-exists-with-different-credential': 'الإيميل مسجّل بطريقة أخرى — جرّب Google أو الإيميل',
-        'auth/invalid-credential': 'بيانات الاعتماد غير صالحة — تأكد من إعداد Twitter/Facebook في Firebase Console',
-        'auth/operation-not-allowed': 'هذا مزوّد غير مفعَّل في Firebase Console'
-      };
-      showToast(msgs[e.code] || ('خطأ دخول: ' + e.code), '#ef4444');
-    }
-  });
-
-  // ── Cloudinary — مجاني بدون فوترة ──
+  // ── Cloudinary ──
   const CLOUDINARY_CLOUD  = 'dwbhzpobd';
   const CLOUDINARY_PRESET = 'vault_upload'; // ← اسم الـ preset الذي أنشأته (Unsigned)
 
@@ -1117,30 +1108,127 @@
     setTimeout(initImageDropzone, 50);
   };
 
+  // ── تذكر الإيميل تلقائياً ──
+  let _pendingVerifyEmail = null, _pendingVerifyPass = null, _verifyCodeSent = null;
+
+  window.saveEmailDraft = (val) => {
+    if (val) localStorage.setItem('vault_last_email', val);
+  };
+
+  // تعبئة الإيميل المحفوظ عند فتح الصفحة
+  (function() {
+    const saved = localStorage.getItem('vault_last_email');
+    if (saved) {
+      const el = document.getElementById('authEmail');
+      if (el) el.value = saved;
+    }
+  })();
+
   window.loginWithEmail = async () => {
     const email = document.getElementById('authEmail').value.trim();
     const pass = document.getElementById('authPass').value;
     if (!email || !pass) { showToast('أدخل الإيميل والرقم السري', '#ef4444'); return; }
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      localStorage.setItem('vault_last_email', email);
     } catch(e) {
-      const msgs = { 'auth/user-not-found': 'الإيميل غير مسجل', 'auth/wrong-password': 'الرقم السري خاطئ', 'auth/invalid-email': 'إيميل غير صالح', 'auth/invalid-credential': 'بيانات خاطئة' };
+      const msgs = {
+        'auth/user-not-found': 'الإيميل غير مسجل',
+        'auth/wrong-password': 'الرقم السري خاطئ',
+        'auth/invalid-email': 'إيميل غير صالح',
+        'auth/invalid-credential': 'بيانات خاطئة — تحقق من الإيميل والرقم السري'
+      };
       showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
     }
   };
+
+  // ── توليد كود عشوائي 6 أرقام وإرساله عبر EmailJS ──
+  function generateCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  async function sendVerifyCode(email) {
+    const code = generateCode();
+    _verifyCodeSent = code;
+    try {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        subject: '🔐 رمز تأكيد بريدك في خزنة المرور',
+        message: `رمز التحقق الخاص بك هو:\n\n${code}\n\nصالح لمدة 10 دقائق.`,
+        to_email: email,
+        from_name: 'خزنة المرور السحابية'
+      });
+      return true;
+    } catch(err) {
+      console.error('EmailJS error:', err);
+      return false;
+    }
+  }
 
   window.registerWithEmail = async () => {
     const email = document.getElementById('authEmail').value.trim();
     const pass = document.getElementById('authPass').value;
     if (!email || !pass) { showToast('أدخل الإيميل والرقم السري', '#ef4444'); return; }
     if (pass.length < 6) { showToast('الرقم السري 6 أحرف على الأقل', '#ef4444'); return; }
+
+    // إرسال كود التحقق أولاً
+    showToast('⏳ جاري إرسال رمز التحقق...', '#f5a623');
+    _pendingVerifyEmail = email;
+    _pendingVerifyPass = pass;
+
+    const sent = await sendVerifyCode(email);
+    if (!sent) {
+      showToast('تعذّر إرسال الرمز — تحقق من EmailJS أو سجّل مباشرة', '#ef4444');
+      // fallback: تسجيل مباشر بدون تأكيد
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        localStorage.setItem('vault_last_email', email);
+        showToast('✅ تم إنشاء الحساب');
+      } catch(e) {
+        const msgs = { 'auth/email-already-in-use': 'الإيميل مسجل مسبقاً', 'auth/invalid-email': 'إيميل غير صالح', 'auth/weak-password': 'الرقم السري ضعيف جداً' };
+        showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
+      }
+      return;
+    }
+
+    document.getElementById('emailAuthSection').style.display = 'none';
+    document.getElementById('verifySection').style.display = 'block';
+    document.getElementById('verifyEmailHint').textContent = `تم إرسال رمز التحقق إلى ${email}`;
+    document.getElementById('verifyCode').value = '';
+    showToast('📨 تحقق من بريدك الإلكتروني');
+  };
+
+  window.checkVerifyCode = async () => {
+    const entered = document.getElementById('verifyCode').value.trim();
+    if (!entered) { showToast('أدخل الرمز', '#ef4444'); return; }
+    if (entered !== _verifyCodeSent) {
+      showToast('الرمز غير صحيح ❌', '#ef4444');
+      document.getElementById('verifyCode').value = '';
+      return;
+    }
+    // الكود صحيح — إنشاء الحساب
     try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      showToast('✅ تم إنشاء الحساب بنجاح');
+      await createUserWithEmailAndPassword(auth, _pendingVerifyEmail, _pendingVerifyPass);
+      localStorage.setItem('vault_last_email', _pendingVerifyEmail);
+      showToast('✅ تم التحقق وإنشاء الحساب بنجاح!');
+      window.cancelVerify();
     } catch(e) {
-      const msgs = { 'auth/email-already-in-use': 'الإيميل مسجل مسبقاً', 'auth/invalid-email': 'إيميل غير صالح', 'auth/weak-password': 'الرقم السري ضعيف جداً' };
+      const msgs = { 'auth/email-already-in-use': 'الإيميل مسجل مسبقاً — حاول الدخول', 'auth/weak-password': 'الرقم السري ضعيف جداً' };
       showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
     }
+  };
+
+  window.resendVerifyCode = async () => {
+    if (!_pendingVerifyEmail) return;
+    showToast('⏳ إعادة إرسال الرمز...', '#f5a623');
+    const sent = await sendVerifyCode(_pendingVerifyEmail);
+    showToast(sent ? '📨 تم إعادة إرسال الرمز' : 'فشل الإرسال', sent ? '#10b981' : '#ef4444');
+  };
+
+  window.cancelVerify = () => {
+    _pendingVerifyEmail = null; _pendingVerifyPass = null; _verifyCodeSent = null;
+    document.getElementById('verifySection').style.display = 'none';
+    document.getElementById('emailAuthSection').style.display = 'block';
   };
 
   // ── المصادقة ──
