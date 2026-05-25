@@ -41,30 +41,92 @@
   </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    /* ── تحسينات التفاعلية للأزرار والصور ── */
-    button, .cat-btn, .social-btn, .fab, .btn-sm, .choice-btn, .security-btn, .sb-item, .sb-logout-btn {
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease !important;
-    }
-    button:hover:not(:disabled), .cat-btn:hover, .social-btn:hover, .fab:hover, .btn-sm:hover, .choice-btn:hover, .security-btn:hover, .sb-item:hover, .sb-logout-btn:hover {
-      transform: translateY(-1px) scale(1.02);
-      opacity: 0.92;
-    }
-    button:active:not(:disabled), .cat-btn:active, .social-btn:active, .fab:active, .btn-sm:active, .choice-btn:active, .security-btn:active, .sb-item:active, .sb-logout-btn:active {
-      transform: scale(0.97) !important;
-      opacity: 0.85 !important;
-    }
-    button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
-    /* تفاعلية الصور */
-    .card-icon img, #previewImgOnly, .card img {
-      transition: transform 0.25s ease, filter 0.25s ease;
+
+    /* ══════════════════════════════════════════════
+       تفاعلية الأزرار — ذكية وسلسة
+    ══════════════════════════════════════════════ */
+    button, .cat-btn, .social-btn, .fab, .btn-sm, .choice-btn,
+    .security-btn, .sb-item, .sb-logout-btn, .color-dot, .card-icon {
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.18s ease,
+                  background 0.18s ease,
+                  opacity 0.18s ease !important;
       cursor: pointer;
     }
-    .card-icon img:hover { transform: scale(1.08); filter: brightness(1.08); }
-    .card img:hover { filter: brightness(1.05); }
-    /* تأثير الكارد عند الضغط */
-    .card { transition: transform 0.2s ease, box-shadow 0.2s ease !important; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--shadow); }
-    .card:active { transform: scale(0.99); }
+    /* Hover — رفع خفيف */
+    button:hover:not(:disabled),
+    .social-btn:hover, .fab:hover, .btn-sm:hover,
+    .choice-btn:hover, .security-btn:hover,
+    .sb-item:hover, .sb-logout-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    }
+    /* Active — ضغط واضح */
+    button:active:not(:disabled),
+    .social-btn:active, .fab:active, .btn-sm:active,
+    .choice-btn:active, .security-btn:active,
+    .sb-item:active, .sb-logout-btn:active {
+      transform: scale(0.95) !important;
+      box-shadow: none !important;
+    }
+    /* FAB — تأثير نبض */
+    .fab-add:hover { transform: scale(1.12) rotate(45deg) !important; }
+    .fab-add:active { transform: scale(0.92) rotate(45deg) !important; }
+    /* cat-btn نشط */
+    .cat-btn { transition: all 0.2s ease !important; }
+    .cat-btn:hover { transform: translateY(-2px); border-color: var(--accent) !important; }
+    .cat-btn:active { transform: scale(0.95) !important; }
+    /* زر نسخ — تأثير اكتمال */
+    .copy-btn { position: relative; overflow: hidden; }
+    .copy-btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(16,185,129,0.15);
+      transform: scaleX(0); transform-origin: right;
+      transition: transform 0.3s ease; border-radius: inherit;
+    }
+    .copy-btn.copied::after { transform: scaleX(1); }
+    /* disabled */
+    button:disabled { opacity: 0.45 !important; cursor: not-allowed !important; transform: none !important; }
+
+    /* ══════════════════════════════════════════════
+       تفاعلية الصور — ذكية
+    ══════════════════════════════════════════════ */
+    .card-icon { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1) !important; }
+    .card-icon:hover { transform: scale(1.1) rotate(-3deg) !important; }
+    .card-icon img {
+      transition: filter 0.25s ease, transform 0.25s ease;
+    }
+    .card-icon img:hover { filter: brightness(1.1) saturate(1.2); }
+    /* صور البطاقة الموسّعة */
+    .card-body img {
+      transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+      cursor: zoom-in;
+      border-radius: 12px;
+    }
+    .card-body img:hover {
+      transform: scale(1.03);
+      filter: brightness(1.05);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.3);
+    }
+    /* الكارد نفسه */
+    .card {
+      transition: transform 0.2s ease, box-shadow 0.22s ease,
+                  border-color 0.2s ease !important;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px var(--shadow);
+      border-color: var(--border2) !important;
+    }
+    .card:active { transform: scale(0.99) !important; }
+    /* صورة الأفاتار */
+    .avatar-circle {
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    .avatar-circle:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 14px rgba(245,166,35,0.4);
+    }
     [data-theme="dark"] {
       --bg: #060a14; --bg2: #0a0f1c; --card: #0f1624; --card2: #131b2c;
       --accent: #f5a623; --accent2: #e07b00; --text: #f1f5f9; --text2: #cbd5e1;
@@ -172,8 +234,12 @@
       <div style="flex:1; height:1px; background:var(--border2);"></div>
     </div>
     <div id="emailAuthSection">
-      <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:10px;" oninput="window.saveEmailDraft(this.value)">
-      <input class="form-input" id="authPass" type="text" placeholder="🔑 الرقم السري" style="margin-bottom:10px;">
+      <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:6px;" oninput="window.saveEmailDraft(this.value);document.getElementById('authEmailHint').style.display='none'">
+      <div id="authEmailHint" style="display:none; font-size:11px; color:#f59e0b; background:rgba(245,158,11,0.1); border-radius:12px; padding:8px 12px; margin-bottom:8px; text-align:center;"></div>
+      <input class="form-input" id="authPass" type="text" placeholder="🔑 الرقم السري" style="margin-bottom:6px;">
+      <div style="text-align:left; margin-bottom:12px;">
+        <button onclick="window.forgotPassword()" style="background:none; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:12px; color:var(--accent); padding:0; text-decoration:underline;">🔑 نسيت كلمة المرور؟</button>
+      </div>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
         <button class="social-btn" onclick="window.loginWithEmail()" style="flex:1; background:var(--accent); color:#0a0e1a; margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; font-weight:800;">دخول</button>
         <button class="social-btn" onclick="window.registerWithEmail()" style="flex:1; background:var(--card2); color:var(--text); margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; border:1px solid var(--border2);">تسجيل جديد</button>
@@ -421,7 +487,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, fetchSignInMethodsForEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -657,12 +723,12 @@
           <div class="card-body">
             <div class="field">
               <span>📧 ${safeEmail}</span>
-              <button class="btn-sm" onclick="event.stopPropagation();window.copyText(${JSON.stringify(e.email||'')},'الإيميل')">نسخ</button>
+              <button class="btn-sm copy-btn" data-copy="${safeEmail}" data-label="الإيميل" onclick="event.stopPropagation();window.copyText(this.dataset.copy,this.dataset.label)">📋 نسخ</button>
             </div>
             <div class="field">
               <span>🔑 <span id="pwd-${e.id}">${safePass}</span></span>
               <div style="display:flex;gap:6px;">
-                <button class="btn-sm" onclick="event.stopPropagation();window.copyText(${JSON.stringify(e.pass||'')},'كلمة المرور')">نسخ</button>
+                <button class="btn-sm copy-btn" data-copy="${safePass}" data-label="كلمة المرور" onclick="event.stopPropagation();window.copyText(this.dataset.copy,this.dataset.label)">📋 نسخ</button>
               </div>
             </div>
             ${e.url ? `<div class="field"><span>🔗 <a href="${escapeHtml(e.url)}" target="_blank" style="color:var(--blue);">${escapeHtml(e.url)}</a></span></div>` : ''}
@@ -687,8 +753,20 @@
 
   // ── دالة نسخ النص (تعمل على جميع المتصفحات) ──
   window.copyText = function(text, label) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ ' + label)).catch(() => fallbackCopy(text, label));
+    const doSuccess = () => {
+      showToast('✅ تم نسخ ' + label);
+      // تأثير بصري على الزر الذي ضُغط
+      const activeBtn = document.activeElement;
+      if (activeBtn && activeBtn.classList.contains('copy-btn')) {
+        const orig = activeBtn.innerHTML;
+        activeBtn.innerHTML = '✅';
+        activeBtn.style.background = 'rgba(16,185,129,0.2)';
+        activeBtn.style.color = '#10b981';
+        setTimeout(() => { activeBtn.innerHTML = orig; activeBtn.style.background = ''; activeBtn.style.color = ''; }, 1500);
+      }
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(doSuccess).catch(() => fallbackCopy(text, label));
     } else {
       fallbackCopy(text, label);
     }
@@ -696,13 +774,16 @@
   function fallbackCopy(text, label) {
     const ta = document.createElement('textarea');
     ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
     document.body.appendChild(ta);
     ta.focus();
     ta.select();
-    try { document.execCommand('copy'); showToast('✅ تم نسخ ' + label); }
-    catch(e) { showToast('❌ فشل النسخ', '#ef4444'); }
+    try {
+      document.execCommand('copy');
+      showToast('✅ تم نسخ ' + label);
+    } catch(e) {
+      showToast('❌ فشل النسخ — انسخ يدوياً', '#ef4444');
+    }
     document.body.removeChild(ta);
   }
 
@@ -1260,47 +1341,71 @@
     if (!email || !pass) { showToast('أدخل الإيميل والرقم السري', '#ef4444'); return; }
     if (pass.length < 6) { showToast('الرقم السري 6 أحرف على الأقل', '#ef4444'); return; }
 
-    // التحقق من أن الإيميل غير مسجل مسبقاً في Firebase
+    // ── التحقق الحقيقي من وجود الإيميل في Firebase ──
     showToast('⏳ جاري التحقق من الإيميل...', '#f5a623');
     try {
-      // محاولة تسجيل دخول بكلمة مرور عشوائية — إذا أعطى خطأ wrong-password فالإيميل موجود
-      await signInWithEmailAndPassword(auth, email, '__CHECK_EXISTS__' + Math.random());
-    } catch(checkErr) {
-      if (checkErr.code === 'auth/user-not-found' || checkErr.code === 'auth/invalid-credential') {
-        // الإيميل غير مسجل — متابعة عملية التسجيل
-      } else if (checkErr.code === 'auth/wrong-password' || checkErr.code === 'auth/email-already-in-use') {
-        showToast('❌ هذا الإيميل مسجل مسبقاً — حاول تسجيل الدخول', '#ef4444'); return;
-      } else if (checkErr.code === 'auth/invalid-email') {
-        showToast('❌ إيميل غير صالح', '#ef4444'); return;
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+      if (methods && methods.length > 0) {
+        // الإيميل مسجل مسبقاً
+        showToast('❌ هذا الإيميل مسجل مسبقاً — حاول تسجيل الدخول', '#ef4444');
+        // إظهار رسالة تحت حقل الإيميل
+        const hint = document.getElementById('authEmailHint');
+        if (hint) { hint.textContent = '⚠️ الإيميل موجود — استخدم "دخول" أو "نسيت كلمة المرور"'; hint.style.display = 'block'; }
+        return;
       }
-      // للأكواد الأخرى (مثل invalid-credential في Firebase v9+) يعني الإيميل موجود أو غير موجود
-      // نتحقق بطريقة أخرى: نحاول التسجيل مباشرة ونتعامل مع الخطأ
+    } catch(checkErr) {
+      if (checkErr.code === 'auth/invalid-email') {
+        showToast('❌ صيغة الإيميل غير صحيحة', '#ef4444'); return;
+      }
+      // خطأ آخر — نكمل ونتعامل مع الخطأ عند الإنشاء
     }
 
-    // إرسال كود التحقق أولاً
+    // الإيميل غير مسجل — إرسال كود التحقق
     showToast('⏳ جاري إرسال رمز التحقق...', '#f5a623');
     _pendingVerifyEmail = email;
     _pendingVerifyPass = pass;
 
     const sent = await sendVerifyCode(email);
     if (!sent) {
-      showToast('تعذّر إرسال الرمز — جاري المحاولة مباشرة...', '#ef4444');
+      // Fallback: تسجيل مباشر بدون كود
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
         localStorage.setItem('vault_last_email', email);
-        showToast('✅ تم إنشاء الحساب');
+        showToast('✅ تم إنشاء الحساب بنجاح!');
       } catch(e) {
-        const msgs = { 'auth/email-already-in-use': '❌ الإيميل مسجل مسبقاً — حاول تسجيل الدخول', 'auth/invalid-email': 'إيميل غير صالح', 'auth/weak-password': 'الرقم السري ضعيف جداً' };
+        const msgs = {
+          'auth/email-already-in-use': '❌ الإيميل مسجل مسبقاً — حاول تسجيل الدخول',
+          'auth/invalid-email': 'إيميل غير صالح',
+          'auth/weak-password': 'الرقم السري ضعيف جداً (6 أحرف على الأقل)'
+        };
         showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
       }
       return;
     }
 
+    const hint = document.getElementById('authEmailHint');
+    if (hint) hint.style.display = 'none';
     document.getElementById('emailAuthSection').style.display = 'none';
     document.getElementById('verifySection').style.display = 'block';
-    document.getElementById('verifyEmailHint').textContent = `تم إرسال رمز التحقق إلى ${email}`;
+    document.getElementById('verifyEmailHint').textContent = `📨 تم إرسال رمز التحقق إلى ${email}`;
     document.getElementById('verifyCode').value = '';
     showToast('📨 تحقق من بريدك الإلكتروني');
+  };
+
+  window.forgotPassword = async () => {
+    const email = document.getElementById('authEmail').value.trim();
+    if (!email) { showToast('أدخل الإيميل أولاً', '#ef4444'); return; }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showToast('📨 تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك', '#10b981');
+    } catch(e) {
+      const msgs = {
+        'auth/user-not-found': '❌ هذا الإيميل غير مسجل',
+        'auth/invalid-email': '❌ صيغة الإيميل غير صحيحة',
+        'auth/too-many-requests': '⏳ طلبات كثيرة — انتظر قليلاً'
+      };
+      showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
+    }
   };
 
   window.checkVerifyCode = async () => {
