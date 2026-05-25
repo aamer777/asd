@@ -487,7 +487,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, fetchSignInMethodsForEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1337,54 +1337,69 @@
 
   window.registerWithEmail = async () => {
     const email = document.getElementById('authEmail').value.trim();
-    const pass = document.getElementById('authPass').value;
+    const pass  = document.getElementById('authPass').value;
+    const hint  = document.getElementById('authEmailHint');
+
     if (!email || !pass) { showToast('أدخل الإيميل والرقم السري', '#ef4444'); return; }
     if (pass.length < 6) { showToast('الرقم السري 6 أحرف على الأقل', '#ef4444'); return; }
 
-    // ── التحقق الحقيقي من وجود الإيميل في Firebase ──
+    // ══════════════════════════════════════════════════════════════
+    // الطريقة الوحيدة الموثوقة في Firebase v10:
+    // نحاول إنشاء الحساب مباشرةً — إذا أعاد email-already-in-use
+    // فهذا يعني الإيميل موجود بالتأكيد → نوقف ونُبلّغ.
+    // إذا نجح الإنشاء مباشرةً نحذف الحساب المؤقت ونكمل بالتحقق.
+    // ══════════════════════════════════════════════════════════════
     showToast('⏳ جاري التحقق من الإيميل...', '#f5a623');
+
+    let tempUser = null;
     try {
-      const methods = await fetchSignInMethodsForEmail(auth, email);
-      if (methods && methods.length > 0) {
-        // الإيميل مسجل مسبقاً
-        showToast('❌ هذا الإيميل مسجل مسبقاً — حاول تسجيل الدخول', '#ef4444');
-        // إظهار رسالة تحت حقل الإيميل
-        const hint = document.getElementById('authEmailHint');
-        if (hint) { hint.textContent = '⚠️ الإيميل موجود — استخدم "دخول" أو "نسيت كلمة المرور"'; hint.style.display = 'block'; }
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      tempUser = cred.user;
+    } catch (checkErr) {
+      // ── الإيميل موجود مسبقاً ──
+      if (checkErr.code === 'auth/email-already-in-use') {
+        showToast('❌ هذا الإيميل مسجل مسبقاً', '#ef4444');
+        if (hint) {
+          hint.textContent = '⚠️ الإيميل موجود — استخدم "دخول" أو "نسيت كلمة المرور"';
+          hint.style.display = 'block';
+        }
         return;
       }
-    } catch(checkErr) {
       if (checkErr.code === 'auth/invalid-email') {
         showToast('❌ صيغة الإيميل غير صحيحة', '#ef4444'); return;
       }
-      // خطأ آخر — نكمل ونتعامل مع الخطأ عند الإنشاء
+      if (checkErr.code === 'auth/weak-password') {
+        showToast('❌ الرقم السري ضعيف جداً (6 أحرف على الأقل)', '#ef4444'); return;
+      }
+      showToast('خطأ: ' + checkErr.message, '#ef4444'); return;
     }
 
-    // الإيميل غير مسجل — إرسال كود التحقق
+    // ── الحساب أُنشئ مؤقتاً — نحذفه الآن ونُرسل كود التحقق ──
+    try { await tempUser.delete(); } catch(_) {}
+    await signOut(auth);
+
+    if (hint) hint.style.display = 'none';
+
+    // إرسال كود التحقق قبل الإنشاء الفعلي
     showToast('⏳ جاري إرسال رمز التحقق...', '#f5a623');
     _pendingVerifyEmail = email;
-    _pendingVerifyPass = pass;
+    _pendingVerifyPass  = pass;
 
     const sent = await sendVerifyCode(email);
     if (!sent) {
-      // Fallback: تسجيل مباشر بدون كود
+      // Fallback: إنشاء مباشر بدون كود (EmailJS غير مهيأ)
       try {
         await createUserWithEmailAndPassword(auth, email, pass);
         localStorage.setItem('vault_last_email', email);
         showToast('✅ تم إنشاء الحساب بنجاح!');
       } catch(e) {
-        const msgs = {
-          'auth/email-already-in-use': '❌ الإيميل مسجل مسبقاً — حاول تسجيل الدخول',
-          'auth/invalid-email': 'إيميل غير صالح',
-          'auth/weak-password': 'الرقم السري ضعيف جداً (6 أحرف على الأقل)'
-        };
-        showToast(msgs[e.code] || ('خطأ: ' + e.message), '#ef4444');
+        showToast(e.code === 'auth/email-already-in-use'
+          ? '❌ الإيميل مسجل مسبقاً — حاول تسجيل الدخول'
+          : ('خطأ: ' + e.message), '#ef4444');
       }
       return;
     }
 
-    const hint = document.getElementById('authEmailHint');
-    if (hint) hint.style.display = 'none';
     document.getElementById('emailAuthSection').style.display = 'none';
     document.getElementById('verifySection').style.display = 'block';
     document.getElementById('verifyEmailHint').textContent = `📨 تم إرسال رمز التحقق إلى ${email}`;
