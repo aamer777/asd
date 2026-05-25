@@ -113,41 +113,51 @@
     <div class="login-logo">🔐</div>
     <div class="login-title">خزنة المرور السحابية</div>
     <div style="text-align:center; margin-bottom:20px; color:var(--muted2);">حفظ آمن · مزامنة فورية · رفع صور أصلية</div>
-    <button class="social-btn" onclick="window.loginWithGoogle()" style="background:linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853); color:#fff; font-weight:800; margin-bottom:14px; border-radius:60px; padding:15px; font-size:15px; border:none; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 4px 18px rgba(66,133,244,0.35);">
-      <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+    <button class="social-btn" onclick="window.loginWithGoogle()" style="background:linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853); color:#fff; font-weight:800; margin-bottom:10px; border-radius:60px; padding:11px 16px; font-size:13px; border:none; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 4px 18px rgba(66,133,244,0.35); width:100%;">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       تسجيل الدخول بـ Google
     </button>
-    <button class="social-btn demo" onclick="window.startDemo()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    <button class="social-btn demo" onclick="window.startDemo()" style="padding:10px 16px; font-size:13px; margin-bottom:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       تجربة التطبيق (ديمو)
     </button>
 
     <!-- قسم الإيميل والرقم السري -->
-    <div style="margin:16px 0; display:flex; align-items:center; gap:10px;">
+    <div style="margin:12px 0; display:flex; align-items:center; gap:10px;">
       <div style="flex:1; height:1px; background:var(--border2);"></div>
       <span style="color:var(--muted2); font-size:12px;">أو بالإيميل</span>
       <div style="flex:1; height:1px; background:var(--border2);"></div>
     </div>
     <div id="emailAuthSection">
-      <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:10px;" oninput="window.saveEmailDraft(this.value)">
-      <input class="form-input" id="authPass" type="text" placeholder="🔑 الرقم السري" style="margin-bottom:10px;">
-      <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <button class="social-btn" onclick="window.loginWithEmail()" style="flex:1; background:var(--accent); color:#0a0e1a; margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; font-weight:800;">دخول</button>
-        <button class="social-btn" onclick="window.registerWithEmail()" style="flex:1; background:var(--card2); color:var(--text); margin-bottom:0; border-radius:60px; padding:13px 8px; font-size:13px; border:1px solid var(--border2);">تسجيل جديد</button>
+      <input class="form-input" id="authEmail" type="email" placeholder="📧 الإيميل" style="margin-bottom:8px;" oninput="window.saveEmailDraft(this.value)">
+      <input class="form-input" id="authPass" type="text" placeholder="🔑 الرقم السري" style="margin-bottom:6px;">
+      <div style="text-align:left; margin-bottom:10px;">
+        <button onclick="window.forgotPassword()" style="background:none; border:none; color:var(--accent); font-size:12px; cursor:pointer; font-family:'Cairo',sans-serif; padding:0;">نسيت الرقم السري؟</button>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <button class="social-btn" onclick="window.loginWithEmail()" style="flex:1; background:var(--accent); color:#0a0e1a; margin-bottom:0; border-radius:60px; padding:10px 8px; font-size:12px; font-weight:800;">دخول</button>
+        <button class="social-btn" onclick="window.registerWithEmail()" style="flex:1; background:var(--card2); color:var(--text); margin-bottom:0; border-radius:60px; padding:10px 8px; font-size:12px; border:1px solid var(--border2);">تسجيل جديد</button>
       </div>
     </div>
 
-    <!-- نافذة تأكيد البريد -->
-    <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; margin-top:8px; text-align:center;">
-      <div style="font-size:32px; margin-bottom:8px;">📨</div>
-      <div style="font-weight:800; font-size:15px; color:var(--accent); margin-bottom:6px;">تأكيد البريد الإلكتروني</div>
-      <div style="font-size:12px; color:var(--muted2); margin-bottom:14px;" id="verifyEmailHint">تم إرسال رمز التحقق إلى بريدك</div>
-      <input class="form-input" id="verifyCode" type="text" placeholder="أدخل الرمز المكوّن من 6 أرقام" maxlength="6" style="text-align:center; letter-spacing:8px; font-size:22px; font-weight:900; margin-bottom:10px;">
-      <div style="display:flex; gap:10px;">
-        <button onclick="window.cancelVerify()" style="flex:1; padding:11px; background:var(--card); border-radius:40px; border:1px solid var(--border2); cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text); font-size:13px;">إلغاء</button>
-        <button onclick="window.checkVerifyCode()" style="flex:2; padding:11px; background:var(--accent); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:13px; color:#0a0e1a;">✅ تحقق</button>
+    <!-- نافذة تأكيد البريد بمربعات -->
+    <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; text-align:center;">
+      <div style="font-size:11px; color:var(--muted2); margin-bottom:10px;" id="verifyEmailHint">تم إرسال رمز التحقق إلى بريدك</div>
+      <div style="font-size:13px; font-weight:800; color:var(--text); margin-bottom:12px;">أدخل الرمز</div>
+      <!-- مربعات الكود الـ 6 -->
+      <div style="display:flex; gap:6px; justify-content:center; margin-bottom:14px;" id="codeBoxesRow">
+        <input type="text" maxlength="1" class="code-box" oninput="window.codeBoxInput(this,0)" onkeydown="window.codeBoxKey(event,0)" style="width:40px;height:48px;text-align:center;font-size:22px;font-weight:900;border-radius:12px;border:2px solid var(--border2);background:var(--card);color:var(--text);outline:none;font-family:'Cairo',sans-serif;">
+        <input type="text" maxlength="1" class="code-box" oninput="window.codeBoxInput(this,1)" onkeydown="window.codeBoxKey(event,1)" style="width:40px;height:48px;text-align:center;font-size:22px;font-weight:900;border-radius:12px;border:2px solid var(--border2);background:var(--card);color:var(--text);outline:none;font-family:'Cairo',sans-serif;">
+        <input type="text" maxlength="1" class="code-box" oninput="window.codeBoxInput(this,2)" onkeydown="window.codeBoxKey(event,2)" style="width:40px;height:48px;text-align:center;font-size:22px;font-weight:900;border-radius:12px;border:2px solid var(--border2);background:var(--card);color:var(--text);outline:none;font-family:'Cairo',sans-serif;">
+        <input type="text" maxlength="1" class="code-box" oninput="window.codeBoxInput(this,3)" onkeydown="window.codeBoxKey(event,3)" style="width:40px;height:48px;text-align:center;font-size:22px;font-weight:900;border-radius:12px;border:2px solid var(--border2);background:var(--card);color:var(--text);outline:none;font-family:'Cairo',sans-serif;">
+        <input type="text" maxlength="1" class="code-box" oninput="window.codeBoxInput(this,4)" onkeydown="window.codeBoxKey(event,4)" style="width:40px;height:48px;text-align:center;font-size:22px;font-weight:900;border-radius:12px;border:2px solid var(--border2);background:var(--card);color:var(--text);outline:none;font-family:'Cairo',sans-serif;">
+        <input type="text" maxlength="1" class="code-box" oninput="window.codeBoxInput(this,5)" onkeydown="window.codeBoxKey(event,5)" style="width:40px;height:48px;text-align:center;font-size:22px;font-weight:900;border-radius:12px;border:2px solid var(--border2);background:var(--card);color:var(--text);outline:none;font-family:'Cairo',sans-serif;">
       </div>
-      <button onclick="window.resendVerifyCode()" style="width:100%; margin-top:8px; padding:10px; background:transparent; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--muted2); font-size:12px;">إعادة إرسال الرمز</button>
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <button onclick="window.cancelVerify()" style="flex:1; padding:10px; background:var(--card); border-radius:40px; border:1px solid var(--border2); cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text); font-size:12px;">إلغاء</button>
+        <button onclick="window.checkVerifyCode()" style="flex:2; padding:10px; background:var(--accent); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:12px; color:#0a0e1a;">✅ تحقق</button>
+      </div>
+      <button onclick="window.resendVerifyCode()" style="width:100%; padding:8px; background:transparent; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--muted2); font-size:11px;">إعادة إرسال الرمز</button>
     </div>
   </div>
 </div>
@@ -264,7 +274,7 @@
 <div class="overlay" id="shareAppOverlay" onclick="if(event.target===this) window.closeShareApp()">
   <div class="modal">
     <div style="font-weight:900; font-size:18px; margin-bottom:12px;">📱 مشاركة التطبيق</div>
-    <div style="margin:12px 0; padding:12px; background:var(--card2); border-radius:20px; text-align:center; font-size:13px; word-break:break-all;">🔗 https://aamer777.github.io/asd/</div>
+    <div style="margin:12px 0; padding:12px; background:var(--card2); border-radius:20px; text-align:center; font-size:13px; word-break:break-all;">🔗 https://aamer777.github.io/asd</div>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
       <button class="choice-btn" onclick="window.shareAppLink('wa')">💬 واتساب</button>
       <button class="choice-btn" onclick="window.shareAppLink('tg')">✈️ تليجرام</button>
@@ -1108,6 +1118,34 @@
     setTimeout(initImageDropzone, 50);
   };
 
+  // ── مربعات كود التحقق ──
+  window.codeBoxInput = (el, idx) => {
+    el.value = el.value.replace(/[^0-9]/g, '');
+    el.style.borderColor = el.value ? 'var(--accent)' : 'var(--border2)';
+    if (el.value && idx < 5) {
+      document.querySelectorAll('.code-box')[idx + 1]?.focus();
+    }
+  };
+  window.codeBoxKey = (e, idx) => {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+      document.querySelectorAll('.code-box')[idx - 1]?.focus();
+    }
+  };
+
+  // ── نسيت الرقم السري ──
+  window.forgotPassword = async () => {
+    const email = document.getElementById('authEmail').value.trim();
+    if (!email) { showToast('أدخل إيميلك أولاً', '#ef4444'); return; }
+    try {
+      const { sendPasswordResetEmail } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+      await sendPasswordResetEmail(auth, email);
+      showToast('📨 تم إرسال رابط إعادة التعيين إلى بريدك');
+    } catch(e) {
+      const msgs = { 'auth/user-not-found': 'الإيميل غير مسجل', 'auth/invalid-email': 'إيميل غير صالح' };
+      showToast(msgs[e.code] || 'خطأ: ' + e.message, '#ef4444');
+    }
+  };
+
   // ── تذكر الإيميل تلقائياً ──
   let _pendingVerifyEmail = null, _pendingVerifyPass = null, _verifyCodeSent = null;
 
@@ -1199,11 +1237,13 @@
   };
 
   window.checkVerifyCode = async () => {
-    const entered = document.getElementById('verifyCode').value.trim();
-    if (!entered) { showToast('أدخل الرمز', '#ef4444'); return; }
+    const boxes = document.querySelectorAll('.code-box');
+    const entered = Array.from(boxes).map(b => b.value).join('');
+    if (entered.length < 6) { showToast('أدخل الرمز كاملاً (6 أرقام)', '#ef4444'); return; }
     if (entered !== _verifyCodeSent) {
       showToast('الرمز غير صحيح ❌', '#ef4444');
-      document.getElementById('verifyCode').value = '';
+      boxes.forEach(b => { b.value = ''; b.style.borderColor = 'var(--red)'; });
+      boxes[0]?.focus();
       return;
     }
     // الكود صحيح — إنشاء الحساب
@@ -1477,7 +1517,7 @@
   window.openShareApp = () => document.getElementById('shareAppOverlay').classList.add('open');
   window.closeShareApp = () => document.getElementById('shareAppOverlay').classList.remove('open');
   window.shareAppLink = (type) => {
-    const url = 'https://aamer777.github.io/asd/';
+    const url = 'https://aamer777.github.io/asd';
     const msg = `🔐 خزنة المرور السحابية\nحفظ آمن مع رفع صور أصلية\n${url}`;
     if (type === 'wa') window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     else if (type === 'tg') window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(msg)}`, '_blank');
