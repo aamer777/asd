@@ -657,12 +657,12 @@
           <div class="card-body">
             <div class="field">
               <span>📧 ${safeEmail}</span>
-              <button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText(${JSON.stringify(e.email||'')}).then(()=>showToast('✅ تم نسخ الإيميل')).catch(()=>{const ta=document.createElement('textarea');ta.value=${JSON.stringify(e.email||'')};document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✅ تم نسخ الإيميل')})">نسخ</button>
+              <button class="btn-sm" onclick="event.stopPropagation();window.copyText(${JSON.stringify(e.email||'')},'الإيميل')">نسخ</button>
             </div>
             <div class="field">
               <span>🔑 <span id="pwd-${e.id}">${safePass}</span></span>
               <div style="display:flex;gap:6px;">
-                <button class="btn-sm" onclick="event.stopPropagation();navigator.clipboard.writeText(${JSON.stringify(e.pass||'')}).then(()=>showToast('✅ تم نسخ كلمة المرور')).catch(()=>{const ta=document.createElement('textarea');ta.value=${JSON.stringify(e.pass||'')};document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✅ تم نسخ كلمة المرور')})">نسخ</button>
+                <button class="btn-sm" onclick="event.stopPropagation();window.copyText(${JSON.stringify(e.pass||'')},'كلمة المرور')">نسخ</button>
               </div>
             </div>
             ${e.url ? `<div class="field"><span>🔗 <a href="${escapeHtml(e.url)}" target="_blank" style="color:var(--blue);">${escapeHtml(e.url)}</a></span></div>` : ''}
@@ -684,6 +684,27 @@
   }
 
   window.toggleCard = (id) => document.getElementById(`card-${id}`)?.classList.toggle('expanded');
+
+  // ── دالة نسخ النص (تعمل على جميع المتصفحات) ──
+  window.copyText = function(text, label) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ ' + label)).catch(() => fallbackCopy(text, label));
+    } else {
+      fallbackCopy(text, label);
+    }
+  };
+  function fallbackCopy(text, label) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); showToast('✅ تم نسخ ' + label); }
+    catch(e) { showToast('❌ فشل النسخ', '#ef4444'); }
+    document.body.removeChild(ta);
+  }
 
   // ── حفظ حساب ──
   window.saveAccountEntry = async function() {
