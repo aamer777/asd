@@ -346,6 +346,19 @@
     .sb-head { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
     .sb-email { font-size: 12px; color: var(--accent); word-break: break-all; margin-top: 5px; }
     .upload-status { font-size: 12px; color: var(--accent); text-align: center; margin-top: 6px; min-height: 18px; }
+
+    /* chips الفئة في مودال الإضافة */
+    .cat-chip {
+      padding: 8px 14px; border-radius: 40px; font-size: 13px; font-weight: 700;
+      border: 1.5px solid var(--border2); background: var(--card2); color: var(--muted2);
+      cursor: pointer; font-family: 'Cairo', sans-serif;
+      transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .cat-chip.active {
+      background: var(--accent); color: #0a0e1a; border-color: var(--accent);
+      box-shadow: 0 3px 10px rgba(245,158,11,0.3);
+    }
+    .cat-chip:hover:not(.active) { border-color: var(--accent); transform: translateY(-1px); }
   </style>
 </head>
 <body>
@@ -386,6 +399,13 @@
       <div class="feature-item"><span>🖼️</span> رفع صور أصلية</div>
       <div class="feature-item"><span>⚡</span> وصول فوري</div>
     </div>
+
+    <!-- زر حفظ على الشاشة الرئيسية -->
+    <button id="loginInstallBtn" onclick="window.loginInstallApp()"
+      style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; margin-top:14px; padding:13px; background:linear-gradient(135deg,#f0f9ff,#e0f2fe); border:1.5px solid #bae6fd; border-radius:40px; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; color:#0369a1; transition:transform 0.2s,box-shadow 0.2s;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/><path d="M9 7h6M9 11h4"/></svg>
+      📲 حفظ التطبيق على الشاشة الرئيسية
+    </button>
 
     <!-- نافذة تأكيد البريد -->
     <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; margin-top:8px; text-align:center;">
@@ -455,23 +475,104 @@
 
 <!-- مودال إضافة / تعديل حساب -->
 <div class="overlay" id="overlayAccount" onclick="if(event.target===this) window.closeModalAccount()">
-  <div class="modal">
-    <div style="text-align:center; font-size:20px; font-weight:900; margin-bottom:20px;" id="modalTitleAccount">إضافة حساب</div>
-    <input class="form-input" id="fName" placeholder="اسم الموقع أو التطبيق *">
-    <input class="form-input" id="fEmail" placeholder="الإيميل / اسم المستخدم">
-    <input class="form-input" id="fPass" type="password" placeholder="كلمة المرور *">
-    <select class="form-select" id="fCategory">
-      <option value="work">💼 عمل</option>
-      <option value="personal">👤 شخصي</option>
-      <option value="banking">🏦 بنوك</option>
-      <option value="entertainment">🎬 ترفيه</option>
-      <option value="photos">🖼️ صور</option>
-    </select>
-    <input class="form-input" id="fUrl" placeholder="رابط الموقع (اختياري)">
-    <input class="form-input" id="fNote" placeholder="ملاحظات">
-    <div style="display:flex; gap:12px; margin-top:20px;">
-      <button style="flex:1; background:var(--card2); border-radius:40px; padding:12px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text);" onclick="window.closeModalAccount()">إلغاء</button>
-      <button style="flex:2; background:var(--accent); border-radius:40px; padding:12px; font-weight:900; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:15px; color:#0a0e1a;" onclick="window.saveAccountEntry()">💾 حفظ</button>
+  <div class="modal" style="border-radius:28px 28px 0 0; padding:0; overflow:hidden;">
+
+    <!-- هيدر المودال -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 20px 14px; border-bottom:1px solid var(--border);">
+      <button onclick="window.closeModalAccount()" style="width:34px;height:34px;border-radius:50%;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted2);">✕</button>
+      <div style="font-weight:900; font-size:17px;" id="modalTitleAccount">إضافة كلمة مرور</div>
+      <div style="width:34px;"></div>
+    </div>
+
+    <!-- تبويبات أساسي / متقدم -->
+    <div style="display:flex; gap:0; margin:14px 20px 0; background:var(--card2); border-radius:40px; padding:4px;">
+      <button id="tabBasicBtn" onclick="window.switchAccountTab('basic')"
+        style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;background:var(--accent);color:#0a0e1a;transition:0.2s;">أساسي</button>
+      <button id="tabAdvBtn" onclick="window.switchAccountTab('adv')"
+        style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;background:transparent;color:var(--muted2);transition:0.2s;">متقدم</button>
+    </div>
+
+    <!-- محتوى الفورم -->
+    <div style="padding:16px 20px 20px; overflow-y:auto; max-height:65vh;">
+
+      <!-- تبويب أساسي -->
+      <div id="tabBasic">
+        <!-- العنوان + أيقونة -->
+        <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:4px;">
+          <div style="flex:1;">
+            <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:6px; text-align:right;">العنوان *</div>
+            <input class="form-input" id="fName" placeholder="مثال: Gmail، Netflix..." style="margin-bottom:0;">
+          </div>
+          <div style="flex-shrink:0; margin-top:22px;">
+            <button onclick="window.pickAccountIcon()" id="iconPickerBtn"
+              style="width:64px;height:54px;border-radius:16px;background:var(--card2);border:2px dashed var(--border2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--muted2);font-family:'Cairo',sans-serif;transition:0.2s;">
+              <span id="iconPickerEmoji" style="font-size:22px;">📷</span>
+              <span>أيقونة</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- اسم المستخدم / البريد -->
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin:12px 0 6px; text-align:right;">اسم المستخدم / البريد</div>
+        <input class="form-input" id="fEmail" placeholder="user@example.com" style="margin-bottom:0;">
+
+        <!-- كلمة المرور -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0 6px;">
+          <button onclick="window.generatePassword()" style="display:flex;align-items:center;gap:5px;background:transparent;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;color:var(--accent);font-weight:700;padding:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            ✨ توليد
+          </button>
+          <div style="font-size:13px; font-weight:700; color:var(--text2);">كلمة المرور *</div>
+        </div>
+        <div style="position:relative;">
+          <input class="form-input" id="fPass" type="password" placeholder="أدخل كلمة المرور" style="margin-bottom:0; padding-left:44px;">
+          <button onclick="window.togglePassVis()" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted2);font-size:18px;" id="passVisBtn">👁️</button>
+        </div>
+        <!-- شريط قوة كلمة المرور -->
+        <div style="margin-top:6px;">
+          <div style="display:flex; gap:4px; margin-bottom:4px;" id="strengthBars">
+            <div style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:0.3s;" id="sb1"></div>
+            <div style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:0.3s;" id="sb2"></div>
+            <div style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:0.3s;" id="sb3"></div>
+            <div style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:0.3s;" id="sb4"></div>
+          </div>
+          <div style="font-size:11px; color:var(--muted2); text-align:left;" id="strengthLabel"></div>
+        </div>
+
+        <!-- الفئة -->
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin:14px 0 8px; text-align:right;">الفئة</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px;" id="categoryChips">
+          <button class="cat-chip active" data-cat="websites" onclick="window.selectCatChip(this,'websites')">🌐 مواقع</button>
+          <button class="cat-chip" data-cat="personal" onclick="window.selectCatChip(this,'personal')">✉️ بريد</button>
+          <button class="cat-chip" data-cat="banking" onclick="window.selectCatChip(this,'banking')">🏦 بنوك</button>
+          <button class="cat-chip" data-cat="work" onclick="window.selectCatChip(this,'work')">📱 تطبيقات</button>
+          <button class="cat-chip" data-cat="other" onclick="window.selectCatChip(this,'other')">••• أخرى</button>
+        </div>
+        <input type="hidden" id="fCategory" value="websites">
+      </div>
+
+      <!-- تبويب متقدم -->
+      <div id="tabAdv" style="display:none;">
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:6px; text-align:right;">رابط الموقع</div>
+        <input class="form-input" id="fUrl" placeholder="https://...">
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:6px; text-align:right;">ملاحظات</div>
+        <textarea class="form-input" id="fNote" placeholder="أي معلومات إضافية..." rows="4" style="resize:none;"></textarea>
+        <!-- اللون -->
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:8px; text-align:right;">لون البطاقة</div>
+        <div class="color-row" id="colorRowAccount">
+          <div class="color-dot selected" style="background:#f5a623;" onclick="window.selectColorInModal(0,this)"></div>
+          <div class="color-dot" style="background:#3b82f6;" onclick="window.selectColorInModal(1,this)"></div>
+          <div class="color-dot" style="background:#10b981;" onclick="window.selectColorInModal(2,this)"></div>
+          <div class="color-dot" style="background:#8b5cf6;" onclick="window.selectColorInModal(3,this)"></div>
+          <div class="color-dot" style="background:#ef4444;" onclick="window.selectColorInModal(4,this)"></div>
+          <div class="color-dot" style="background:#ec4899;" onclick="window.selectColorInModal(5,this)"></div>
+        </div>
+      </div>
+
+      <!-- زر الحفظ -->
+      <button style="width:100%;padding:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:900;font-size:16px;color:#0a0e1a;margin-top:18px;box-shadow:0 6px 20px rgba(245,166,35,0.35);letter-spacing:0.3px;" onclick="window.saveAccountEntry()">
+        إضافة كلمة المرور
+      </button>
     </div>
   </div>
 </div>
@@ -592,8 +693,7 @@
   </div>
   <div style="flex:1; padding:10px; overflow-y:auto;">
     <button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); window.closeSidebar();">🔒 إعدادات الأمان</button>
-    <button class="sb-item" id="pwaInstallBtn" onclick="window.installPWA()" style="display:none;">📲 حفظ على الشاشة الرئيسية</button>
-    <button class="sb-item" id="pwaIosBtn" onclick="window.showIosInstall()" style="display:none;">📲 حفظ على الشاشة الرئيسية</button>
+    <button class="sb-item" id="pwaInstallBtn" onclick="window.installPWA()">📲 حفظ على الشاشة الرئيسية</button>
     <button class="sb-item" onclick="window.openShareApp(); window.closeSidebar();">📤 مشاركة التطبيق</button>
     <button class="sb-item" onclick="window.openSendMessage(); window.closeSidebar();">✉️ إرسال رسالة</button>
   </div>
@@ -965,6 +1065,7 @@
       note: document.getElementById('fNote').value,
       category: document.getElementById('fCategory').value,
       color: selectedColorIdx,
+      icon: window._selectedIcon || null,
       type: 'account'
     };
 
@@ -1171,13 +1272,29 @@
   window.openAddAccount = () => {
     window.closeChoice();
     currentEditId = null;
+    window._selectedIcon = null;
     document.getElementById('fName').value = '';
     document.getElementById('fEmail').value = '';
     document.getElementById('fPass').value = '';
     document.getElementById('fUrl').value = '';
     document.getElementById('fNote').value = '';
-    document.getElementById('fCategory').value = 'work';
-    document.getElementById('modalTitleAccount').textContent = 'إضافة حساب جديد';
+    document.getElementById('fCategory').value = 'websites';
+    document.getElementById('modalTitleAccount').textContent = 'إضافة كلمة مرور';
+    // إعادة ضبط التبويبات
+    window.switchAccountTab('basic');
+    // إعادة ضبط الأيقونة
+    const iconEl = document.getElementById('iconPickerEmoji');
+    if (iconEl) iconEl.textContent = '📷';
+    // إعادة ضبط الـ chips
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    const firstChip = document.querySelector('.cat-chip[data-cat="websites"]');
+    if (firstChip) firstChip.classList.add('active');
+    // إعادة ضبط شريط القوة
+    for(let i=1;i<=4;i++){const b=document.getElementById('sb'+i); if(b) b.style.background='var(--border2)';}
+    const lbl=document.getElementById('strengthLabel'); if(lbl) lbl.textContent='';
+    // زر الحفظ
+    const saveBtn = document.querySelector('#overlayAccount button[onclick="window.saveAccountEntry()"]');
+    if (saveBtn) saveBtn.textContent = 'إضافة كلمة المرور';
     document.getElementById('overlayAccount').classList.add('open');
   };
 
@@ -2018,6 +2135,115 @@
     const btn = document.getElementById('pwaIosBtn');
     if (btn) btn.style.display = 'block';
   }
+
+  // ── تبويبات مودال الإضافة ──
+  window.switchAccountTab = (tab) => {
+    const basic = document.getElementById('tabBasic');
+    const adv   = document.getElementById('tabAdv');
+    const btnB  = document.getElementById('tabBasicBtn');
+    const btnA  = document.getElementById('tabAdvBtn');
+    if (tab === 'basic') {
+      basic.style.display = 'block'; adv.style.display = 'none';
+      btnB.style.background = 'var(--accent)'; btnB.style.color = '#0a0e1a';
+      btnA.style.background = 'transparent'; btnA.style.color = 'var(--muted2)';
+    } else {
+      basic.style.display = 'none'; adv.style.display = 'block';
+      btnA.style.background = 'var(--accent)'; btnA.style.color = '#0a0e1a';
+      btnB.style.background = 'transparent'; btnB.style.color = 'var(--muted2)';
+    }
+  };
+
+  // ── اختيار الفئة بالـ chip ──
+  window.selectCatChip = (el, cat) => {
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('fCategory').value = cat;
+  };
+
+  // ── أيقونة الحساب ──
+  const iconEmojis = ['🔐','🌐','📱','✉️','🏦','🎮','🛒','📸','💼','🎬','🏠','🚗','☁️','🔑','💳','📚'];
+  window.pickAccountIcon = () => {
+    let picker = document.getElementById('iconPickerPopup');
+    if (!picker) {
+      picker = document.createElement('div');
+      picker.id = 'iconPickerPopup';
+      picker.style.cssText = 'position:fixed;inset:0;z-index:9200;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.5);';
+      picker.innerHTML = `<div style="background:var(--card);border-radius:28px 28px 0 0;padding:20px;width:100%;max-width:480px;">
+        <div style="font-weight:900;font-size:16px;text-align:center;margin-bottom:14px;">اختر أيقونة</div>
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:16px;">
+          ${iconEmojis.map(e=>`<button onclick="window.setAccountIcon('${e}')" style="font-size:28px;background:var(--card2);border:none;border-radius:12px;padding:8px;cursor:pointer;">${e}</button>`).join('')}
+        </div>
+        <button onclick="document.getElementById('iconPickerPopup').remove()" style="width:100%;padding:12px;background:var(--card2);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;color:var(--muted2);">إلغاء</button>
+      </div>`;
+      document.body.appendChild(picker);
+      picker.addEventListener('click', e => { if(e.target === picker) picker.remove(); });
+    } else { picker.remove(); }
+  };
+  window.setAccountIcon = (emoji) => {
+    const el = document.getElementById('iconPickerEmoji');
+    if (el) { el.textContent = emoji; el.dataset.customIcon = emoji; }
+    document.getElementById('iconPickerPopup')?.remove();
+    window._selectedIcon = emoji;
+  };
+
+  // ── توليد كلمة مرور ──
+  window.generatePassword = () => {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$=';
+    const len = 16;
+    let pass = '';
+    const arr = crypto.getRandomValues(new Uint8Array(len));
+    arr.forEach(b => pass += chars[b % chars.length]);
+    const inp = document.getElementById('fPass');
+    if (inp) { inp.value = pass; inp.type = 'text'; window.updateStrength(); }
+  };
+
+  // ── إظهار/إخفاء كلمة المرور ──
+  window.togglePassVis = () => {
+    const inp = document.getElementById('fPass');
+    if (!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  };
+
+  // ── قوة كلمة المرور ──
+  window.updateStrength = () => {
+    const val = document.getElementById('fPass')?.value || '';
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (val.length >= 12) score++;
+    if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+    if (/[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val)) score++;
+    const colors = ['#ef4444','#f97316','#eab308','#10b981'];
+    const labels = ['ضعيفة','متوسطة','جيدة','قوية جداً'];
+    for (let i=1; i<=4; i++) {
+      const bar = document.getElementById('sb'+i);
+      if (bar) bar.style.background = i <= score ? (colors[score-1]||'var(--border2)') : 'var(--border2)';
+    }
+    const lbl = document.getElementById('strengthLabel');
+    if (lbl) lbl.textContent = val.length > 0 ? 'قوة كلمة المرور: ' + (labels[score-1] || 'ضعيفة') : '';
+  };
+
+  // اربط حدث input بكلمة المرور
+  document.addEventListener('input', e => { if (e.target && e.target.id === 'fPass') window.updateStrength(); });
+
+  // ── اختيار اللون في المودال ──
+  window.selectColorInModal = (idx, el) => {
+    document.querySelectorAll('#colorRowAccount .color-dot').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedColorIdx = idx;
+  };
+
+  // ── PWA من صفحة تسجيل الدخول ──
+  window.loginInstallApp = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(r => {
+        if (r.outcome === 'accepted') showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
+        deferredPrompt = null;
+      });
+    } else {
+      document.getElementById('iosInstallOverlay').classList.add('open');
+    }
+  };
 
   // ── تهيئة أولية ──
   renderCategoryFilters();
