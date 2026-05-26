@@ -718,18 +718,144 @@
   </div>
 </div>
 
-<!-- مودال تثبيت iOS -->
+<!-- مودال تثبيت PWA - دليل بصري شامل -->
 <div id="iosInstallOverlay" class="overlay" onclick="if(event.target===this) this.classList.remove('open')">
-  <div class="modal" style="text-align:center;">
-    <div style="font-size:48px; margin-bottom:12px;">📲</div>
-    <div style="font-weight:900; font-size:18px; color:var(--accent); margin-bottom:8px;">أضف إلى الشاشة الرئيسية</div>
-    <div style="font-size:13px; color:var(--muted2); line-height:1.9; margin-bottom:20px;">
-      لحفظ التطبيق على شاشتك الرئيسية:<br>
-      <strong style="color:var(--text);">1.</strong> اضغط على زر المشاركة <strong>⬆️</strong> في المتصفح<br>
-      <strong style="color:var(--text);">2.</strong> اختر <strong style="color:var(--accent);">"إضافة إلى الشاشة الرئيسية"</strong><br>
-      <strong style="color:var(--text);">3.</strong> اضغط <strong style="color:var(--accent);">إضافة</strong>
+  <div class="modal" style="padding:0; overflow:hidden; border-radius:28px 28px 0 0;">
+    <!-- هيدر ملوّن -->
+    <div style="background:linear-gradient(135deg,#1e40af,#3b82f6); padding:20px 20px 16px; text-align:center; position:relative;">
+      <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="position:absolute;left:16px;top:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;cursor:pointer;color:#fff;font-size:16px;">✕</button>
+      <div style="font-size:44px; margin-bottom:6px;">📲</div>
+      <div style="font-weight:900; font-size:18px; color:#fff;">أضف التطبيق لشاشتك الرئيسية</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:4px;">وصول سريع مثل أي تطبيق عادي</div>
     </div>
-    <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="width:100%; padding:13px; background:var(--accent); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:900; font-size:15px; color:#0a0e1a;">حسناً، فهمت ✅</button>
+
+    <!-- اختيار النظام -->
+    <div style="padding:16px 20px 0;">
+      <div style="display:flex; gap:8px; background:var(--card2); border-radius:40px; padding:4px;">
+        <button id="installTabAndroid" onclick="window.showInstallTab('android')"
+          style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;background:var(--accent);color:#0a0e1a;transition:0.2s;">
+          🤖 Android / Chrome
+        </button>
+        <button id="installTabIos" onclick="window.showInstallTab('ios')"
+          style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;background:transparent;color:var(--muted2);transition:0.2s;">
+           iOS / Safari
+        </button>
+      </div>
+    </div>
+
+    <!-- خطوات Android -->
+    <div id="installStepsAndroid" style="padding:16px 20px 20px;">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <!-- خطوة 1 -->
+        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">1</div>
+          <div>
+            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">افتح قائمة المتصفح</div>
+            <div style="font-size:12px; color:var(--muted2);">اضغط على النقاط الثلاث <strong style="color:var(--text);">⋮</strong> في أعلى يمين Chrome</div>
+          </div>
+        </div>
+        <!-- خطوة 2 -->
+        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">2</div>
+          <div>
+            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اختر "إضافة إلى الشاشة الرئيسية"</div>
+            <div style="font-size:12px; color:var(--muted2);">أو <strong style="color:var(--accent);">"تثبيت التطبيق"</strong> إن ظهر</div>
+          </div>
+        </div>
+        <!-- خطوة 3 -->
+        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">3</div>
+          <div>
+            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اضغط "إضافة" للتأكيد</div>
+            <div style="font-size:12px; color:var(--muted2);">سيظهر أيقونة التطبيق على شاشتك مباشرة ✅</div>
+          </div>
+        </div>
+      </div>
+      <!-- صورة توضيحية SVG -->
+      <div style="margin-top:14px; background:var(--card2); border-radius:20px; padding:14px; text-align:center;">
+        <svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;">
+          <rect x="5" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
+          <text x="47" y="28" font-size="9" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">قائمة Chrome</text>
+          <rect x="10" y="32" width="75" height="12" rx="4" fill="var(--border2)"/>
+          <rect x="10" y="47" width="75" height="12" rx="4" fill="var(--accent)" opacity="0.8"/>
+          <text x="47" y="56" font-size="7" fill="#0a0e1a" text-anchor="middle" font-family="Cairo,sans-serif">إضافة للشاشة الرئيسية</text>
+
+          <text x="117" y="42" font-size="20" text-anchor="middle">→</text>
+
+          <rect x="130" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
+          <text x="172" y="28" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">تأكيد التثبيت</text>
+          <text x="172" y="48" font-size="22" text-anchor="middle">🔐</text>
+          <rect x="142" y="58" width="60" height="10" rx="5" fill="var(--accent)"/>
+          <text x="172" y="65" font-size="7" fill="#0a0e1a" text-anchor="middle" font-family="Cairo,sans-serif">إضافة</text>
+
+          <text x="237" y="42" font-size="20" text-anchor="middle">→</text>
+
+          <rect x="250" y="25" width="42" height="42" rx="12" fill="#f0f4ff" stroke="#bae6fd" stroke-width="1.5"/>
+          <text x="271" y="52" font-size="22" text-anchor="middle">🔐</text>
+          <text x="271" y="72" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">خزنة</text>
+        </svg>
+      </div>
+      <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:900;font-size:15px;color:#fff;margin-top:14px;">فهمت، سأجربها الآن ✅</button>
+    </div>
+
+    <!-- خطوات iOS -->
+    <div id="installStepsIos" style="display:none; padding:16px 20px 20px;">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <!-- خطوة 1 -->
+        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">1</div>
+          <div>
+            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اضغط زر المشاركة ⬆️</div>
+            <div style="font-size:12px; color:var(--muted2);">الزر الموجود في شريط أدوات Safari <strong style="color:var(--text);">أسفل الشاشة</strong></div>
+          </div>
+        </div>
+        <!-- خطوة 2 -->
+        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">2</div>
+          <div>
+            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">مرّر للأسفل واضغط</div>
+            <div style="font-size:12px; color:var(--muted2);"><strong style="color:var(--accent);">"إضافة إلى الشاشة الرئيسية"</strong></div>
+          </div>
+        </div>
+        <!-- خطوة 3 -->
+        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">3</div>
+          <div>
+            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اضغط "إضافة" في الأعلى</div>
+            <div style="font-size:12px; color:var(--muted2);">سيظهر التطبيق على شاشتك الرئيسية فوراً ✅</div>
+          </div>
+        </div>
+      </div>
+      <!-- صورة توضيحية SVG لـ iOS -->
+      <div style="margin-top:14px; background:var(--card2); border-radius:20px; padding:14px; text-align:center;">
+        <svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;">
+          <rect x="5" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
+          <text x="47" y="22" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">Safari</text>
+          <rect x="10" y="60" width="75" height="10" rx="4" fill="var(--border2)"/>
+          <text x="47" y="40" font-size="20" text-anchor="middle">⬆️</text>
+          <text x="47" y="58" font-size="7" fill="var(--accent)" text-anchor="middle" font-family="Cairo,sans-serif">زر المشاركة</text>
+
+          <text x="117" y="42" font-size="20" text-anchor="middle">→</text>
+
+          <rect x="130" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
+          <text x="172" y="22" font-size="7" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">قائمة المشاركة</text>
+          <rect x="135" y="27" width="75" height="12" rx="4" fill="var(--accent)" opacity="0.85"/>
+          <text x="172" y="36" font-size="6.5" fill="#0a0e1a" text-anchor="middle" font-family="Cairo,sans-serif">إضافة للشاشة الرئيسية</text>
+          <rect x="135" y="42" width="75" height="10" rx="4" fill="var(--border2)"/>
+          <rect x="135" y="55" width="75" height="10" rx="4" fill="var(--border2)"/>
+
+          <text x="237" y="42" font-size="20" text-anchor="middle">→</text>
+
+          <rect x="250" y="25" width="42" height="42" rx="12" fill="#f0f4ff" stroke="#bae6fd" stroke-width="1.5"/>
+          <text x="271" y="52" font-size="22" text-anchor="middle">🔐</text>
+          <text x="271" y="72" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">خزنة</text>
+        </svg>
+      </div>
+      <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:10px 14px;margin-top:10px;font-size:12px;color:var(--text2);">
+        ⚠️ <strong>تنبيه:</strong> يجب فتح التطبيق من <strong>Safari</strong> فقط — المتصفحات الأخرى (Chrome/Brave) لا تدعم هذه الميزة على iOS
+      </div>
+      <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:900;font-size:15px;color:#fff;margin-top:14px;">فهمت، سأجربها الآن ✅</button>
+    </div>
   </div>
 </div>
 
@@ -967,8 +1093,11 @@
         const c = colors[(e.color || 0) % 5];
         const iconHtml = e.imageUrl
           ? `<div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl)}" style="width:100%;height:100%;object-fit:cover;"></div>`
-          : `<div class="card-icon" style="background:${c.bg};color:${c.text};font-size:18px;">${escapeHtml(e.name.substring(0,2)).toUpperCase()}</div>`;
-        const catLabel = {work:'💼 عمل',personal:'👤 شخصي',banking:'🏦 بنوك',entertainment:'🎬 ترفيه'}[e.category] || '📁 أخرى';
+          : e.icon
+            ? `<div class="card-icon" style="background:${c.bg};font-size:28px;display:flex;align-items:center;justify-content:center;">${e.icon}</div>`
+            : `<div class="card-icon" style="background:${c.bg};color:${c.text};font-size:18px;">${escapeHtml(e.name.substring(0,2)).toUpperCase()}</div>`;
+        const catMap = {work:'💼 عمل',personal:'👤 شخصي',banking:'🏦 بنوك',entertainment:'🎬 ترفيه',websites:'🌐 مواقع',other:'📁 أخرى',photos:'🖼️ صور'};
+        const catLabel = catMap[e.category] || '📁 أخرى';
         const safePass = escapeHtml(e.pass || '');
         const safeEmail = escapeHtml(e.email || '');
         const dateStr = e.createdAt ? new Date(e.createdAt).toLocaleDateString('ar-SA',{year:'numeric',month:'short',day:'numeric'}) : '';
@@ -2089,11 +2218,13 @@
   function renderCategoryFilters() {
     const bar = document.getElementById('categoryBar');
     const cats = [
-      { id: 'all', label: '🌐 الكل' },
-      { id: 'work', label: '💼 عمل' },
+      { id: 'all',      label: '🌐 الكل' },
+      { id: 'websites', label: '🔗 مواقع' },
+      { id: 'work',     label: '💼 عمل' },
       { id: 'personal', label: '👤 شخصي' },
-      { id: 'banking', label: '🏦 بنوك' },
-      { id: 'photos', label: '🖼️ صور' }
+      { id: 'banking',  label: '🏦 بنوك' },
+      { id: 'other',    label: '📁 أخرى' },
+      { id: 'photos',   label: '🖼️ صور' }
     ];
     bar.innerHTML = cats.map(c =>
       `<button class="cat-btn ${activeCategory === c.id ? 'active' : ''}" onclick="window.setCategory('${c.id}')">${c.label}</button>`
@@ -2108,33 +2239,58 @@
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const btn = document.getElementById('pwaInstallBtn');
-    if (btn) btn.style.display = 'block';
   });
+
+  window.showInstallTab = (tab) => {
+    const androidSteps = document.getElementById('installStepsAndroid');
+    const iosSteps     = document.getElementById('installStepsIos');
+    const btnA         = document.getElementById('installTabAndroid');
+    const btnI         = document.getElementById('installTabIos');
+    if (tab === 'android') {
+      androidSteps.style.display = 'block'; iosSteps.style.display = 'none';
+      btnA.style.background = 'var(--accent)'; btnA.style.color = '#0a0e1a';
+      btnI.style.background = 'transparent';  btnI.style.color = 'var(--muted2)';
+    } else {
+      androidSteps.style.display = 'none'; iosSteps.style.display = 'block';
+      btnI.style.background = 'var(--accent)'; btnI.style.color = '#0a0e1a';
+      btnA.style.background = 'transparent';   btnA.style.color = 'var(--muted2)';
+    }
+  };
+
+  const _openInstallGuide = () => {
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    document.getElementById('iosInstallOverlay').classList.add('open');
+    setTimeout(() => window.showInstallTab(isIos ? 'ios' : 'android'), 50);
+  };
+
   window.installPWA = async () => {
+    window.closeSidebar();
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
+      if (outcome === 'accepted') { showToast('✅ تم إضافة التطبيق للشاشة الرئيسية'); deferredPrompt = null; return; }
       deferredPrompt = null;
-      const btn = document.getElementById('pwaInstallBtn');
-      if (btn) btn.style.display = 'none';
-    } else {
-      window.showIosInstall();
     }
-    window.closeSidebar();
+    _openInstallGuide();
   };
-  window.showIosInstall = () => {
-    window.closeSidebar();
-    document.getElementById('iosInstallOverlay').classList.add('open');
+
+  window.showIosInstall = () => { window.closeSidebar(); _openInstallGuide(); };
+
+  window.loginInstallApp = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(r => {
+        if (r.outcome === 'accepted') showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
+        deferredPrompt = null;
+      });
+    } else {
+      _openInstallGuide();
+    }
   };
-  // iOS Safari: اكتشاف وعرض الزر
+
+  // iOS Safari: اكتشاف تلقائي
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.navigator.standalone === true;
-  if (isIos && !isStandalone) {
-    const btn = document.getElementById('pwaIosBtn');
-    if (btn) btn.style.display = 'block';
-  }
 
   // ── تبويبات مودال الإضافة ──
   window.switchAccountTab = (tab) => {
@@ -2230,19 +2386,6 @@
     document.querySelectorAll('#colorRowAccount .color-dot').forEach(d => d.classList.remove('selected'));
     el.classList.add('selected');
     selectedColorIdx = idx;
-  };
-
-  // ── PWA من صفحة تسجيل الدخول ──
-  window.loginInstallApp = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(r => {
-        if (r.outcome === 'accepted') showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
-        deferredPrompt = null;
-      });
-    } else {
-      document.getElementById('iosInstallOverlay').classList.add('open');
-    }
   };
 
   // ── تهيئة أولية ──
