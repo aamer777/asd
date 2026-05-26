@@ -129,6 +129,39 @@
       transform: scale(1.08);
       box-shadow: 0 4px 14px rgba(245,166,35,0.4);
     }
+    /* ترس الإعدادات بجانب الأفاتار */
+    .avatar-gear-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .gear-hint-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      margin-right: -8px;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      flex-shrink: 0;
+    }
+    .gear-hint-btn:hover {
+      transform: rotate(30deg) scale(1.1);
+      box-shadow: 0 4px 14px rgba(245,166,35,0.5);
+    }
+    .gear-hint-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: #0a0e1a;
+    }
     [data-theme="dark"] {
       --bg: #060a14; --bg2: #0a0f1c; --card: #0f1624; --card2: #131b2c;
       --accent: #f5a623; --accent2: #e07b00; --text: #f1f5f9; --text2: #cbd5e1;
@@ -145,15 +178,118 @@
     }
     body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 100px; transition: 0.2s; }
     ::-webkit-scrollbar { width: 4px; }
-    .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: var(--bg); }
-    .login-card { background: var(--glass2); backdrop-filter: blur(20px); border-radius: 40px; padding: 36px 24px; width: 100%; max-width: 440px; border: 1px solid var(--border2); }
-    .login-logo { font-size: 72px; text-align: center; }
-    .login-title { font-size: 28px; font-weight: 900; color: var(--accent); text-align: center; }
-    .social-btn { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px; border-radius: 60px; font-weight: 700; width: 100%; margin-bottom: 10px; cursor: pointer; border: none; font-family: 'Cairo', sans-serif; font-size: 15px; }
-    .social-btn.google { background: #fff; color: #1f1f1f; }
-    .social-btn.demo { background: linear-gradient(135deg, #1e293b, #0f172a); color: #facc15; }
-    .feature-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-    .feature-item { background: var(--card2); border-radius: 16px; padding: 10px; font-size: 11px; display: flex; align-items: center; gap: 8px; }
+    .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: #f0f4ff; position: relative; overflow: hidden; }
+
+    /* خلفية حيّة */
+    .login-bg-circles {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    .login-bg-circles span {
+      position: absolute; border-radius: 50%; opacity: 0.12;
+      animation: floatBubble 8s ease-in-out infinite;
+    }
+    .login-bg-circles span:nth-child(1) { width:280px;height:280px;background:radial-gradient(circle,#f5a623,#e07b00); top:-80px; right:-60px; animation-delay:0s; }
+    .login-bg-circles span:nth-child(2) { width:180px;height:180px;background:radial-gradient(circle,#3b82f6,#1d4ed8); bottom:60px; left:-50px; animation-delay:2s; }
+    .login-bg-circles span:nth-child(3) { width:120px;height:120px;background:radial-gradient(circle,#10b981,#059669); bottom:200px; right:20px; animation-delay:4s; }
+    .login-bg-circles span:nth-child(4) { width:90px;height:90px;background:radial-gradient(circle,#f5a623,#f97316); top:200px; left:30px; animation-delay:1s; }
+    @keyframes floatBubble {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    .login-card {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 36px;
+      padding: 36px 24px 28px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 4px 20px rgba(245,166,35,0.15);
+      position: relative;
+      z-index: 2;
+      animation: slideUpCard 0.6s cubic-bezier(0.34,1.28,0.64,1) both;
+    }
+    @keyframes slideUpCard {
+      from { opacity:0; transform: translateY(40px) scale(0.96); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    /* لوغو + عنوان */
+    .login-logo-wrap {
+      text-align: center; margin-bottom: 6px;
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+    }
+    @keyframes popIn {
+      from { opacity:0; transform: scale(0.6) rotate(-10deg); }
+      to   { opacity:1; transform: scale(1) rotate(0deg); }
+    }
+    .login-logo-wrap img {
+      width: 90px; height: 90px; object-fit: contain;
+      filter: drop-shadow(0 6px 16px rgba(245,166,35,0.4));
+      border-radius: 24px;
+    }
+    .login-title {
+      font-size: 26px; font-weight: 900;
+      background: linear-gradient(135deg, #e07b00, #f5a623);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center; margin-bottom: 4px;
+      animation: fadeSlideIn 0.5s ease 0.25s both;
+    }
+    .login-subtitle {
+      text-align: center; font-size: 12px; color: #64748b; margin-bottom: 24px;
+      animation: fadeSlideIn 0.5s ease 0.35s both;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity:0; transform: translateY(10px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    /* أزرار تسجيل الدخول */
+    .social-btn {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 15px; border-radius: 60px; font-weight: 800; width: 100%;
+      margin-bottom: 12px; cursor: pointer; border: none;
+      font-family: 'Cairo', sans-serif; font-size: 15px;
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
+      animation: fadeSlideIn 0.5s ease both;
+    }
+    .social-btn:nth-child(1) { animation-delay: 0.4s; }
+    .social-btn:nth-child(2) { animation-delay: 0.5s; }
+    .social-btn.google {
+      background: linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853);
+      color:#fff; box-shadow: 0 4px 18px rgba(66,133,244,0.35);
+    }
+    .social-btn.demo {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #facc15;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    }
+
+    /* قسم المميزات */
+    .feature-list {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px;
+      animation: fadeSlideIn 0.5s ease 0.6s both;
+    }
+    .feature-item {
+      background: linear-gradient(135deg, #f8faff, #f0f4ff);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px; padding: 10px 8px;
+      font-size: 11px; display: flex; align-items: center; gap: 7px;
+      color: #475569; font-weight: 600;
+    }
+    .feature-item span:first-child { font-size: 16px; flex-shrink: 0; }
+
+    /* شريط فاصل */
+    .login-divider {
+      display: flex; align-items: center; gap: 10px; margin: 14px 0;
+      color: #94a3b8; font-size: 11px;
+    }
+    .login-divider::before, .login-divider::after {
+      content:''; flex:1; height:1px; background:#e2e8f0;
+    }
     #lockScreen { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 9000; flex-direction: column; align-items: center; justify-content: center; }
     .lock-card { background: var(--card); border-radius: 40px; padding: 36px; width: 100%; max-width: 360px; text-align: center; }
     .pin-input { width: 100%; background: var(--card2); border: 2px solid var(--border2); border-radius: 60px; padding: 16px; font-size: 28px; text-align: center; letter-spacing: 12px; margin: 20px 0; color: var(--text); }
@@ -216,18 +352,40 @@
 <div id="lockScreen"><div class="lock-card"><div style="font-size:60px;">🔐</div><div style="font-size:22px; font-weight:900; margin-bottom:8px;">التطبيق مقفل</div><input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8"><button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button></div></div>
 
 <div id="loginScreen" class="login-container">
+  <!-- خلفية فقاعات متحركة -->
+  <div class="login-bg-circles">
+    <span></span><span></span><span></span><span></span>
+  </div>
   <div class="login-card">
-    <div class="login-logo"><img src="https://raw.githubusercontent.com/aamer777/asd/refs/heads/main/aa.png" alt="شعار التطبيق" style="width:110px;height:110px;object-fit:contain;display:block;margin:0 auto;"></div>
+    <div class="login-logo-wrap">
+      <img id="loginLogoImg"
+           src="https://raw.githubusercontent.com/aamer777/asd/refs/heads/main/aa.png"
+           alt="شعار التطبيق"
+           onerror="this.style.display='none'; document.getElementById('loginLogoEmoji').style.display='block';">
+      <div id="loginLogoEmoji" style="display:none; font-size:88px; line-height:1; filter:drop-shadow(0 6px 16px rgba(245,166,35,0.4));">🔐</div>
+    </div>
     <div class="login-title">خزنة المرور السحابية</div>
-    <div style="text-align:center; margin-bottom:20px; color:var(--muted2);">حفظ آمن · مزامنة فورية · رفع صور أصلية</div>
-    <button class="social-btn" onclick="window.loginWithGoogle()" style="background:linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853); color:#fff; font-weight:800; margin-bottom:14px; border-radius:60px; padding:15px; font-size:15px; border:none; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 4px 18px rgba(66,133,244,0.35);">
-      <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+    <div class="login-subtitle">حفظ آمن · مزامنة فورية · رفع صور أصلية</div>
+
+    <button class="social-btn google" onclick="window.loginWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       تسجيل الدخول بـ Google
     </button>
+
+    <div class="login-divider">أو</div>
+
     <button class="social-btn demo" onclick="window.startDemo()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       تجربة التطبيق (ديمو)
     </button>
+
+    <!-- مميزات التطبيق -->
+    <div class="feature-list">
+      <div class="feature-item"><span>🔒</span> تشفير كامل</div>
+      <div class="feature-item"><span>☁️</span> مزامنة سحابية</div>
+      <div class="feature-item"><span>🖼️</span> رفع صور أصلية</div>
+      <div class="feature-item"><span>⚡</span> وصول فوري</div>
+    </div>
 
     <!-- نافذة تأكيد البريد -->
     <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; margin-top:8px; text-align:center;">
@@ -251,7 +409,12 @@
   </div>
   <div class="header">
     <div class="hdr-row">
-      <div class="avatar-circle" id="menuAvatar" onclick="window.openSidebar()"><span>👤</span></div>
+      <div class="avatar-gear-wrap">
+        <div class="avatar-circle" id="menuAvatar" onclick="window.openSidebar()" title="افتح القائمة"><span>👤</span></div>
+        <button class="gear-hint-btn" onclick="window.openSidebar()" title="الإعدادات والقائمة">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.92c.04-.34.07-.68.07-1.08s-.03-.74-.07-1.08l2.32-1.81c.21-.16.27-.46.13-.7l-2.2-3.81c-.13-.23-.43-.31-.66-.23l-2.74 1.1c-.57-.44-1.18-.81-1.86-1.08L14 2.42c-.04-.28-.28-.42-.56-.42h-4.4c-.28 0-.5.14-.56.42l-.41 2.47c-.68.27-1.29.64-1.86 1.08l-2.74-1.1c-.26-.1-.55 0-.66.23L1.01 8.7c-.13.24-.07.54.13.7l2.32 1.81c-.04.34-.07.7-.07 1.08s.03.74.07 1.08L1.14 15.18c-.21.16-.27.46-.13.7l2.2 3.81c.13.23.43.31.66.23l2.74-1.1c.57.44 1.18.81 1.86 1.08l.41 2.47c.06.28.28.42.56.42h4.4c.28 0 .5-.14.56-.42l.41-2.47c.68-.27 1.29-.64 1.86-1.08l2.74 1.1c.26.1.55 0 .66-.23l2.2-3.81c.13-.24.07-.54-.13-.7l-2.32-1.8z"/></svg>
+        </button>
+      </div>
       <div style="font-weight:900; font-size:18px;">🔐 خزنة</div>
       <button style="background:var(--glass2); border-radius:40px; padding:8px 14px; border:1px solid var(--border); cursor:pointer; font-size:16px;" onclick="window.toggleTheme()" id="themeBtn">🌙</button>
     </div>
@@ -429,6 +592,8 @@
   </div>
   <div style="flex:1; padding:10px; overflow-y:auto;">
     <button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); window.closeSidebar();">🔒 إعدادات الأمان</button>
+    <button class="sb-item" id="pwaInstallBtn" onclick="window.installPWA()" style="display:none;">📲 حفظ على الشاشة الرئيسية</button>
+    <button class="sb-item" id="pwaIosBtn" onclick="window.showIosInstall()" style="display:none;">📲 حفظ على الشاشة الرئيسية</button>
     <button class="sb-item" onclick="window.openShareApp(); window.closeSidebar();">📤 مشاركة التطبيق</button>
     <button class="sb-item" onclick="window.openSendMessage(); window.closeSidebar();">✉️ إرسال رسالة</button>
   </div>
@@ -450,6 +615,21 @@
       <button style="flex:1; background:var(--card2); border-radius:40px; padding:12px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text);" onclick="window.closeSendMessage()">إلغاء</button>
       <button id="btnSendMsg" style="flex:2; background:var(--accent); border-radius:40px; padding:12px; font-weight:900; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:15px; color:#0a0e1a;" onclick="window.sendMessageToEmail()">📨 إرسال</button>
     </div>
+  </div>
+</div>
+
+<!-- مودال تثبيت iOS -->
+<div id="iosInstallOverlay" class="overlay" onclick="if(event.target===this) this.classList.remove('open')">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:48px; margin-bottom:12px;">📲</div>
+    <div style="font-weight:900; font-size:18px; color:var(--accent); margin-bottom:8px;">أضف إلى الشاشة الرئيسية</div>
+    <div style="font-size:13px; color:var(--muted2); line-height:1.9; margin-bottom:20px;">
+      لحفظ التطبيق على شاشتك الرئيسية:<br>
+      <strong style="color:var(--text);">1.</strong> اضغط على زر المشاركة <strong>⬆️</strong> في المتصفح<br>
+      <strong style="color:var(--text);">2.</strong> اختر <strong style="color:var(--accent);">"إضافة إلى الشاشة الرئيسية"</strong><br>
+      <strong style="color:var(--text);">3.</strong> اضغط <strong style="color:var(--accent);">إضافة</strong>
+    </div>
+    <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="width:100%; padding:13px; background:var(--accent); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:900; font-size:15px; color:#0a0e1a;">حسناً، فهمت ✅</button>
   </div>
 </div>
 
@@ -938,7 +1118,10 @@
 
   // ── حذف عنصر ──
   window.deleteEntry = async (id) => {
-    if (!confirm('حذف نهائي؟')) return;
+    const entry = entries.find(e => e.id === id);
+    const entryName = entry ? entry.name : 'هذا العنصر';
+    const confirmed = await window.showDeleteConfirm(entryName);
+    if (!confirmed) return;
     if (isDemo) {
       entries = entries.filter(e => e.id !== id); renderCards(); showToast('تم الحذف', '#ef4444');
     } else {
@@ -947,6 +1130,38 @@
         showToast('تم الحذف', '#ef4444');
       } catch(e) { showToast('خطأ في الحذف', '#ef4444'); }
     }
+  };
+
+  // ── مودال تأكيد الحذف ──
+  window.showDeleteConfirm = (name) => {
+    return new Promise((resolve) => {
+      let overlay = document.getElementById('deleteConfirmOverlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'deleteConfirmOverlay';
+        overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9100;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
+        overlay.innerHTML = `
+          <div style="background:var(--card);border-radius:32px 32px 0 0;padding:28px 20px;width:100%;max-width:480px;border-top:1px solid var(--border2);">
+            <div style="text-align:center;font-size:48px;margin-bottom:8px;">🗑️</div>
+            <div style="text-align:center;font-weight:900;font-size:18px;margin-bottom:6px;color:var(--red)">تأكيد الحذف</div>
+            <div id="deleteConfirmMsg" style="text-align:center;font-size:13px;color:var(--muted2);margin-bottom:22px;line-height:1.7;"></div>
+            <div style="display:flex;gap:12px;">
+              <button id="deleteCancelBtn" style="flex:1;padding:13px;background:var(--card2);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px;color:var(--text);font-weight:700;">إلغاء</button>
+              <button id="deleteConfirmBtn" style="flex:2;padding:13px;background:linear-gradient(135deg,#dc2626,#ef4444);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:15px;font-weight:900;color:#fff;">🗑️ نعم، احذف</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+      }
+      document.getElementById('deleteConfirmMsg').textContent = `هل تريد حذف "${name}" نهائياً؟ لا يمكن التراجع عن هذا الإجراء.`;
+      overlay.style.display = 'flex';
+      const close = (val) => {
+        overlay.style.display = 'none';
+        resolve(val);
+      };
+      document.getElementById('deleteConfirmBtn').onclick = () => close(true);
+      document.getElementById('deleteCancelBtn').onclick = () => close(false);
+      overlay.onclick = (e) => { if (e.target === overlay) close(false); };
+    });
   };
 
   // ── واجهات الإضافة والتعديل ──
@@ -1770,6 +1985,39 @@
 
   window.setCategory = (c) => { activeCategory = c; renderCategoryFilters(); renderCards(); };
   document.getElementById('searchInput').addEventListener('input', renderCards);
+
+  // ── PWA: حفظ على الشاشة الرئيسية ──
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('pwaInstallBtn');
+    if (btn) btn.style.display = 'block';
+  });
+  window.installPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
+      deferredPrompt = null;
+      const btn = document.getElementById('pwaInstallBtn');
+      if (btn) btn.style.display = 'none';
+    } else {
+      window.showIosInstall();
+    }
+    window.closeSidebar();
+  };
+  window.showIosInstall = () => {
+    window.closeSidebar();
+    document.getElementById('iosInstallOverlay').classList.add('open');
+  };
+  // iOS Safari: اكتشاف وعرض الزر
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if (isIos && !isStandalone) {
+    const btn = document.getElementById('pwaIosBtn');
+    if (btn) btn.style.display = 'block';
+  }
 
   // ── تهيئة أولية ──
   renderCategoryFilters();
