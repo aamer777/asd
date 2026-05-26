@@ -25,6 +25,12 @@
     };
   </script>
   <title>خزنة المرور السحابية 🔐</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="خزنة">
+  <meta name="theme-color" content="#e07b00">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2390,6 +2396,17 @@
 
   // ── تهيئة أولية ──
   renderCategoryFilters();
+</script>
+
+<!-- تسجيل Service Worker لتفعيل PWA -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('✅ SW مسجّل:', reg.scope))
+        .catch(err => console.warn('SW خطأ:', err));
+    });
+  }
 </script>
 </body>
 </html>
