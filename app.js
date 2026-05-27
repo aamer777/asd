@@ -206,130 +206,173 @@ function renderCards() {
     ((e.name || '').toLowerCase().includes(q) || (e.note || '').toLowerCase().includes(q))
   );
 
-  // ✅ تحديث عدادات البطاقات
-  const totalCountEl = document.getElementById('totalCount');
-  if (totalCountEl) {
-    totalCountEl.textContent = entries.length;
-  }
-
-  // ✅ عد الصور المرفوعة بنجاح
-  const photosCount = entries.filter(e => 
-    (e.type === 'image' && e.imageUrl && e.imageUrl.trim() !== '') ||
-    (e.originalImageUrl && e.originalImageUrl.trim() !== '')
-  ).length;
-  
-  const photosCountEl = document.getElementById('photosCount');
-  if (photosCountEl) {
-    photosCountEl.textContent = photosCount;
-  }
+  document.getElementById('totalCount').textContent = entries.length;
 
   const list = document.getElementById('cardsList');
   if (!filtered.length) {
-    list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--muted2);">
-      <div style="font-size:48px;margin-bottom:12px;">🔍</div>
-      <div style="font-weight:700;">لا توجد نتائج</div>
-    </div>`;
+    const emptyMsg = activeCategory !== 'all'
+      ? `<div style="text-align:center;padding:40px 20px;color:var(--muted2);">
+          <div style="font-size:48px;margin-bottom:12px;">📂</div>
+          <div style="font-weight:700;font-size:15px;">لا يوجد عناصر في هذا التصنيف</div>
+          <button onclick="window.setCategory('all')" style="margin-top:14px;padding:10px 24px;background:var(--accent);border:none;border-radius:40px;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;color:#0a0e1a;">🌐 عرض الكل</button>
+        </div>`
+      : `<div style="text-align:center;padding:40px 20px;color:var(--muted2);">
+          <div style="font-size:48px;margin-bottom:12px;">🔍</div>
+          <div style="font-weight:700;">لا توجد نتائج</div>
+        </div>`;
+    list.innerHTML = emptyMsg;
     return;
   }
 
-  list.innerHTML = filtered.map(e => {
+  /* ── جدول الألوان الكامل ── */
+  const CARD_COLORS = [
+    {bg:'#1e3a5f',text:'#60a5fa',accent:'#3b82f6'},
+    {bg:'#1a3a2a',text:'#34d399',accent:'#10b981'},
+    {bg:'#3a1a1a',text:'#f87171',accent:'#ef4444'},
+    {bg:'#3a2a1a',text:'#fbbf24',accent:'#f59e0b'},
+    {bg:'#2a1a3a',text:'#a78bfa',accent:'#8b5cf6'},
+    {bg:'#3a2010',text:'#fb923c',accent:'#f97316'},
+    {bg:'#3a1a2a',text:'#f472b6',accent:'#ec4899'},
+    {bg:'#0f2a3a',text:'#22d3ee',accent:'#06b6d4'},
+    {bg:'#0f2a1a',text:'#4ade80',accent:'#22c55e'},
+    {bg:'#2a2a0f',text:'#facc15',accent:'#eab308'}
+  ];
+
+  const catMap = {
+    work:'💼 عمل', personal:'👤 شخصي', banking:'🏦 بنوك',
+    entertainment:'🎬 ترفيه', websites:'🌐 مواقع', other:'📁 أخرى', photos:'🖼️ صور'
+  };
+
+  const cards = filtered.map(e => {
+    /* ── بطاقة صورة ── */
     if (e.type === 'image') {
-      return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')" style="border-right:4px solid ${c.accent};">
-        <div class="card-header-row">
-          <div class="card-title">
-            <div class="card-icon" style="padding:0;">
-              <img src="${escapeHtml(e.imageUrl)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
-            </div>
-            <div>
-              <div style="font-weight:700;">${escapeHtml(e.name)}</div>
-              <div style="font-size:11px;color:var(--muted2);">🖼️ صورة${e.note ? ' · 📝 ' + escapeHtml(e.note) : ''}</div>
-            </div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div style="border-radius:16px;overflow:hidden;margin-bottom:12px;max-height:240px;">
-            <img src="${escapeHtml(e.imageUrl)}" style="width:100%;height:auto;max-height:240px;object-fit:contain;display:block;" loading="lazy">
-          </div>
-          <div style="display:flex;gap:8px;" onclick="event.stopPropagation()">
-            <button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(239,68,68,0.13);color:#f87171;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.deleteEntry('${e.id}')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>حذف
-            </button>
-            <button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(59,130,246,0.13);color:#60a5fa;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.shareEntry('${e.id}')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>مشاركة
-            </button>
-            <button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(16,185,129,0.13);color:#10b981;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.downloadImage('${e.id}')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>تحميل
-            </button>
-            <button style="flex:1;padding:11px 0;border-radius:40px;background:var(--card2);color:var(--text2);border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.openEditImage('${e.id}')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>تعديل
-            </button>
-          </div>
-        </div>
-      </div>`;
-    } else {
-      const CARD_COLORS = [
-        {bg:'#1e3a5f',text:'#60a5fa',accent:'#3b82f6'},
-        {bg:'#1a3a2a',text:'#34d399',accent:'#10b981'},
-        {bg:'#3a1a1a',text:'#f87171',accent:'#ef4444'},
-        {bg:'#3a2a1a',text:'#fbbf24',accent:'#f59e0b'},
-        {bg:'#2a1a3a',text:'#a78bfa',accent:'#8b5cf6'},
-        {bg:'#3a2010',text:'#fb923c',accent:'#f97316'},
-        {bg:'#3a1a2a',text:'#f472b6',accent:'#ec4899'},
-        {bg:'#0f2a3a',text:'#22d3ee',accent:'#06b6d4'},
-        {bg:'#0f2a1a',text:'#4ade80',accent:'#22c55e'},
-        {bg:'#2a2a0f',text:'#facc15',accent:'#eab308'}
-      ];
-      const colorIdx = (typeof e.color === 'number') ? e.color : 0;
-      const c = CARD_COLORS[colorIdx % CARD_COLORS.length];
-      const iconHtml = e.imageUrl
-        ? `<div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>`
-        : e.icon
-          ? `<div class="card-icon" style="background:${c.bg};font-size:28px;display:flex;align-items:center;justify-content:center;">${e.icon}</div>`
-          : `<div class="card-icon" style="background:${c.bg};color:${c.text};font-size:18px;">${escapeHtml(e.name.substring(0,2)).toUpperCase()}</div>`;
-      const catMap = {work:'💼 عمل',personal:'👤 شخصي',banking:'🏦 بنوك',entertainment:'🎬 ترفيه',websites:'🌐 مواقع',other:'📁 أخرى',photos:'🖼️ صور'};
-      const catLabel = catMap[e.category] || '📁 أخرى';
-      const safePass  = escapeHtml(e.pass || '');
-      const safeEmail = escapeHtml(e.email || '');
-      const dateStr = e.createdAt ? new Date(e.createdAt).toLocaleDateString('ar-SA',{year:'numeric',month:'short',day:'numeric'}) : '';
-      return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')">
-        <div class="card-header-row">
-          <div class="card-title">
-            ${iconHtml}
-            <div>
-              <div style="font-weight:700;">${escapeHtml(e.name)}</div>
-              <div style="font-size:11px;color:var(--muted2);">${catLabel}${dateStr ? ' · ' + dateStr : ''}</div>
-              ${e.note ? `<div style="font-size:11px;color:var(--muted2);margin-top:2px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHtml(e.note)}</div>` : ''}
-            </div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="field">
-            <span>📧 ${safeEmail}</span>
-            <button class="btn-sm copy-btn" data-copy="${safeEmail}" data-label="الإيميل" onclick="event.stopPropagation();window.copyText(this.dataset.copy,this.dataset.label)">📋 نسخ</button>
-          </div>
-          <div class="field">
-            <span>🔑 <span id="pwd-${e.id}">${safePass}</span></span>
-            <div style="display:flex;gap:6px;">
-              <button class="btn-sm copy-btn" data-copy="${safePass}" data-label="كلمة المرور" onclick="event.stopPropagation();window.copyText(this.dataset.copy,this.dataset.label)">📋 نسخ</button>
-            </div>
-          </div>
-          ${e.url ? `<div class="field"><span>🔗 <a href="${escapeHtml(e.url)}" target="_blank" style="color:var(--blue);">${escapeHtml(e.url)}</a></span></div>` : ''}
-          <div style="display:flex;gap:8px;margin-top:12px;" onclick="event.stopPropagation()">
-            <button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(239,68,68,0.13);color:#f87171;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;" onclick="window.deleteEntry('${e.id}')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>حذف
-            </button>
-            <button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(59,130,246,0.13);color:#60a5fa;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;" onclick="window.shareEntry('${e.id}')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>مشاركة
-            </button>
-            <button style="flex:1;padding:11px 0;border-radius:40px;background:var(--card2);color:var(--text2);border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;" onclick="window.openEdit('${e.id}')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>تعديل
-            </button>
-          </div>
-        </div>
-      </div>`;
+      return _renderImageCard(e);
     }
-  }).join('');
+    /* ── بطاقة حساب ── */
+    return _renderAccountCard(e, CARD_COLORS, catMap);
+  });
+
+  list.innerHTML = cards.join('');
 }
+
+/* ── عرض بطاقة صورة ── */
+function _renderImageCard(e) {
+  try {
+    const safeId  = escapeHtml(e.id);
+    const safeName = escapeHtml(e.name || '');
+    const safeUrl  = escapeHtml(e.imageUrl || '');
+    const safeNote = e.note ? ' · 📝 ' + escapeHtml(e.note) : '';
+    return (
+      `<div class="card" id="card-${safeId}" onclick="window.toggleCard('${safeId}')" style="border-right:4px solid #6366f1;">` +
+        `<div class="card-header-row">` +
+          `<div class="card-title">` +
+            `<div class="card-icon" style="padding:0;"><img src="${safeUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>` +
+            `<div>` +
+              `<div style="font-weight:700;">${safeName}</div>` +
+              `<div style="font-size:11px;color:var(--muted2);">🖼️ صورة${safeNote}</div>` +
+            `</div>` +
+          `</div>` +
+        `</div>` +
+        `<div class="card-body">` +
+          `<div style="border-radius:16px;overflow:hidden;margin-bottom:12px;max-height:240px;">` +
+            `<img src="${safeUrl}" style="width:100%;height:auto;max-height:240px;object-fit:contain;display:block;" loading="lazy">` +
+          `</div>` +
+          `<div style="display:flex;gap:8px;" onclick="event.stopPropagation()">` +
+            `<button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(239,68,68,0.13);color:#f87171;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.deleteEntry('${safeId}')">` +
+              `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>حذف` +
+            `</button>` +
+            `<button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(59,130,246,0.13);color:#60a5fa;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.shareEntry('${safeId}')">` +
+              `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>مشاركة` +
+            `</button>` +
+            `<button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(16,185,129,0.13);color:#10b981;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.downloadImage('${safeId}')">` +
+              `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>تحميل` +
+            `</button>` +
+            `<button style="flex:1;padding:11px 0;border-radius:40px;background:var(--card2);color:var(--text2);border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="window.openEditImage('${safeId}')">` +
+              `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>تعديل` +
+            `</button>` +
+          `</div>` +
+        `</div>` +
+      `</div>`
+    );
+  } catch(err) {
+    console.error('image card error', e?.id, err);
+    return '';
+  }
+}
+
+/* ── عرض بطاقة حساب ── */
+function _renderAccountCard(e, CARD_COLORS, catMap) {
+  try {
+    const colorIdx = (typeof e.color === 'number') ? e.color : 0;
+    const c        = CARD_COLORS[colorIdx % CARD_COLORS.length];
+    const safeId   = escapeHtml(e.id);
+    const safeName = escapeHtml(e.name || '');
+
+    let iconHtml;
+    if (e.imageUrl) {
+      iconHtml = `<div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>`;
+    } else if (e.icon) {
+      iconHtml = `<div class="card-icon" style="background:${c.bg};font-size:28px;display:flex;align-items:center;justify-content:center;">${e.icon}</div>`;
+    } else {
+      const initials = escapeHtml((e.name || 'XX').substring(0, 2)).toUpperCase();
+      iconHtml = `<div class="card-icon" style="background:${c.bg};color:${c.text};font-size:18px;font-weight:900;">${initials}</div>`;
+    }
+
+    const catLabel  = catMap[e.category] || '📁 أخرى';
+    const safePass  = escapeHtml(e.pass  || '');
+    const safeEmail = escapeHtml(e.email || '');
+    const dateStr   = e.createdAt
+      ? new Date(e.createdAt).toLocaleDateString('ar-SA', {year:'numeric', month:'short', day:'numeric'})
+      : '';
+    const noteHtml  = e.note
+      ? `<div style="font-size:11px;color:var(--muted2);margin-top:2px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHtml(e.note)}</div>`
+      : '';
+    const urlHtml   = e.url
+      ? `<div class="field"><span>🔗 <a href="${escapeHtml(e.url)}" target="_blank" style="color:var(--blue);">${escapeHtml(e.url)}</a></span></div>`
+      : '';
+
+    return (
+      `<div class="card" id="card-${safeId}" onclick="window.toggleCard('${safeId}')" style="border-right:4px solid ${c.accent};">` +
+        `<div class="card-header-row">` +
+          `<div class="card-title">` +
+            iconHtml +
+            `<div>` +
+              `<div style="font-weight:700;">${safeName}</div>` +
+              `<div style="font-size:11px;color:var(--muted2);">${catLabel}${dateStr ? ' · ' + dateStr : ''}</div>` +
+              noteHtml +
+            `</div>` +
+          `</div>` +
+        `</div>` +
+        `<div class="card-body">` +
+          `<div class="field">` +
+            `<span>📧 ${safeEmail}</span>` +
+            `<button class="btn-sm copy-btn" data-copy="${safeEmail}" data-label="الإيميل" onclick="event.stopPropagation();window.copyText(this.dataset.copy,this.dataset.label)">📋 نسخ</button>` +
+          `</div>` +
+          `<div class="field">` +
+            `<span>🔑 <span id="pwd-${safeId}">${safePass}</span></span>` +
+            `<button class="btn-sm copy-btn" data-copy="${safePass}" data-label="كلمة المرور" onclick="event.stopPropagation();window.copyText(this.dataset.copy,this.dataset.label)">📋 نسخ</button>` +
+          `</div>` +
+          urlHtml +
+          `<div style="display:flex;gap:8px;margin-top:12px;" onclick="event.stopPropagation()">` +
+            `<button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(239,68,68,0.13);color:#f87171;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;" onclick="window.deleteEntry('${safeId}')">` +
+              `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>حذف` +
+            `</button>` +
+            `<button style="flex:1;padding:11px 0;border-radius:40px;background:rgba(59,130,246,0.13);color:#60a5fa;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;" onclick="window.shareEntry('${safeId}')">` +
+              `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>مشاركة` +
+            `</button>` +
+            `<button style="flex:1;padding:11px 0;border-radius:40px;background:var(--card2);color:var(--text2);border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;" onclick="window.openEdit('${safeId}')">` +
+              `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>تعديل` +
+            `</button>` +
+          `</div>` +
+        `</div>` +
+      `</div>`
+    );
+  } catch(err) {
+    console.error('account card error', e?.id, err);
+    return '';
+  }
+}
+
 
 window.toggleCard = (id) => document.getElementById(`card-${id}`)?.classList.toggle('expanded');
 
@@ -896,14 +939,7 @@ function renderCategoryFilters() {
 }
 window.setCategory = (c) => { activeCategory = c; renderCategoryFilters(); renderCards(); };
 window.renderCategoryFilters = renderCategoryFilters;
-
-/* ── إصلاح: التحقق من وجود searchInput قبل إضافة الـ listener ── */
-const searchInputElement = document.getElementById('searchInput');
-if (searchInputElement) {
-  searchInputElement.addEventListener('input', renderCards);
-} else {
-  console.warn('⚠️ عنصر searchInput غير موجود في HTML');
-}
+document.getElementById('searchInput').addEventListener('input', renderCards);
 
 /* ══════════════════════════════════════════════
    الشريط الجانبي
