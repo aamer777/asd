@@ -5,10 +5,9 @@
 
 import {
   auth, db, doc, setDoc, deleteDoc,
-  collection, query, orderBy, onSnapshot
+  collection, query, orderBy, onSnapshot,
+  watchAuthState, prefillSavedEmail, logoutFromFirebase
 } from './auth.js';
-
-import { watchAuthState, prefillSavedEmail, logoutFromFirebase } from './auth.js';
 
 /* ══════════════════════════════════════════════
    Cloudinary Config
@@ -939,7 +938,7 @@ function renderCategoryFilters() {
 }
 window.setCategory = (c) => { activeCategory = c; renderCategoryFilters(); renderCards(); };
 window.renderCategoryFilters = renderCategoryFilters;
-document.getElementById('searchInput').addEventListener('input', renderCards);
+document.getElementById('searchInput')?.addEventListener('input', renderCards);
 
 /* ══════════════════════════════════════════════
    الشريط الجانبي
@@ -1018,7 +1017,8 @@ window.toggleTheme = () => {
   document.getElementById('themeBtn').textContent = th === 'dark' ? '🌙' : '☀️';
 };
 document.documentElement.setAttribute('data-theme', 'light');
-document.getElementById('themeBtn').textContent = '☀️';
+const _themeBtn = document.getElementById('themeBtn');
+if (_themeBtn) _themeBtn.textContent = '☀️';
 
 /* ══════════════════════════════════════════════
    المشاركة
@@ -1229,4 +1229,21 @@ if ('serviceWorker' in navigator) {
       .then(reg => console.log('✅ SW مسجّل:', reg.scope))
       .catch(err => console.warn('SW خطأ:', err));
   });
+}
+
+/* ══════════════════════════════════════════════
+   ضمان وجود دوال تسجيل الدخول على window
+   (ES Modules تحمّل auth.js تلقائياً عبر import
+   لكن نضيف wrapper هنا كضمان إضافي)
+══════════════════════════════════════════════ */
+if (!window.loginWithGoogle) {
+  window.loginWithGoogle = async () => {
+    try {
+      const { GoogleAuthProvider, signInWithPopup } =
+        await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch(e) {
+      showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
+    }
+  };
 }
