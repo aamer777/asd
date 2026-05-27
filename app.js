@@ -206,7 +206,22 @@ function renderCards() {
     ((e.name || '').toLowerCase().includes(q) || (e.note || '').toLowerCase().includes(q))
   );
 
-  document.getElementById('totalCount').textContent = entries.length;
+  // ✅ تحديث عدادات البطاقات
+  const totalCountEl = document.getElementById('totalCount');
+  if (totalCountEl) {
+    totalCountEl.textContent = entries.length;
+  }
+
+  // ✅ عد الصور المرفوعة بنجاح
+  const photosCount = entries.filter(e => 
+    (e.type === 'image' && e.imageUrl && e.imageUrl.trim() !== '') ||
+    (e.originalImageUrl && e.originalImageUrl.trim() !== '')
+  ).length;
+  
+  const photosCountEl = document.getElementById('photosCount');
+  if (photosCountEl) {
+    photosCountEl.textContent = photosCount;
+  }
 
   const list = document.getElementById('cardsList');
   if (!filtered.length) {
@@ -881,7 +896,14 @@ function renderCategoryFilters() {
 }
 window.setCategory = (c) => { activeCategory = c; renderCategoryFilters(); renderCards(); };
 window.renderCategoryFilters = renderCategoryFilters;
-document.getElementById('searchInput').addEventListener('input', renderCards);
+
+/* ── إصلاح: التحقق من وجود searchInput قبل إضافة الـ listener ── */
+const searchInputElement = document.getElementById('searchInput');
+if (searchInputElement) {
+  searchInputElement.addEventListener('input', renderCards);
+} else {
+  console.warn('⚠️ عنصر searchInput غير موجود في HTML');
+}
 
 /* ══════════════════════════════════════════════
    الشريط الجانبي
