@@ -603,6 +603,20 @@
   }
 </script>
 
+<script>
+// Placeholder حتى يكتمل تحميل app.js (ES Module async)
+function _pending(name) {
+  return function() {
+    console.log(name + ' called before module loaded — queuing');
+    document.addEventListener('vault-ready', function() {
+      if (window[name]) window[name].apply(this, arguments);
+    }, { once: true });
+  };
+}
+window.loginWithGoogle = _pending('loginWithGoogle');
+window.startDemo       = _pending('startDemo');
+window.loginWithEmail  = _pending('loginWithEmail');
+</script>
 <script type="module" src="app.js"></script>
 
 </body>
