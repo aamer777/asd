@@ -724,6 +724,46 @@
   </div>
 </div>
 
+<!-- شريط تثبيت PWA المخصص -->
+<div id="pwaInstallBar" style="
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 9500;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-top: 2px solid #f5a623;
+  border-radius: 24px 24px 0 0;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34,1.28,0.64,1), opacity 0.3s ease;
+  max-width: 480px;
+  margin: 0 auto;
+">
+  <div style="font-size: 38px; flex-shrink:0;">🔐</div>
+  <div style="flex:1;">
+    <div style="font-weight:900; font-size:14px; color:#fff; margin-bottom:2px;">ثبّت خزنة المرور</div>
+    <div style="font-size:11px; color:#94a3b8;">وصول سريع من شاشتك مثل أي تطبيق</div>
+  </div>
+  <button onclick="window.triggerInstallPrompt()" style="
+    background: linear-gradient(135deg,#f5a623,#e07b00);
+    border:none; border-radius:40px;
+    padding: 10px 18px;
+    font-family:'Cairo',sans-serif; font-weight:900; font-size:13px;
+    color:#0a0e1a; cursor:pointer;
+    white-space:nowrap;
+    box-shadow: 0 4px 14px rgba(245,166,35,0.4);
+  ">تثبيت ⚡</button>
+  <button onclick="window.dismissInstallBar()" style="
+    background:rgba(255,255,255,0.08); border:none; border-radius:50%;
+    width:30px; height:30px; cursor:pointer; color:#94a3b8; font-size:16px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  ">✕</button>
+</div>
+
 <!-- مودال تثبيت PWA - دليل بصري شامل -->
 <div id="iosInstallOverlay" class="overlay" onclick="if(event.target===this) this.classList.remove('open')">
   <div class="modal" style="padding:0; overflow:hidden; border-radius:28px 28px 0 0;">
@@ -2242,12 +2282,54 @@
 
   // ── PWA: حفظ على الشاشة الرئيسية ──
   let deferredPrompt = null;
+
   window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
+    // لا نمنع الحدث — نتركه يظهر تلقائياً من Chrome
+    // لكن نحفظه أيضاً لاستخدامه من الأزرار
     deferredPrompt = e;
+
+    // عرض شريط التثبيت المخصص بعد ثانيتين
+    setTimeout(() => {
+      const bar = document.getElementById('pwaInstallBar');
+      if (bar && !window._pwaBarDismissed) {
+        bar.style.transform = 'translateY(0)';
+        bar.style.opacity = '1';
+      }
+    }, 2000);
   });
 
-  window.showInstallTab = (tab) => {
+  window.addEventListener('appinstalled', () => {
+    const bar = document.getElementById('pwaInstallBar');
+    if (bar) bar.style.transform = 'translateY(100%)';
+    showToast('✅ تم تثبيت التطبيق على شاشتك الرئيسية!');
+    deferredPrompt = null;
+  });
+
+  window.triggerInstallPrompt = async () => {
+    const bar = document.getElementById('pwaInstallBar');
+    if (deferredPrompt) {
+      if (bar) bar.style.transform = 'translateY(100%)';
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
+      } else {
+        // أعد إظهار الشريط إذا رفض
+        setTimeout(() => {
+          if (bar) bar.style.transform = 'translateY(0)';
+        }, 3000);
+      }
+      deferredPrompt = null;
+    } else {
+      _openInstallGuide();
+    }
+  };
+
+  window.dismissInstallBar = () => {
+    window._pwaBarDismissed = true;
+    const bar = document.getElementById('pwaInstallBar');
+    if (bar) bar.style.transform = 'translateY(100%)';
+  };
     const androidSteps = document.getElementById('installStepsAndroid');
     const iosSteps     = document.getElementById('installStepsIos');
     const btnA         = document.getElementById('installTabAndroid');
@@ -2271,27 +2353,13 @@
 
   window.installPWA = async () => {
     window.closeSidebar();
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') { showToast('✅ تم إضافة التطبيق للشاشة الرئيسية'); deferredPrompt = null; return; }
-      deferredPrompt = null;
-    }
-    _openInstallGuide();
+    window.triggerInstallPrompt();
   };
 
   window.showIosInstall = () => { window.closeSidebar(); _openInstallGuide(); };
 
   window.loginInstallApp = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(r => {
-        if (r.outcome === 'accepted') showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
-        deferredPrompt = null;
-      });
-    } else {
-      _openInstallGuide();
-    }
+    window.triggerInstallPrompt();
   };
 
   // iOS Safari: اكتشاف تلقائي
