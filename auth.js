@@ -1,1 +1,1 @@
-/* auth.js — تم دمج كل الكود في app.js */
+/* auth.js - not used, all code in app.js */
