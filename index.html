@@ -38,14 +38,40 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   
 <link rel="stylesheet" href="style.css">
+  <!-- reCAPTCHA v3 -->
+  <script src="https://www.google.com/recaptcha/api.js?render=6LfB5v8sAAAAAEdQnTzd84S2MOg8q7ynIgblHFd1"></script>
 </head>
 <body>
 <div id="lockScreen"><div class="lock-card"><div style="font-size:60px;">🔐</div><div style="font-size:22px; font-weight:900; margin-bottom:8px;">التطبيق مقفل</div><input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8"><button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button></div></div>
 
 <div id="loginScreen" class="login-container">
   <!-- خلفية فقاعات متحركة -->
-  <div class="login-bg-circles">
-    <span></span><span></span><span></span><span></span>
+  <div class="login-bg-circles" id="loginBg">
+    <!-- الكثبان الرملية SVG -->
+    <svg class="desert-dunes" viewBox="0 0 800 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="dune1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#7c3a00" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#3d1800" stop-opacity="1"/>
+        </linearGradient>
+        <linearGradient id="dune2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#5a2800" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2a1000" stop-opacity="1"/>
+        </linearGradient>
+        <linearGradient id="dune3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3d1800" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#1a0800" stop-opacity="1"/>
+        </linearGradient>
+      </defs>
+      <!-- كثيب خلفي -->
+      <path d="M0,180 Q100,80 200,140 Q300,200 400,100 Q500,20 600,120 Q700,200 800,130 L800,300 L0,300 Z" fill="url(#dune3)"/>
+      <!-- كثيب وسطي -->
+      <path d="M0,220 Q80,140 180,190 Q280,240 380,160 Q480,90 580,180 Q680,250 800,190 L800,300 L0,300 Z" fill="url(#dune2)"/>
+      <!-- كثيب أمامي -->
+      <path d="M0,260 Q60,200 150,240 Q240,280 340,220 Q440,160 540,230 Q640,290 800,240 L800,300 L0,300 Z" fill="url(#dune1)"/>
+      <!-- خط ضوء القمر على الكثيب -->
+      <path d="M340,220 Q440,160 540,230" stroke="rgba(245,200,80,0.15)" stroke-width="2" fill="none"/>
+    </svg>
   </div>
   <div class="login-card">
     <div class="login-logo-wrap">
@@ -96,6 +122,13 @@
         <button onclick="window.checkVerifyCode()" style="flex:2; padding:11px; background:var(--accent); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:13px; color:#0a0e1a;">✅ تحقق</button>
       </div>
       <button onclick="window.resendVerifyCode()" style="width:100%; margin-top:8px; padding:10px; background:transparent; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--muted2); font-size:12px;">إعادة إرسال الرمز</button>
+    </div>
+    <!-- reCAPTCHA badge -->
+    <div style="text-align:center; margin-top:14px; font-size:10px; color:#94a3b8; line-height:1.6;">
+      محمي بـ
+      <a href="https://policies.google.com/privacy" target="_blank" style="color:#3b82f6; text-decoration:none;">Privacy</a>
+      ·
+      <a href="https://policies.google.com/terms" target="_blank" style="color:#3b82f6; text-decoration:none;">Terms</a>
     </div>
   </div>
 </div>
@@ -619,5 +652,87 @@ window.loginWithEmail  = _pending('loginWithEmail');
 </script>
 <script type="module" src="app.js"></script>
 
+<script>
+/* ══ نجوم طائرة + رمال متحركة + Cache Busting ══ */
+(function() {
+  /* ── Cache Busting — تحديث الملفات تلقائياً ── */
+  const VERSION = Date.now();
+  const links = document.querySelectorAll('link[rel="stylesheet"]');
+  links.forEach(l => {
+    if (l.href && !l.href.includes('googleapis') && !l.href.includes('?v=')) {
+      l.href = l.href.split('?')[0] + '?v=' + VERSION;
+    }
+  });
+
+  /* ── إنشاء النجوم المتحركة ── */
+  const bg = document.getElementById('loginBg');
+  if (!bg) return;
+
+  /* نجوم تتلألأ ثابتة */
+  const twinklePositions = [
+    [8,12],[18,6],[32,18],[47,9],[58,22],[72,5],[83,16],[93,28],
+    [12,38],[28,45],[43,35],[61,48],[77,32],[90,42],[5,55],
+    [22,62],[39,58],[55,65],[68,52],[85,60],[97,48]
+  ];
+  twinklePositions.forEach(([x,y], i) => {
+    const s = document.createElement('div');
+    s.className = 'twinkle-star';
+    s.style.cssText = `left:${x}%;top:${y}%;width:${1+Math.random()*3}px;height:${1+Math.random()*3}px;animation-duration:${1.5+Math.random()*3}s;animation-delay:${Math.random()*3}s`;
+    bg.appendChild(s);
+  });
+
+  /* نجوم طائرة (صاعدة) */
+  function createStar() {
+    const s = document.createElement('div');
+    s.className = 'star-particle';
+    const size = 1 + Math.random() * 3;
+    const x    = Math.random() * 100;
+    const dur  = 6 + Math.random() * 12;
+    s.style.cssText = `
+      left:${x}%;
+      bottom:${20 + Math.random() * 30}%;
+      width:${size}px; height:${size}px;
+      animation-duration:${dur}s;
+      animation-delay:${Math.random() * 8}s;
+    `;
+    bg.appendChild(s);
+    setTimeout(() => s.remove(), (dur + 8) * 1000);
+  }
+  for (let i = 0; i < 18; i++) createStar();
+  setInterval(createStar, 2500);
+
+  /* جزيئات الرمال */
+  function createSand() {
+    const s = document.createElement('div');
+    s.className = 'sand-particle';
+    const size = 1 + Math.random() * 2;
+    const dur  = 3 + Math.random() * 5;
+    s.style.cssText = `
+      left:${40 + Math.random() * 55}%;
+      bottom:${Math.random() * 40}%;
+      width:${size}px; height:${size}px;
+      animation-duration:${dur}s;
+      animation-delay:${Math.random() * 3}s;
+      opacity:0;
+    `;
+    bg.appendChild(s);
+    setTimeout(() => s.remove(), (dur + 3) * 1000);
+  }
+  for (let i = 0; i < 25; i++) createSand();
+  setInterval(createSand, 1200);
+
+  /* تأثير حركة الخلفية مع الماوس / اللمس */
+  const card = document.querySelector('.login-card');
+  document.addEventListener('mousemove', (e) => {
+    if (!card) return;
+    const rx = (e.clientY / window.innerHeight - 0.5) * 6;
+    const ry = (e.clientX / window.innerWidth  - 0.5) * -6;
+    card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+  document.addEventListener('mouseleave', () => {
+    if (card) card.style.transform = '';
+  });
+})();
+</script>
 </body>
 </html>
