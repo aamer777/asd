@@ -6,23 +6,9 @@
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <script>
-    // ── فرض HTTPS ──
     if (location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
       location.replace('https:' + location.href.substring(location.protocol.length));
     }
-    // ── توليد CSRF Token ──
-    (function() {
-      let token = sessionStorage.getItem('csrf_token');
-      if (!token) {
-        token = Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2,'0')).join('');
-        sessionStorage.setItem('csrf_token', token);
-      }
-      window._csrfToken = token;
-    })();
-    // ── التحقق من CSRF قبل أي عملية حساسة ──
-    window.verifyCsrf = function(token) {
-      return token === window._csrfToken;
-    };
   </script>
   <title>خزنة المرور السحابية 🔐</title>
   <link rel="manifest" href="manifest.json">
@@ -34,16 +20,43 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  
-<link rel="stylesheet" href="style.css">
+  <script>
+    const EMAILJS_PUBLIC_KEY  = 'AAqRxMl4frLp82l-7';
+    const EMAILJS_SERVICE_ID  = 'service_jmk7uc5';
+    const EMAILJS_TEMPLATE_ID = 'template_5qrk29k';
+    const OWNER_EMAIL         = 'aamer777@gmail.com';
+  </script>
 </head>
 <body>
-<div id="lockScreen"><div class="lock-card"><div style="font-size:60px;">🔐</div><div style="font-size:22px; font-weight:900; margin-bottom:8px;">التطبيق مقفل</div><input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8"><button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button></div></div>
 
+<!-- ══ شريط تحميل علوي (يسقط من الأعلى على الجوال) ══ -->
+<div id="topLoadingBar"></div>
+
+<!-- ══ شاشة Splash للجوال ══ -->
+<div id="splashScreen">
+  <div class="splash-logo">🔐</div>
+  <div class="splash-title">خزنة المرور</div>
+  <div class="splash-subtitle">حفظ آمن · مزامنة فورية · رفع صور</div>
+  <div class="splash-dots">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- ══ شاشة القفل (PIN) ══ -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div style="font-size:60px;">🔐</div>
+    <div style="font-size:22px; font-weight:900; margin-bottom:8px;">التطبيق مقفل</div>
+    <input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="****" maxlength="8">
+    <button class="btn-unlock" onclick="window.checkPin()">فتح القفل</button>
+  </div>
+</div>
+
+<!-- ══ شاشة تسجيل الدخول ══ -->
 <div id="loginScreen" class="login-container">
-  <!-- خلفية فقاعات متحركة -->
   <div class="login-bg-circles">
     <span></span><span></span><span></span><span></span>
   </div>
@@ -70,7 +83,6 @@
       تجربة التطبيق (ديمو)
     </button>
 
-    <!-- مميزات التطبيق -->
     <div class="feature-list">
       <div class="feature-item"><span>🔒</span> تشفير كامل</div>
       <div class="feature-item"><span>☁️</span> مزامنة سحابية</div>
@@ -78,14 +90,14 @@
       <div class="feature-item"><span>⚡</span> وصول فوري</div>
     </div>
 
-    <!-- نافذة تأكيد البريد (مخفية - تُستخدم برمجياً) -->
+    <!-- حقول إيميل مخفية (تُستخدم برمجياً) -->
     <div id="emailAuthSection" style="display:none;">
       <input id="authEmail" type="email" style="display:none;">
       <input id="authPass" type="password" style="display:none;">
       <div id="authEmailHint" style="display:none;"></div>
     </div>
 
-    <!-- نافذة تأكيد البريد -->
+    <!-- قسم التحقق من البريد -->
     <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; margin-top:8px; text-align:center;">
       <div style="font-size:32px; margin-bottom:8px;">📨</div>
       <div style="font-weight:800; font-size:15px; color:var(--accent); margin-bottom:6px;">تأكيد البريد الإلكتروني</div>
@@ -100,16 +112,20 @@
   </div>
 </div>
 
+<!-- ══ واجهة التطبيق الرئيسية ══ -->
 <div id="appScreen" class="app">
+  <!-- شريط الوضع التجريبي -->
   <div id="demoBar" style="display:none; background:linear-gradient(135deg,#ea580c,#f97316); padding:10px 16px; text-align:center; font-size:13px; color:#fff; font-weight:700; letter-spacing:0.3px;">
     🎮 وضع تجريبي — لا يتم الحفظ السحابي
     <button onclick="window.exitDemo()" style="background:rgba(255,255,255,0.25); border:1px solid rgba(255,255,255,0.5); border-radius:20px; padding:3px 14px; margin-right:10px; cursor:pointer; color:#fff; font-family:'Cairo',sans-serif; font-weight:700;">خروج</button>
   </div>
+
+  <!-- الهيدر -->
   <div class="header">
     <div class="hdr-row">
       <div class="avatar-gear-wrap">
         <div class="avatar-circle" id="menuAvatar" onclick="window.openSidebar()" title="افتح القائمة"><span>👤</span></div>
-        <button class="gear-hint-btn" onclick="window.openSidebar()" title="الإعدادات والقائمة">
+        <button class="gear-hint-btn" onclick="window.openSidebar()" title="الإعدادات">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.92c.04-.34.07-.68.07-1.08s-.03-.74-.07-1.08l2.32-1.81c.21-.16.27-.46.13-.7l-2.2-3.81c-.13-.23-.43-.31-.66-.23l-2.74 1.1c-.57-.44-1.18-.81-1.86-1.08L14 2.42c-.04-.28-.28-.42-.56-.42h-4.4c-.28 0-.5.14-.56.42l-.41 2.47c-.68.27-1.29.64-1.86 1.08l-2.74-1.1c-.26-.1-.55 0-.66.23L1.01 8.7c-.13.24-.07.54.13.7l2.32 1.81c-.04.34-.07.7-.07 1.08s.03.74.07 1.08L1.14 15.18c-.21.16-.27.46-.13.7l2.2 3.81c.13.23.43.31.66.23l2.74-1.1c.57.44 1.18.81 1.86 1.08l.41 2.47c.06.28.28.42.56.42h4.4c.28 0 .5-.14.56-.42l.41-2.47c.68-.27 1.29-.64 1.86-1.08l2.74 1.1c.26.1.55 0 .66-.23l2.2-3.81c.13-.24.07-.54-.13-.7l-2.32-1.8z"/></svg>
         </button>
       </div>
@@ -117,84 +133,74 @@
       <button style="background:var(--glass2); border-radius:40px; padding:8px 14px; border:1px solid var(--border); cursor:pointer; font-size:16px;" onclick="window.toggleTheme()" id="themeBtn">🌙</button>
     </div>
   </div>
+
+  <!-- إحصائيات -->
   <div class="stats-bar">
     <span>📦 العناصر: <span id="totalCount">0</span></span>
     <span id="syncStatus">☁️ سحابية</span>
   </div>
+
+  <!-- البحث -->
   <div style="padding:12px;">
     <input class="search-box" id="searchInput" placeholder="🔍 بحث باسم أو ملاحظة...">
   </div>
+
+  <!-- فلاتر التصنيف -->
   <div class="category-wrap" id="categoryBar"></div>
+
+  <!-- قائمة البطاقات -->
   <div class="cards" id="cardsList"></div>
-  <div class="fabs"><button class="fab fab-add" onclick="window.showAddChoice()" title="إضافة جديد">＋</button></div>
+
+  <!-- زر الإضافة -->
+  <div class="fabs">
+    <button class="fab fab-add" onclick="window.showAddChoice()" title="إضافة جديد">＋</button>
+  </div>
 </div>
 
-<!-- مودال اختيار نوع الإضافة -->
+<!-- ══ مودال اختيار نوع الإضافة ══ -->
 <div class="overlay" id="choiceOverlay" onclick="if(event.target===this) window.closeChoice()">
   <div class="modal">
     <div style="font-size:20px; font-weight:900; text-align:center; margin-bottom:16px;">➕ إضافة جديدة</div>
     <button onclick="window.openAddAccount()" style="width:100%; display:flex; align-items:center; gap:14px; background:var(--card2); border:1px solid var(--border2); border-radius:20px; padding:18px 20px; margin-bottom:12px; cursor:pointer; font-family:'Cairo',sans-serif; text-align:right;">
       <span style="font-size:28px;">🔐</span>
-      <div>
-        <div style="font-weight:800; font-size:15px; color:var(--text);">إضافة حساب</div>
-        <div style="font-size:12px; color:var(--muted2); margin-top:2px;">بريد إلكتروني وكلمة مرور</div>
-      </div>
+      <div><div style="font-weight:800; font-size:15px; color:var(--text);">إضافة حساب</div><div style="font-size:12px; color:var(--muted2); margin-top:2px;">بريد إلكتروني وكلمة مرور</div></div>
     </button>
     <button onclick="window.openAddImage()" style="width:100%; display:flex; align-items:center; gap:14px; background:var(--card2); border:1px solid var(--border2); border-radius:20px; padding:18px 20px; margin-bottom:16px; cursor:pointer; font-family:'Cairo',sans-serif; text-align:right;">
       <span style="font-size:28px;">🖼️</span>
-      <div>
-        <div style="font-weight:800; font-size:15px; color:var(--text);">إضافة صورة</div>
-        <div style="font-size:12px; color:var(--muted2); margin-top:2px;">رفع سحابي</div>
-      </div>
+      <div><div style="font-weight:800; font-size:15px; color:var(--text);">إضافة صورة</div><div style="font-size:12px; color:var(--muted2); margin-top:2px;">رفع سحابي</div></div>
     </button>
     <button style="width:100%; padding:12px; background:var(--card2); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:14px; color:var(--text);" onclick="window.closeChoice()">إلغاء</button>
   </div>
 </div>
 
-<!-- مودال إضافة / تعديل حساب -->
+<!-- ══ مودال إضافة / تعديل حساب ══ -->
 <div class="overlay" id="overlayAccount" onclick="if(event.target===this) window.closeModalAccount()">
   <div class="modal" style="border-radius:28px 28px 0 0; padding:0; overflow:hidden;">
-
-    <!-- هيدر المودال -->
     <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 20px 14px; border-bottom:1px solid var(--border);">
       <button onclick="window.closeModalAccount()" style="width:34px;height:34px;border-radius:50%;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted2);">✕</button>
       <div style="font-weight:900; font-size:17px;" id="modalTitleAccount">إضافة كلمة مرور</div>
       <div style="width:34px;"></div>
     </div>
-
-    <!-- تبويبات أساسي / متقدم -->
     <div style="display:flex; gap:0; margin:14px 20px 0; background:var(--card2); border-radius:40px; padding:4px;">
-      <button id="tabBasicBtn" onclick="window.switchAccountTab('basic')"
-        style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;background:var(--accent);color:#0a0e1a;transition:0.2s;">أساسي</button>
-      <button id="tabAdvBtn" onclick="window.switchAccountTab('adv')"
-        style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;background:transparent;color:var(--muted2);transition:0.2s;">متقدم</button>
+      <button id="tabBasicBtn" onclick="window.switchAccountTab('basic')" style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;background:var(--accent);color:#0a0e1a;transition:0.2s;">أساسي</button>
+      <button id="tabAdvBtn"   onclick="window.switchAccountTab('adv')"   style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;background:transparent;color:var(--muted2);transition:0.2s;">متقدم</button>
     </div>
-
-    <!-- محتوى الفورم -->
     <div style="padding:16px 20px 20px; overflow-y:auto; max-height:65vh;">
-
       <!-- تبويب أساسي -->
       <div id="tabBasic">
-        <!-- العنوان + أيقونة -->
         <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:4px;">
           <div style="flex:1;">
             <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:6px; text-align:right;">العنوان *</div>
             <input class="form-input" id="fName" placeholder="مثال: Gmail، Netflix..." style="margin-bottom:0;">
           </div>
           <div style="flex-shrink:0; margin-top:22px;">
-            <button onclick="window.pickAccountIcon()" id="iconPickerBtn"
-              style="width:64px;height:54px;border-radius:16px;background:var(--card2);border:2px dashed var(--border2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--muted2);font-family:'Cairo',sans-serif;transition:0.2s;">
-              <span id="iconPickerEmoji" style="font-size:22px;">📷</span>
-              <span>أيقونة</span>
+            <button onclick="window.pickAccountIcon()" style="width:64px;height:54px;border-radius:16px;background:var(--card2);border:2px dashed var(--border2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--muted2);font-family:'Cairo',sans-serif;">
+              <span id="iconPickerEmoji" style="font-size:22px;">📷</span><span>أيقونة</span>
             </button>
           </div>
         </div>
-
-        <!-- اسم المستخدم / البريد -->
         <div style="font-size:13px; font-weight:700; color:var(--text2); margin:12px 0 6px; text-align:right;">اسم المستخدم / البريد</div>
         <input class="form-input" id="fEmail" placeholder="user@example.com" style="margin-bottom:0;">
-
-        <!-- كلمة المرور -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0 6px;">
           <button onclick="window.generatePassword()" style="display:flex;align-items:center;gap:5px;background:transparent;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;color:var(--accent);font-weight:700;padding:0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
@@ -204,11 +210,10 @@
         </div>
         <div style="position:relative;">
           <input class="form-input" id="fPass" type="password" placeholder="أدخل كلمة المرور" style="margin-bottom:0; padding-left:44px;">
-          <button onclick="window.togglePassVis()" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted2);font-size:18px;" id="passVisBtn">👁️</button>
+          <button onclick="window.togglePassVis()" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted2);font-size:18px;">👁️</button>
         </div>
-        <!-- شريط قوة كلمة المرور -->
         <div style="margin-top:6px;">
-          <div style="display:flex; gap:4px; margin-bottom:4px;" id="strengthBars">
+          <div style="display:flex; gap:4px; margin-bottom:4px;">
             <div style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:0.3s;" id="sb1"></div>
             <div style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:0.3s;" id="sb2"></div>
             <div style="flex:1;height:4px;border-radius:4px;background:var(--border2);transition:0.3s;" id="sb3"></div>
@@ -216,26 +221,22 @@
           </div>
           <div style="font-size:11px; color:var(--muted2); text-align:left;" id="strengthLabel"></div>
         </div>
-
-        <!-- الفئة -->
         <div style="font-size:13px; font-weight:700; color:var(--text2); margin:14px 0 8px; text-align:right;">الفئة</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px;" id="categoryChips">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
           <button class="cat-chip active" data-cat="websites" onclick="window.selectCatChip(this,'websites')">🌐 مواقع</button>
-          <button class="cat-chip" data-cat="personal" onclick="window.selectCatChip(this,'personal')">✉️ بريد</button>
-          <button class="cat-chip" data-cat="banking" onclick="window.selectCatChip(this,'banking')">🏦 بنوك</button>
-          <button class="cat-chip" data-cat="work" onclick="window.selectCatChip(this,'work')">📱 تطبيقات</button>
-          <button class="cat-chip" data-cat="other" onclick="window.selectCatChip(this,'other')">••• أخرى</button>
+          <button class="cat-chip" data-cat="personal"  onclick="window.selectCatChip(this,'personal')">✉️ بريد</button>
+          <button class="cat-chip" data-cat="banking"   onclick="window.selectCatChip(this,'banking')">🏦 بنوك</button>
+          <button class="cat-chip" data-cat="work"      onclick="window.selectCatChip(this,'work')">📱 تطبيقات</button>
+          <button class="cat-chip" data-cat="other"     onclick="window.selectCatChip(this,'other')">••• أخرى</button>
         </div>
         <input type="hidden" id="fCategory" value="websites">
       </div>
-
       <!-- تبويب متقدم -->
       <div id="tabAdv" style="display:none;">
         <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:6px; text-align:right;">رابط الموقع</div>
         <input class="form-input" id="fUrl" placeholder="https://...">
         <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:6px; text-align:right;">ملاحظات</div>
         <textarea class="form-input" id="fNote" placeholder="أي معلومات إضافية..." rows="4" style="resize:none;"></textarea>
-        <!-- اللون -->
         <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:8px; text-align:right;">لون البطاقة</div>
         <div class="color-row" id="colorRowAccount">
           <div class="color-dot selected" style="background:#f5a623;" onclick="window.selectColorInModal(0,this)"></div>
@@ -246,46 +247,28 @@
           <div class="color-dot" style="background:#ec4899;" onclick="window.selectColorInModal(5,this)"></div>
         </div>
       </div>
-
-      <!-- زر الحفظ -->
-      <button style="width:100%;padding:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:900;font-size:16px;color:#0a0e1a;margin-top:18px;box-shadow:0 6px 20px rgba(245,166,35,0.35);letter-spacing:0.3px;" onclick="window.saveAccountEntry()">
+      <button style="width:100%;padding:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:900;font-size:16px;color:#0a0e1a;margin-top:18px;box-shadow:0 6px 20px rgba(245,166,35,0.35);" onclick="window.saveAccountEntry()">
         إضافة كلمة المرور
       </button>
     </div>
   </div>
 </div>
 
-<!-- مودال إضافة / تعديل صورة -->
+<!-- ══ مودال إضافة / تعديل صورة ══ -->
 <div class="overlay" id="overlayImage" onclick="if(event.target===this) window.closeModalImage()">
   <div class="modal">
     <div style="text-align:center; font-size:20px; font-weight:900; margin-bottom:16px;" id="modalTitleImage">🖼️ إضافة صورة جديدة</div>
     <input class="form-input" id="imgName" placeholder="عنوان الصورة *">
-
-    <!-- اختيار طريقة الرفع -->
-    <div style="display:flex;gap:10px;margin-bottom:14px;" id="uploadModeRow">
-      <button id="modeCropBtn" onclick="window.setUploadMode('crop')" style="flex:1;padding:10px;border-radius:40px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:#0a0e1a;">✂️ اقتصاص</button>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <button id="modeCropBtn"   onclick="window.setUploadMode('crop')"   style="flex:1;padding:10px;border-radius:40px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:#0a0e1a;">✂️ اقتصاص</button>
       <button id="modeDirectBtn" onclick="window.setUploadMode('direct')" style="flex:1;padding:10px;border-radius:40px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;cursor:pointer;border:2px solid var(--border2);background:var(--card2);color:var(--text2);">⚡ رفع مباشر</button>
     </div>
-
-    <!-- منطقة السحب والإفلات -->
-    <div class="drop-zone" id="imageDropZone">
-      📸 اسحب وأفلت الصورة هنا<br>
-      <span style="font-size:12px; color:var(--muted2);">أو اضغط لاختيار ملف</span>
-    </div>
+    <div class="drop-zone" id="imageDropZone">📸 اسحب وأفلت الصورة هنا<br><span style="font-size:12px; color:var(--muted2);">أو اضغط لاختيار ملف</span></div>
     <input type="file" id="imgFileInput" accept="image/*" style="display:none">
-
-    <!-- معاينة الصورة -->
-    <div id="imagePreviewWrap">
-      <img id="previewImgOnly" alt="معاينة الصورة">
-    </div>
-
-    <!-- شريط التقدم -->
+    <div id="imagePreviewWrap"><img id="previewImgOnly" alt="معاينة الصورة"></div>
     <div class="progress-label" id="progressLabel">⏳ جاري الرفع...</div>
-    <div class="progress-bar-container" id="progressContainer">
-      <div class="progress-bar" id="uploadProgressBar"></div>
-    </div>
+    <div class="progress-bar-container" id="progressContainer"><div class="progress-bar" id="uploadProgressBar"></div></div>
     <div class="upload-status" id="uploadStatus"></div>
-
     <input class="form-input" id="imgNote" placeholder="ملاحظات (اختياري)" style="margin-top:8px;">
     <div style="display:flex; gap:12px; margin-top:16px;">
       <button style="flex:1; background:var(--card2); border-radius:40px; padding:12px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text);" onclick="window.closeModalImage()">إلغاء</button>
@@ -294,7 +277,7 @@
   </div>
 </div>
 
-<!-- مودال مشاركة التطبيق -->
+<!-- ══ مودال مشاركة التطبيق ══ -->
 <div class="overlay" id="shareAppOverlay" onclick="if(event.target===this) window.closeShareApp()">
   <div class="modal">
     <div style="text-align:center; margin-bottom:20px;">
@@ -302,43 +285,38 @@
       <div style="font-weight:900; font-size:20px; color:var(--accent);">مشاركة خزنة المرور</div>
       <div style="font-size:12px; color:var(--muted2); margin-top:4px;">شارك التطبيق مع أصدقائك وعائلتك</div>
     </div>
-
-    <!-- معاينة الرسالة -->
     <div style="background:linear-gradient(135deg,rgba(245,166,35,0.12),rgba(224,123,0,0.08)); border:1px solid rgba(245,166,35,0.3); border-radius:20px; padding:16px; margin-bottom:18px;">
-      <div style="font-size:11px; color:var(--muted2); margin-bottom:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">📨 الرسالة التي ستُرسَل</div>
-      <div style="font-size:13px; color:var(--text); line-height:1.8; white-space:pre-line; font-family:'Cairo',sans-serif;">🔐 <strong style="color:var(--accent);">خزنة المرور السحابية</strong>
-تطبيق مجاني لحفظ كلمات المرور بأمان مع مزامنة سحابية فورية ورفع صور أصلية.
+      <div style="font-size:11px; color:var(--muted2); margin-bottom:8px; font-weight:700;">📨 الرسالة التي ستُرسَل</div>
+      <div style="font-size:13px; color:var(--text); line-height:1.8; white-space:pre-line;">🔐 <strong style="color:var(--accent);">خزنة المرور السحابية</strong>
+تطبيق مجاني لحفظ كلمات المرور بأمان مع مزامنة سحابية فورية.
 
 🌐 الرابط: https://aamer777.github.io/asd/
 
-<span style="font-size:11px; color:var(--muted2);">📤 أرسلها: <span id="shareFromName" style="color:var(--accent);">مستخدم</span> عبر موقع خزنة</span></div>
+<span style="font-size:11px; color:var(--muted2);">📤 أرسلها: <span id="shareFromName" style="color:var(--accent);">مستخدم</span></span></div>
     </div>
-
-    <!-- أزرار المشاركة -->
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-      <button onclick="window.shareAppLink('wa')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:#25D366;color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;box-shadow:0 4px 12px rgba(37,211,102,0.3);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+      <button onclick="window.shareAppLink('wa')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:#25D366;color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         واتساب
       </button>
-      <button onclick="window.shareAppLink('tg')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:#229ED9;color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;box-shadow:0 4px 12px rgba(34,158,217,0.3);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+      <button onclick="window.shareAppLink('tg')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:#229ED9;color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
         تليجرام
       </button>
-      <button onclick="window.shareAppLink('em')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:var(--card2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+      <button onclick="window.shareAppLink('em')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:var(--card2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         بريد إلكتروني
       </button>
-      <button onclick="window.shareAppLink('cp')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:var(--accent);color:#0a0e1a;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;transition:0.2s;box-shadow:0 4px 12px rgba(245,166,35,0.3);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+      <button onclick="window.shareAppLink('cp')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 10px;border-radius:20px;background:var(--accent);color:#0a0e1a;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         نسخ الرابط
       </button>
     </div>
-
     <button onclick="window.closeShareApp()" style="width:100%; padding:13px; background:var(--card2); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--muted2); font-size:14px;">إغلاق</button>
   </div>
 </div>
 
-<!-- مودال الأمان -->
+<!-- ══ مودال الأمان ══ -->
 <div class="overlay" id="securityOverlay" onclick="if(event.target===this) this.classList.remove('open')">
   <div class="modal">
     <div style="font-weight:900; font-size:18px; margin-bottom:16px;">🔒 إعدادات الأمان</div>
@@ -348,20 +326,20 @@
   </div>
 </div>
 
-<!-- مودال إعداد PIN -->
+<!-- ══ مودال إعداد PIN ══ -->
 <div id="pinSetupOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:5000; align-items:center; justify-content:center; padding:20px;">
   <div class="modal" style="border-radius:32px; max-width:380px;">
     <div style="font-weight:900; font-size:18px; margin-bottom:16px;">🔢 رقم سري جديد</div>
-    <input type="password" id="newPin" placeholder="أدخل الرقم (4 خانات على الأقل)" class="form-input" inputmode="numeric">
+    <input type="password" id="newPin"  placeholder="أدخل الرقم (4 خانات على الأقل)" class="form-input" inputmode="numeric">
     <input type="password" id="newPin2" placeholder="تأكيد الرقم" class="form-input" inputmode="numeric">
     <div style="display:flex; gap:12px; margin-top:16px;">
       <button onclick="window.closePinSetup()" style="flex:1; background:var(--card2); border-radius:40px; padding:12px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:var(--text);">إلغاء</button>
-      <button onclick="window.setupPin()" style="flex:2; background:var(--accent); border-radius:40px; padding:12px; font-weight:900; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:#0a0e1a;">تفعيل</button>
+      <button onclick="window.setupPin()"    style="flex:2; background:var(--accent); border-radius:40px; padding:12px; font-weight:900; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:#0a0e1a;">تفعيل</button>
     </div>
   </div>
 </div>
 
-<!-- القائمة الجانبية -->
+<!-- ══ الشريط الجانبي ══ -->
 <div id="sidebarOverlay" onclick="window.closeSidebar()"></div>
 <div id="sidebarPanel">
   <div class="sb-head">
@@ -377,11 +355,11 @@
   <button class="sb-logout-btn" onclick="window.logoutUser()">🚪 تسجيل الخروج</button>
   <div style="padding:12px; text-align:center; font-size:11px; color:var(--muted); border-top:1px solid var(--border);">
     <div style="font-weight:700; color:var(--accent); font-size:12px;">👨‍💻 مطور عامر – مكة</div>
-    <div style="margin-top:2px; opacity:0.6;">v2.0 © 2025</div>
+    <div style="margin-top:2px; opacity:0.6;">v2.1 © 2025</div>
   </div>
 </div>
 
-<!-- مودال إرسال رسالة -->
+<!-- ══ مودال إرسال رسالة ══ -->
 <div class="overlay" id="sendMessageOverlay" onclick="if(event.target===this) window.closeSendMessage()">
   <div class="modal">
     <div style="text-align:center; font-size:20px; font-weight:900; margin-bottom:20px;">✉️ إرسال رسالة</div>
@@ -395,191 +373,78 @@
   </div>
 </div>
 
-<!-- شريط تثبيت PWA المخصص -->
-<div id="pwaInstallBar" style="
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 9500;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-top: 2px solid #f5a623;
-  border-radius: 24px 24px 0 0;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
-  transform: translateY(100%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.4s cubic-bezier(0.34,1.28,0.64,1), opacity 0.3s ease;
-  max-width: 480px;
-  margin: 0 auto;
-">
-  <div style="font-size: 38px; flex-shrink:0;">🔐</div>
+<!-- ══ شريط تثبيت PWA (أسفل الشاشة) ══ -->
+<div id="pwaInstallBar">
+  <div style="font-size:38px; flex-shrink:0;">🔐</div>
   <div style="flex:1;">
     <div style="font-weight:900; font-size:14px; color:#fff; margin-bottom:2px;">ثبّت خزنة المرور</div>
     <div style="font-size:11px; color:#94a3b8;">وصول سريع من شاشتك مثل أي تطبيق</div>
   </div>
-  <button onclick="window.triggerInstallPrompt()" style="
-    background: linear-gradient(135deg,#f5a623,#e07b00);
-    border:none; border-radius:40px;
-    padding: 10px 18px;
-    font-family:'Cairo',sans-serif; font-weight:900; font-size:13px;
-    color:#0a0e1a; cursor:pointer;
-    white-space:nowrap;
-    box-shadow: 0 4px 14px rgba(245,166,35,0.4);
-  ">تثبيت ⚡</button>
-  <button onclick="window.dismissInstallBar()" style="
-    background:rgba(255,255,255,0.08); border:none; border-radius:50%;
-    width:30px; height:30px; cursor:pointer; color:#94a3b8; font-size:16px;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  ">✕</button>
+  <button class="pwa-install-btn"  onclick="window.triggerInstallPrompt()">تثبيت ⚡</button>
+  <button class="pwa-dismiss-btn"  onclick="window.dismissInstallBar()">✕</button>
 </div>
 
-<!-- مودال تثبيت PWA - دليل بصري شامل -->
+<!-- ══ مودال دليل تثبيت PWA ══ -->
 <div id="iosInstallOverlay" class="overlay" onclick="if(event.target===this) this.classList.remove('open')">
   <div class="modal" style="padding:0; overflow:hidden; border-radius:28px 28px 0 0;">
-    <!-- هيدر ملوّن -->
     <div style="background:linear-gradient(135deg,#1e40af,#3b82f6); padding:20px 20px 16px; text-align:center; position:relative;">
       <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="position:absolute;left:16px;top:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;cursor:pointer;color:#fff;font-size:16px;">✕</button>
       <div style="font-size:44px; margin-bottom:6px;">📲</div>
       <div style="font-weight:900; font-size:18px; color:#fff;">أضف التطبيق لشاشتك الرئيسية</div>
       <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:4px;">وصول سريع مثل أي تطبيق عادي</div>
     </div>
-
-    <!-- اختيار النظام -->
     <div style="padding:16px 20px 0;">
       <div style="display:flex; gap:8px; background:var(--card2); border-radius:40px; padding:4px;">
-        <button id="installTabAndroid" onclick="window.showInstallTab('android')"
-          style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;background:var(--accent);color:#0a0e1a;transition:0.2s;">
-          🤖 Android / Chrome
-        </button>
-        <button id="installTabIos" onclick="window.showInstallTab('ios')"
-          style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;background:transparent;color:var(--muted2);transition:0.2s;">
-           iOS / Safari
-        </button>
+        <button id="installTabAndroid" onclick="window.showInstallTab('android')" style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;background:var(--accent);color:#0a0e1a;transition:0.2s;">🤖 Android / Chrome</button>
+        <button id="installTabIos"     onclick="window.showInstallTab('ios')"     style="flex:1;padding:10px;border-radius:36px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;background:transparent;color:var(--muted2);transition:0.2s;"> iOS / Safari</button>
       </div>
     </div>
-
     <!-- خطوات Android -->
     <div id="installStepsAndroid" style="padding:16px 20px 20px;">
       <div style="display:flex; flex-direction:column; gap:12px;">
-        <!-- خطوة 1 -->
-        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+        <div style="display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:20px;padding:14px;">
           <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">1</div>
-          <div>
-            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">افتح قائمة المتصفح</div>
-            <div style="font-size:12px; color:var(--muted2);">اضغط على النقاط الثلاث <strong style="color:var(--text);">⋮</strong> في أعلى يمين Chrome</div>
-          </div>
+          <div><div style="font-weight:800;font-size:14px;margin-bottom:3px;">افتح قائمة المتصفح</div><div style="font-size:12px;color:var(--muted2);">اضغط على النقاط الثلاث ⋮ في أعلى يمين Chrome</div></div>
         </div>
-        <!-- خطوة 2 -->
-        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+        <div style="display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:20px;padding:14px;">
           <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">2</div>
-          <div>
-            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اختر "إضافة إلى الشاشة الرئيسية"</div>
-            <div style="font-size:12px; color:var(--muted2);">أو <strong style="color:var(--accent);">"تثبيت التطبيق"</strong> إن ظهر</div>
-          </div>
+          <div><div style="font-weight:800;font-size:14px;margin-bottom:3px;">اختر "إضافة إلى الشاشة الرئيسية"</div><div style="font-size:12px;color:var(--muted2);">أو <strong style="color:var(--accent);">"تثبيت التطبيق"</strong> إن ظهر</div></div>
         </div>
-        <!-- خطوة 3 -->
-        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+        <div style="display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:20px;padding:14px;">
           <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">3</div>
-          <div>
-            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اضغط "إضافة" للتأكيد</div>
-            <div style="font-size:12px; color:var(--muted2);">سيظهر أيقونة التطبيق على شاشتك مباشرة ✅</div>
-          </div>
+          <div><div style="font-weight:800;font-size:14px;margin-bottom:3px;">اضغط "إضافة" للتأكيد</div><div style="font-size:12px;color:var(--muted2);">سيظهر أيقونة التطبيق على شاشتك مباشرة ✅</div></div>
         </div>
-      </div>
-      <!-- صورة توضيحية SVG -->
-      <div style="margin-top:14px; background:var(--card2); border-radius:20px; padding:14px; text-align:center;">
-        <svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;">
-          <rect x="5" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
-          <text x="47" y="28" font-size="9" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">قائمة Chrome</text>
-          <rect x="10" y="32" width="75" height="12" rx="4" fill="var(--border2)"/>
-          <rect x="10" y="47" width="75" height="12" rx="4" fill="var(--accent)" opacity="0.8"/>
-          <text x="47" y="56" font-size="7" fill="#0a0e1a" text-anchor="middle" font-family="Cairo,sans-serif">إضافة للشاشة الرئيسية</text>
-
-          <text x="117" y="42" font-size="20" text-anchor="middle">→</text>
-
-          <rect x="130" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
-          <text x="172" y="28" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">تأكيد التثبيت</text>
-          <text x="172" y="48" font-size="22" text-anchor="middle">🔐</text>
-          <rect x="142" y="58" width="60" height="10" rx="5" fill="var(--accent)"/>
-          <text x="172" y="65" font-size="7" fill="#0a0e1a" text-anchor="middle" font-family="Cairo,sans-serif">إضافة</text>
-
-          <text x="237" y="42" font-size="20" text-anchor="middle">→</text>
-
-          <rect x="250" y="25" width="42" height="42" rx="12" fill="#f0f4ff" stroke="#bae6fd" stroke-width="1.5"/>
-          <text x="271" y="52" font-size="22" text-anchor="middle">🔐</text>
-          <text x="271" y="72" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">خزنة</text>
-        </svg>
       </div>
       <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:900;font-size:15px;color:#fff;margin-top:14px;">فهمت، سأجربها الآن ✅</button>
     </div>
-
     <!-- خطوات iOS -->
     <div id="installStepsIos" style="display:none; padding:16px 20px 20px;">
       <div style="display:flex; flex-direction:column; gap:12px;">
-        <!-- خطوة 1 -->
-        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+        <div style="display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:20px;padding:14px;">
           <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">1</div>
-          <div>
-            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اضغط زر المشاركة ⬆️</div>
-            <div style="font-size:12px; color:var(--muted2);">الزر الموجود في شريط أدوات Safari <strong style="color:var(--text);">أسفل الشاشة</strong></div>
-          </div>
+          <div><div style="font-weight:800;font-size:14px;margin-bottom:3px;">اضغط زر المشاركة ⬆️</div><div style="font-size:12px;color:var(--muted2);">الزر الموجود في شريط أدوات Safari <strong style="color:var(--text);">أسفل الشاشة</strong></div></div>
         </div>
-        <!-- خطوة 2 -->
-        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+        <div style="display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:20px;padding:14px;">
           <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">2</div>
-          <div>
-            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">مرّر للأسفل واضغط</div>
-            <div style="font-size:12px; color:var(--muted2);"><strong style="color:var(--accent);">"إضافة إلى الشاشة الرئيسية"</strong></div>
-          </div>
+          <div><div style="font-weight:800;font-size:14px;margin-bottom:3px;">مرّر للأسفل واضغط</div><div style="font-size:12px;color:var(--muted2);"><strong style="color:var(--accent);">"إضافة إلى الشاشة الرئيسية"</strong></div></div>
         </div>
-        <!-- خطوة 3 -->
-        <div style="display:flex; gap:14px; align-items:center; background:var(--card2); border-radius:20px; padding:14px;">
+        <div style="display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:20px;padding:14px;">
           <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;">3</div>
-          <div>
-            <div style="font-weight:800; font-size:14px; margin-bottom:3px;">اضغط "إضافة" في الأعلى</div>
-            <div style="font-size:12px; color:var(--muted2);">سيظهر التطبيق على شاشتك الرئيسية فوراً ✅</div>
-          </div>
+          <div><div style="font-weight:800;font-size:14px;margin-bottom:3px;">اضغط "إضافة" في الأعلى</div><div style="font-size:12px;color:var(--muted2);">سيظهر التطبيق على شاشتك الرئيسية فوراً ✅</div></div>
         </div>
-      </div>
-      <!-- صورة توضيحية SVG لـ iOS -->
-      <div style="margin-top:14px; background:var(--card2); border-radius:20px; padding:14px; text-align:center;">
-        <svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;">
-          <rect x="5" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
-          <text x="47" y="22" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">Safari</text>
-          <rect x="10" y="60" width="75" height="10" rx="4" fill="var(--border2)"/>
-          <text x="47" y="40" font-size="20" text-anchor="middle">⬆️</text>
-          <text x="47" y="58" font-size="7" fill="var(--accent)" text-anchor="middle" font-family="Cairo,sans-serif">زر المشاركة</text>
-
-          <text x="117" y="42" font-size="20" text-anchor="middle">→</text>
-
-          <rect x="130" y="5" width="85" height="70" rx="8" fill="var(--card)" stroke="var(--border2)" stroke-width="1.5"/>
-          <text x="172" y="22" font-size="7" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">قائمة المشاركة</text>
-          <rect x="135" y="27" width="75" height="12" rx="4" fill="var(--accent)" opacity="0.85"/>
-          <text x="172" y="36" font-size="6.5" fill="#0a0e1a" text-anchor="middle" font-family="Cairo,sans-serif">إضافة للشاشة الرئيسية</text>
-          <rect x="135" y="42" width="75" height="10" rx="4" fill="var(--border2)"/>
-          <rect x="135" y="55" width="75" height="10" rx="4" fill="var(--border2)"/>
-
-          <text x="237" y="42" font-size="20" text-anchor="middle">→</text>
-
-          <rect x="250" y="25" width="42" height="42" rx="12" fill="#f0f4ff" stroke="#bae6fd" stroke-width="1.5"/>
-          <text x="271" y="52" font-size="22" text-anchor="middle">🔐</text>
-          <text x="271" y="72" font-size="8" fill="var(--muted2)" text-anchor="middle" font-family="Cairo,sans-serif">خزنة</text>
-        </svg>
       </div>
       <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:10px 14px;margin-top:10px;font-size:12px;color:var(--text2);">
-        ⚠️ <strong>تنبيه:</strong> يجب فتح التطبيق من <strong>Safari</strong> فقط — المتصفحات الأخرى (Chrome/Brave) لا تدعم هذه الميزة على iOS
+        ⚠️ <strong>تنبيه:</strong> يجب فتح التطبيق من <strong>Safari</strong> فقط على iOS
       </div>
       <button onclick="document.getElementById('iosInstallOverlay').classList.remove('open')" style="width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:900;font-size:15px;color:#fff;margin-top:14px;">فهمت، سأجربها الآن ✅</button>
     </div>
   </div>
 </div>
 
+<!-- ══ Toast ══ -->
 <div id="toast" class="toast"></div>
 
-<!-- مودال اقتصاص الصورة -->
+<!-- ══ مودال اقتصاص الصورة ══ -->
 <div id="cropOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:9500; align-items:center; justify-content:center; flex-direction:column; padding:16px;">
   <div style="color:#fff; font-size:16px; font-weight:800; margin-bottom:12px; font-family:'Cairo',sans-serif;">✂️ اقتصاص الصورة</div>
   <div style="position:relative; width:100%; max-width:480px; aspect-ratio:1; background:#111; border-radius:20px; overflow:hidden; touch-action:none;" id="cropContainer">
@@ -588,21 +453,11 @@
   </div>
   <div style="display:flex; gap:12px; margin-top:16px; width:100%; max-width:480px;">
     <button onclick="window.cancelCrop()" style="flex:1; padding:14px; background:#374151; border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:14px; color:#fff; font-weight:700;">إلغاء</button>
-    <button onclick="window.applyCrop()" style="flex:2; padding:14px; background:linear-gradient(135deg,#f5a623,#e07b00); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:15px; font-weight:900; color:#0a0e1a;">✂️ تطبيق الاقتصاص</button>
+    <button onclick="window.applyCrop()"  style="flex:2; padding:14px; background:linear-gradient(135deg,#f5a623,#e07b00); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-size:15px; font-weight:900; color:#0a0e1a;">✂️ تطبيق الاقتصاص</button>
   </div>
 </div>
 
-<!-- تسجيل Service Worker لتفعيل PWA -->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('✅ SW مسجّل:', reg.scope))
-        .catch(err => console.warn('SW خطأ:', err));
-    });
-  }
-</script>
-
+<!-- ══ تحميل الملفات ══ -->
 <script type="module" src="app.js"></script>
 
 </body>
