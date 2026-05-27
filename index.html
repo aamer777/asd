@@ -260,10 +260,13 @@
       margin-bottom: 12px; cursor: pointer; border: none;
       font-family: 'Cairo', sans-serif; font-size: 15px;
       transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
-      animation: fadeSlideIn 0.5s ease both;
+      opacity: 1;
     }
-    .social-btn:nth-child(1) { animation-delay: 0.4s; }
-    .social-btn:nth-child(2) { animation-delay: 0.5s; }
+    .social-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .social-btn:active { transform: scale(0.98); }
     .social-btn.google {
       background: linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853);
       color:#fff; box-shadow: 0 4px 18px rgba(66,133,244,0.35);
@@ -406,26 +409,11 @@
       <div class="feature-item"><span>⚡</span> وصول فوري</div>
     </div>
 
-    <!-- قسم تسجيل الدخول بالإيميل -->
-    <div id="emailAuthSection" style="margin-top:16px;">
-      <div class="login-divider">أو سجّل بالإيميل</div>
-      <input class="form-input" id="authEmail" type="email" placeholder="البريد الإلكتروني" style="background:#f8fafc; border:1.5px solid #e2e8f0; color:#1e293b;" oninput="window.saveEmailDraft(this.value)">
-      <div id="authEmailHint" style="display:none; font-size:11px; color:#ef4444; text-align:right; margin:-8px 0 6px; padding:0 4px;"></div>
-      <input class="form-input" id="authPass" type="password" placeholder="كلمة المرور" style="background:#f8fafc; border:1.5px solid #e2e8f0; color:#1e293b;">
-      <div style="display:flex; gap:10px; margin-top:4px;">
-        <button onclick="window.loginWithEmail()"
-          style="flex:1; padding:13px; background:linear-gradient(135deg,#1e293b,#0f172a); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; color:#fff;">
-          🔑 دخول
-        </button>
-        <button onclick="window.registerWithEmail()"
-          style="flex:1; padding:13px; background:linear-gradient(135deg,#0369a1,#0284c7); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; color:#fff;">
-          ✨ تسجيل
-        </button>
-      </div>
-      <button onclick="window.forgotPassword()"
-        style="width:100%; margin-top:8px; padding:10px; background:transparent; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:#64748b; font-size:12px;">
-        نسيت كلمة المرور؟
-      </button>
+    <!-- نافذة تأكيد البريد (مخفية - تُستخدم برمجياً) -->
+    <div id="emailAuthSection" style="display:none;">
+      <input id="authEmail" type="email" style="display:none;">
+      <input id="authPass" type="password" style="display:none;">
+      <div id="authEmailHint" style="display:none;"></div>
     </div>
 
     <!-- نافذة تأكيد البريد -->
