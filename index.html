@@ -406,12 +406,27 @@
       <div class="feature-item"><span>⚡</span> وصول فوري</div>
     </div>
 
-    <!-- زر حفظ على الشاشة الرئيسية -->
-    <button id="loginInstallBtn" onclick="window.loginInstallApp()"
-      style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; margin-top:14px; padding:13px; background:linear-gradient(135deg,#f0f9ff,#e0f2fe); border:1.5px solid #bae6fd; border-radius:40px; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; color:#0369a1; transition:transform 0.2s,box-shadow 0.2s;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/><path d="M9 7h6M9 11h4"/></svg>
-      📲 حفظ التطبيق على الشاشة الرئيسية
-    </button>
+    <!-- قسم تسجيل الدخول بالإيميل -->
+    <div id="emailAuthSection" style="margin-top:16px;">
+      <div class="login-divider">أو سجّل بالإيميل</div>
+      <input class="form-input" id="authEmail" type="email" placeholder="البريد الإلكتروني" style="background:#f8fafc; border:1.5px solid #e2e8f0; color:#1e293b;" oninput="window.saveEmailDraft(this.value)">
+      <div id="authEmailHint" style="display:none; font-size:11px; color:#ef4444; text-align:right; margin:-8px 0 6px; padding:0 4px;"></div>
+      <input class="form-input" id="authPass" type="password" placeholder="كلمة المرور" style="background:#f8fafc; border:1.5px solid #e2e8f0; color:#1e293b;">
+      <div style="display:flex; gap:10px; margin-top:4px;">
+        <button onclick="window.loginWithEmail()"
+          style="flex:1; padding:13px; background:linear-gradient(135deg,#1e293b,#0f172a); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; color:#fff;">
+          🔑 دخول
+        </button>
+        <button onclick="window.registerWithEmail()"
+          style="flex:1; padding:13px; background:linear-gradient(135deg,#0369a1,#0284c7); border-radius:40px; border:none; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; color:#fff;">
+          ✨ تسجيل
+        </button>
+      </div>
+      <button onclick="window.forgotPassword()"
+        style="width:100%; margin-top:8px; padding:10px; background:transparent; border:none; cursor:pointer; font-family:'Cairo',sans-serif; color:#64748b; font-size:12px;">
+        نسيت كلمة المرور؟
+      </button>
+    </div>
 
     <!-- نافذة تأكيد البريد -->
     <div id="verifySection" style="display:none; background:var(--card2); border-radius:20px; padding:16px; margin-top:8px; text-align:center;">
@@ -699,7 +714,6 @@
   </div>
   <div style="flex:1; padding:10px; overflow-y:auto;">
     <button class="sb-item" onclick="document.getElementById('securityOverlay').classList.add('open'); window.closeSidebar();">🔒 إعدادات الأمان</button>
-    <button class="sb-item" id="pwaInstallBtn" onclick="window.installPWA()">📲 حفظ على الشاشة الرئيسية</button>
     <button class="sb-item" onclick="window.openShareApp(); window.closeSidebar();">📤 مشاركة التطبيق</button>
     <button class="sb-item" onclick="window.openSendMessage(); window.closeSidebar();">✉️ إرسال رسالة</button>
   </div>
