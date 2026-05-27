@@ -219,7 +219,7 @@ function renderCards() {
 
   list.innerHTML = filtered.map(e => {
     if (e.type === 'image') {
-      return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')">
+      return `<div class="card" id="card-${e.id}" onclick="window.toggleCard('${e.id}')" style="border-right:4px solid ${c.accent};">
         <div class="card-header-row">
           <div class="card-title">
             <div class="card-icon" style="padding:0;">
@@ -252,13 +252,20 @@ function renderCards() {
         </div>
       </div>`;
     } else {
-      const colors = [
-        {bg:'#1e3a5f',text:'#60a5fa'},{bg:'#1a3a2a',text:'#34d399'},{bg:'#3a1a1a',text:'#f87171'},
-        {bg:'#3a2a1a',text:'#fbbf24'},{bg:'#2a1a3a',text:'#a78bfa'},{bg:'#3a2010',text:'#fb923c'},
-        {bg:'#3a1a2a',text:'#f472b6'},{bg:'#0f2a3a',text:'#22d3ee'},{bg:'#0f2a1a',text:'#4ade80'},
-        {bg:'#2a2a0f',text:'#facc15'}
+      const CARD_COLORS = [
+        {bg:'#1e3a5f',text:'#60a5fa',accent:'#3b82f6'},
+        {bg:'#1a3a2a',text:'#34d399',accent:'#10b981'},
+        {bg:'#3a1a1a',text:'#f87171',accent:'#ef4444'},
+        {bg:'#3a2a1a',text:'#fbbf24',accent:'#f59e0b'},
+        {bg:'#2a1a3a',text:'#a78bfa',accent:'#8b5cf6'},
+        {bg:'#3a2010',text:'#fb923c',accent:'#f97316'},
+        {bg:'#3a1a2a',text:'#f472b6',accent:'#ec4899'},
+        {bg:'#0f2a3a',text:'#22d3ee',accent:'#06b6d4'},
+        {bg:'#0f2a1a',text:'#4ade80',accent:'#22c55e'},
+        {bg:'#2a2a0f',text:'#facc15',accent:'#eab308'}
       ];
-      const c = colors[(e.color || 0) % 5];
+      const colorIdx = (typeof e.color === 'number') ? e.color : 0;
+      const c = CARD_COLORS[colorIdx % CARD_COLORS.length];
       const iconHtml = e.imageUrl
         ? `<div class="card-icon" style="padding:0;"><img src="${escapeHtml(e.imageUrl)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>`
         : e.icon
@@ -983,12 +990,40 @@ window.shareAppLink  = (type) => {
 
 /* ══════════════════════════════════════════════
    PWA — تثبيت التطبيق
+   يتحقق تلقائياً إذا كان التطبيق مثبتاً مسبقاً
 ══════════════════════════════════════════════ */
 let deferredPrompt = null;
 
+/* ── هل التطبيق مثبت بالفعل على الشاشة الرئيسية؟ ── */
+function _isAppInstalled() {
+  // standalone = يعمل كـ PWA (iOS أو Android)
+  if (window.navigator.standalone === true) return true;
+  if (window.matchMedia('(display-mode: standalone)').matches) return true;
+  if (window.matchMedia('(display-mode: fullscreen)').matches) return true;
+  if (window.matchMedia('(display-mode: minimal-ui)').matches) return true;
+  return false;
+}
+
+/* ── إخفاء شريط التثبيت إذا كان التطبيق مثبتاً ── */
+function _hideInstallBarIfInstalled() {
+  if (_isAppInstalled()) {
+    const bar = document.getElementById('pwaInstallBar');
+    if (bar) {
+      bar.style.transform = 'translateY(100%)';
+      bar.style.opacity = '0';
+      bar.style.pointerEvents = 'none';
+    }
+    return true;
+  }
+  return false;
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
+  // إذا مثبت مسبقاً — تجاهل
+  if (_isAppInstalled()) { e.preventDefault(); return; }
   deferredPrompt = e;
   setTimeout(() => {
+    if (_hideInstallBarIfInstalled()) return; // تحقق مجدداً
     const bar = document.getElementById('pwaInstallBar');
     if (bar && !window._pwaBarDismissed) {
       bar.style.transform = 'translateY(0)';
@@ -1000,21 +1035,35 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 window.addEventListener('appinstalled', () => {
   const bar = document.getElementById('pwaInstallBar');
-  if (bar) bar.style.transform = 'translateY(100%)';
+  if (bar) { bar.style.transform = 'translateY(100%)'; bar.style.opacity = '0'; }
   showToast('✅ تم تثبيت التطبيق على شاشتك الرئيسية!');
   deferredPrompt = null;
+  localStorage.setItem('vault_pwa_installed', '1');
 });
 
 window.triggerInstallPrompt = async () => {
+  // إذا مثبت بالفعل — أخبر المستخدم
+  if (_isAppInstalled()) {
+    showToast('✅ التطبيق مثبت بالفعل على شاشتك!', '#10b981');
+    return;
+  }
   const bar = document.getElementById('pwaInstallBar');
   if (deferredPrompt) {
     if (bar) bar.style.transform = 'translateY(100%)';
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') { showToast('✅ تم إضافة التطبيق للشاشة الرئيسية'); }
-    else { setTimeout(() => { if (bar) bar.style.transform = 'translateY(0)'; }, 3000); }
+    if (outcome === 'accepted') {
+      showToast('✅ تم إضافة التطبيق للشاشة الرئيسية');
+      localStorage.setItem('vault_pwa_installed', '1');
+    } else {
+      setTimeout(() => {
+        if (!_isAppInstalled() && bar) bar.style.transform = 'translateY(0)';
+      }, 3000);
+    }
     deferredPrompt = null;
-  } else { _openInstallGuide(); }
+  } else {
+    _openInstallGuide();
+  }
 };
 
 window.dismissInstallBar = () => {
@@ -1022,6 +1071,22 @@ window.dismissInstallBar = () => {
   const bar = document.getElementById('pwaInstallBar');
   if (bar) { bar.style.transform = 'translateY(100%)'; bar.style.opacity = '0'; bar.style.pointerEvents = 'none'; }
 };
+
+/* ── تحقق فوري عند بدء التشغيل ── */
+(function checkInstallStateOnLoad() {
+  if (_isAppInstalled() || localStorage.getItem('vault_pwa_installed') === '1') {
+    // تأكد مضاعف: هل لا يزال في standalone؟
+    if (_isAppInstalled()) {
+      // إخفاء الشريط فوراً بدون انتظار
+      const bar = document.getElementById('pwaInstallBar');
+      if (bar) { bar.style.transform = 'translateY(100%)'; bar.style.opacity = '0'; bar.style.pointerEvents = 'none'; }
+      window._pwaBarDismissed = true;
+    } else {
+      // كان مثبتاً ثم أُزيل — امسح الـ flag
+      localStorage.removeItem('vault_pwa_installed');
+    }
+  }
+})();
 
 window.showInstallTab = (tab) => {
   const androidSteps = document.getElementById('installStepsAndroid');
@@ -1045,7 +1110,14 @@ const _openInstallGuide = () => {
   setTimeout(() => window.showInstallTab(isIos ? 'ios' : 'android'), 50);
 };
 
-window.installPWA   = async () => { window.closeSidebar(); window.triggerInstallPrompt(); };
+window.installPWA = async () => {
+  window.closeSidebar();
+  if (_isAppInstalled()) {
+    showToast('✅ التطبيق مثبت بالفعل على شاشتك!', '#10b981');
+    return;
+  }
+  window.triggerInstallPrompt();
+};
 window.showIosInstall = () => { window.closeSidebar(); _openInstallGuide(); };
 window.loginInstallApp = () => { window.triggerInstallPrompt(); };
 
