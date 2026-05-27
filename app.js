@@ -1,4 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -13,13 +14,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-
-  /* ══ ثوابت ══ */
-  const EMAILJS_PUBLIC_KEY  = 'AAqRxMl4frLp82l-7';
-  const EMAILJS_SERVICE_ID  = 'service_jmk7uc5';
-  const EMAILJS_TEMPLATE_ID = 'template_5qrk29k';
-  const OWNER_EMAIL         = 'aamer777@gmail.com';
-
 
   // ── Cloudinary ──
   const CLOUDINARY_CLOUD  = 'dwbhzpobd';
@@ -1271,9 +1265,27 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 
   // ── إرسال رسالة عبر EmailJS ──
   window.openSendMessage = () => {
-    document.getElementById('msgSubject').value = '';
-    document.getElementById('msgBody').value = '';
+    document.getElementById('msgSubject').value      = '';
+    document.getElementById('msgBody').value         = '';
     document.getElementById('msgStatus').textContent = '';
+    /* ملء بيانات المرسل أوتوماتيك */
+    const n = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'زائر';
+    const e = currentUser?.email || '';
+    const p = currentUser?.photoURL || null;
+    const nameEl   = document.getElementById('msgSenderName');
+    const emailEl  = document.getElementById('msgSenderEmail');
+    const avatarEl = document.getElementById('msgSenderAvatar');
+    if (nameEl)  nameEl.textContent  = n;
+    if (emailEl) emailEl.textContent = e;
+    if (avatarEl) {
+      if (p) {
+        avatarEl.innerHTML = `<img src="${p}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="${n}">`;
+        avatarEl.style.padding = '0';
+      } else {
+        avatarEl.innerHTML = `<span style="font-size:20px;color:#fff;font-weight:900;">${n.charAt(0).toUpperCase()}</span>`;
+        avatarEl.style.padding = '';
+      }
+    }
     document.getElementById('sendMessageOverlay').classList.add('open');
   };
   window.closeSendMessage = () => {
@@ -1281,12 +1293,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
   };
   window.sendMessageToEmail = async () => {
     const subject = document.getElementById('msgSubject').value.trim();
-    const body = document.getElementById('msgBody').value.trim();
+    const body    = document.getElementById('msgBody').value.trim();
     const statusEl = document.getElementById('msgStatus');
     if (!subject) { showToast('موضوع الرسالة مطلوب', '#ef4444'); return; }
-    if (!body) { showToast('نص الرسالة مطلوب', '#ef4444'); return; }
+    if (!body)    { showToast('نص الرسالة مطلوب',    '#ef4444'); return; }
 
-    // إذا لم يُعيَّن EmailJS بعد → افتح mailto كبديل
     if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
       const mailto = `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(mailto, '_blank');
@@ -1294,6 +1305,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
       window.closeSendMessage();
       return;
     }
+
+    /* ── بيانات المرسل من Firebase ── */
+    const sName  = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'زائر';
+    const sEmail = currentUser?.email || '';
+    const sPhoto = currentUser?.photoURL
+      ? currentUser.photoURL.replace(/=s\d+(-c)?$/, '=s96-c') : '';
+    const sTime  = new Date().toLocaleString('ar-SA', {
+      weekday:'long', year:'numeric', month:'long', day:'numeric',
+      hour:'2-digit', minute:'2-digit'
+    });
 
     const btn = document.getElementById('btnSendMsg');
     btn.disabled = true;
@@ -1303,10 +1324,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
     try {
       emailjs.init(EMAILJS_PUBLIC_KEY);
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        subject,
-        message: body,
-        to_email: OWNER_EMAIL,
-        from_name: currentUser?.displayName || currentUser?.email || 'زائر'
+        /* متغيرات القالب */
+        name:         sName,
+        from_name:    sName,
+        from_email:   sEmail,
+        reply_to:     sEmail,
+        to_email:     OWNER_EMAIL,
+        subject:      subject,
+        time:         sTime,
+        sender_photo: sPhoto,
+        message:      body.replace(/\n/g, '<br>'),
       });
       statusEl.style.color = 'var(--green)';
       statusEl.textContent = '✅ تم إرسال الرسالة بنجاح!';
@@ -1316,6 +1343,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
       statusEl.style.color = 'var(--red)';
       statusEl.textContent = '❌ فشل الإرسال — تحقق من إعدادات EmailJS';
       showToast('فشل الإرسال', '#ef4444');
+      console.error('EmailJS:', err);
     } finally {
       btn.disabled = false;
       btn.textContent = '📨 إرسال';
@@ -1549,22 +1577,3 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 
   // ── تهيئة أولية ──
   renderCategoryFilters();
-
-/* ══ شريط التحميل على الجوال ══ */
-function initTopLoadingBar() {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if (!isMobile) return;
-  let bar = document.getElementById('topLoadingBar');
-  if (!bar) { bar = document.createElement('div'); bar.id = 'topLoadingBar'; document.body.prepend(bar); }
-  const splash = document.getElementById('splashScreen');
-  if (splash) splash.classList.add('visible');
-  bar.classList.add('active');
-  const hideBoth = () => {
-    bar.classList.remove('active');
-    if (splash) { splash.style.opacity='0'; splash.style.transition='opacity 0.4s ease'; setTimeout(()=>{splash.classList.remove('visible');splash.style.opacity='';},400); }
-  };
-  if (document.readyState === 'complete') setTimeout(hideBoth, 600);
-  else window.addEventListener('load', ()=>setTimeout(hideBoth,600), {once:true});
-}
-
-  initTopLoadingBar();
