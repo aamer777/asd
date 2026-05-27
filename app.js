@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCPmhcxaq7-xGqnUBNR1vsFRsIWQjwchU",
@@ -13,6 +13,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
+
+  /* ── ثوابت EmailJS و Cloudinary (مستقلة عن index.html) ── */
+  const EMAILJS_PUBLIC_KEY  = 'AAqRxMl4frLp82l-7';
+  const EMAILJS_SERVICE_ID  = 'service_jmk7uc5';
+  const EMAILJS_TEMPLATE_ID = 'template_5qrk29k';
+  const OWNER_EMAIL         = 'aamer777@gmail.com';
 
   // ── Cloudinary ──
   const CLOUDINARY_CLOUD  = 'dwbhzpobd';
