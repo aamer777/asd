@@ -2330,6 +2330,8 @@
     const bar = document.getElementById('pwaInstallBar');
     if (bar) { bar.style.transform = 'translateY(100%)'; bar.style.opacity = '0'; bar.style.pointerEvents = 'none'; }
   };
+
+  window.showInstallTab = (tab) => {
     const androidSteps = document.getElementById('installStepsAndroid');
     const iosSteps     = document.getElementById('installStepsIos');
     const btnA         = document.getElementById('installTabAndroid');

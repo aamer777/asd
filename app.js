@@ -1081,19 +1081,12 @@
   };
 
   // ── المصادقة ──
-  let _loginLoading = false;
   window.loginWithGoogle = async () => {
-    if (_loginLoading) return;
-    _loginLoading = true;
-    const btn = document.querySelector('.social-btn.google');
-    if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; }
     try {
       const provider = new GoogleAuthProvider();
       await signInWithRedirect(auth, provider);
     } catch(e) {
       showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
-      _loginLoading = false;
-      if (btn) { btn.disabled = false; btn.style.opacity = ''; }
     }
   };
 
@@ -1178,22 +1171,11 @@
   }
 
   // معالجة نتيجة الـ redirect بعد عودة المستخدم من Google
-  // هذا ضروري لـ signInWithRedirect — يُشغَّل مرة واحدة عند تحميل الصفحة
-  getRedirectResult(auth)
-    .then((result) => {
-      if (result && result.user) {
-        // تم تسجيل الدخول بنجاح — onAuthStateChanged سيتولى عرض التطبيق
-        console.log('✅ Google redirect login success:', result.user.email);
-      }
-    })
-    .catch((e) => {
-      // تجاهل الأخطاء العادية (لا يوجد redirect حالي)
-      const ignoredCodes = ['auth/no-current-user', 'auth/null-user'];
-      if (e.code && !ignoredCodes.includes(e.code)) {
-        console.error('Redirect error:', e.code, e.message);
-        showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
-      }
-    });
+  getRedirectResult(auth).catch((e) => {
+    if (e.code && e.code !== 'auth/no-current-user') {
+      showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
+    }
+  });
 
   onAuthStateChanged(auth, (user) => {
     if (user && !isDemo) {
