@@ -2000,8 +2000,6 @@
   window.loginWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      // redirect بدل popup — يعمل على كل الأجهزة والمتصفحات
       await signInWithRedirect(auth, provider);
     } catch(e) {
       showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
@@ -2088,14 +2086,9 @@
     }
   }
 
-  // معالجة نتيجة الـ redirect بعد عودة المستخدم من Google
-  getRedirectResult(auth).then(result => {
-    if (result?.user) console.log('✅ redirect login:', result.user.email);
-  }).catch(e => {
-    const ignore = ['auth/no-current-user','auth/null-user','auth/missing-initial-state'];
-    if (e.code && !ignore.includes(e.code)) {
-      showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
-    }
+  getRedirectResult(auth).catch(e => {
+    const ok = ['auth/no-current-user','auth/null-user','auth/missing-initial-state'];
+    if (e.code && !ok.includes(e.code)) showToast('فشل: ' + e.message, '#ef4444');
   });
 
   onAuthStateChanged(auth, (user) => {
