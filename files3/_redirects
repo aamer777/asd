@@ -1,0 +1,3 @@
+# توجيه Firebase Auth handler لـ Firebase
+/__/auth/handler  https://asdf-736d2.firebaseapp.com/__/auth/handler  200
+/__/auth/*        https://asdf-736d2.firebaseapp.com/__/auth/:splat    200

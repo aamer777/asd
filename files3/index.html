@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e07b00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="خزنة">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<title>خزنة المرور 🔐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══ قفل PIN ══ -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">التطبيق مقفل</div>
+    <input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="••••" maxlength="8">
+    <button class="btn-primary w100" onclick="window.checkPin()">فتح القفل</button>
+  </div>
+</div>
+
+<!-- ══ شاشة تسجيل الدخول ══ -->
+<div id="loginScreen">
+  <canvas id="bgCanvas"></canvas>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="https://raw.githubusercontent.com/aamer777/asd/refs/heads/main/aa.png"
+           alt="خزنة" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div style="display:none;font-size:80px;line-height:1;">🔐</div>
+    </div>
+    <h1 class="login-title">خزنة المرور</h1>
+    <p class="login-sub">حفظ آمن · مزامنة فورية · رفع صور</p>
+
+    <button class="btn-google" onclick="window.loginWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48">
+        <path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      تسجيل الدخول بـ Google
+    </button>
+
+    <div class="divider">أو</div>
+
+    <button class="btn-demo" onclick="window.startDemo()">
+      ▶ تجربة التطبيق
+    </button>
+
+    <div class="features">
+      <div class="feat">🔒 تشفير كامل</div>
+      <div class="feat">☁️ مزامنة سحابية</div>
+      <div class="feat">🖼️ رفع صور</div>
+      <div class="feat">⚡ وصول فوري</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ التطبيق الرئيسي ══ -->
+<div id="appScreen" style="display:none;">
+
+  <!-- شريط الديمو -->
+  <div id="demoBar" style="display:none;background:linear-gradient(135deg,#ea580c,#f97316);padding:10px 16px;text-align:center;font-size:13px;color:#fff;font-weight:700;">
+    🎮 وضع تجريبي — لا يتم الحفظ
+    <button onclick="window.exitDemo()" class="btn-exit-demo">خروج</button>
+  </div>
+
+  <!-- الهيدر -->
+  <header class="header">
+    <div class="hdr">
+      <button class="avatar-btn" id="menuAvatar" onclick="window.openSidebar()">👤</button>
+      <span class="app-title">🔐 خزنة</span>
+      <button class="icon-btn" id="themeBtn" onclick="window.toggleTheme()">☀️</button>
+    </div>
+  </header>
+
+  <!-- إحصائيات -->
+  <div class="stats-bar">
+    <span>📦 <span id="totalCount">0</span> عنصر</span>
+    <span id="syncStatus">☁️ سحابية</span>
+  </div>
+
+  <!-- بحث -->
+  <div class="search-wrap">
+    <input class="search-box" id="searchInput" placeholder="🔍 بحث...">
+  </div>
+
+  <!-- فلاتر -->
+  <div class="cat-scroll" id="categoryBar"></div>
+
+  <!-- البطاقات -->
+  <div class="cards" id="cardsList">
+    <div class="empty-state"><div class="empty-icon">🔒</div><div>لا توجد عناصر</div></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="window.showAddChoice()">＋</button>
+
+</div>
+
+<!-- ══ مودال: اختيار الإضافة ══ -->
+<div class="overlay" id="choiceOverlay" onclick="if(event.target===this)window.closeChoice()">
+  <div class="modal">
+    <div class="modal-title">➕ إضافة جديدة</div>
+    <button class="choice-card" onclick="window.openAddAccount()">
+      <span class="choice-icon">🔐</span>
+      <div><div class="choice-name">إضافة حساب</div><div class="choice-sub">بريد + كلمة مرور</div></div>
+    </button>
+    <button class="choice-card" onclick="window.openAddImage()">
+      <span class="choice-icon">🖼️</span>
+      <div><div class="choice-name">إضافة صورة</div><div class="choice-sub">رفع سحابي</div></div>
+    </button>
+    <button class="btn-cancel" onclick="window.closeChoice()">إلغاء</button>
+  </div>
+</div>
+
+<!-- ══ مودال: إضافة / تعديل حساب ══ -->
+<div class="overlay" id="overlayAccount" onclick="if(event.target===this)window.closeModalAccount()">
+  <div class="modal modal-tall">
+    <div class="modal-hdr">
+      <button class="btn-close" onclick="window.closeModalAccount()">✕</button>
+      <span class="modal-title" id="modalTitleAccount">➕ إضافة حساب</span>
+      <div style="width:34px"></div>
+    </div>
+
+    <!-- تبويبات -->
+    <div class="tabs">
+      <button id="tabBasicBtn" class="tab active" onclick="window.switchAccountTab('basic')">أساسي</button>
+      <button id="tabAdvBtn"   class="tab"        onclick="window.switchAccountTab('adv')">متقدم</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- تبويب أساسي -->
+      <div id="tabBasic">
+        <div class="field-row">
+          <div class="field-col">
+            <label class="lbl">العنوان *</label>
+            <input class="inp" id="fName" placeholder="Gmail، Netflix...">
+          </div>
+          <button class="icon-picker-btn" onclick="window.pickIcon()">
+            <span id="iconEmoji">📷</span>
+            <span class="icon-picker-lbl">أيقونة</span>
+          </button>
+        </div>
+
+        <label class="lbl">اسم المستخدم / البريد</label>
+        <input class="inp" id="fEmail" placeholder="user@example.com">
+
+        <div class="pass-hdr">
+          <button class="btn-gen" onclick="window.generatePassword()">✨ توليد</button>
+          <label class="lbl mb0">كلمة المرور *</label>
+        </div>
+        <div class="pass-wrap">
+          <input class="inp" id="fPass" type="password" placeholder="أدخل كلمة المرور">
+          <button class="btn-eye" onclick="window.togglePassVis()">👁️</button>
+        </div>
+        <div class="strength-bars">
+          <div id="sb1"></div><div id="sb2"></div><div id="sb3"></div><div id="sb4"></div>
+        </div>
+        <div class="strength-lbl" id="strengthLabel"></div>
+
+        <label class="lbl mt14">الفئة</label>
+        <div class="chips">
+          <button class="cat-chip active" data-cat="websites"      onclick="window.selectCatChip(this,'websites')">🌐 مواقع</button>
+          <button class="cat-chip"        data-cat="personal"      onclick="window.selectCatChip(this,'personal')">✉️ بريد</button>
+          <button class="cat-chip"        data-cat="banking"       onclick="window.selectCatChip(this,'banking')">🏦 بنوك</button>
+          <button class="cat-chip"        data-cat="work"          onclick="window.selectCatChip(this,'work')">📱 تطبيقات</button>
+          <button class="cat-chip"        data-cat="entertainment" onclick="window.selectCatChip(this,'entertainment')">🎬 ترفيه</button>
+          <button class="cat-chip"        data-cat="other"         onclick="window.selectCatChip(this,'other')">••• أخرى</button>
+        </div>
+        <input type="hidden" id="fCategory" value="websites">
+      </div>
+
+      <!-- تبويب متقدم -->
+      <div id="tabAdv" style="display:none">
+        <label class="lbl">رابط الموقع</label>
+        <input class="inp" id="fUrl" placeholder="https://...">
+        <label class="lbl">ملاحظات</label>
+        <textarea class="inp" id="fNote" rows="4" placeholder="ملاحظات إضافية..."></textarea>
+        <label class="lbl">لون البطاقة</label>
+        <div class="color-row">
+          <div class="color-dot selected" style="background:#f5a623" onclick="window.selectColor(0,this)"></div>
+          <div class="color-dot" style="background:#3b82f6" onclick="window.selectColor(1,this)"></div>
+          <div class="color-dot" style="background:#10b981" onclick="window.selectColor(2,this)"></div>
+          <div class="color-dot" style="background:#8b5cf6" onclick="window.selectColor(3,this)"></div>
+          <div class="color-dot" style="background:#ef4444" onclick="window.selectColor(4,this)"></div>
+          <div class="color-dot" style="background:#ec4899" onclick="window.selectColor(5,this)"></div>
+          <div class="color-dot" style="background:#06b6d4" onclick="window.selectColor(6,this)"></div>
+          <div class="color-dot" style="background:#eab308" onclick="window.selectColor(7,this)"></div>
+          <div class="color-dot" style="background:#22c55e" onclick="window.selectColor(8,this)"></div>
+          <div class="color-dot" style="background:#f97316" onclick="window.selectColor(9,this)"></div>
+        </div>
+      </div>
+
+      <button class="btn-primary w100 mt18" onclick="window.saveAccountEntry()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ مودال: إضافة صورة ══ -->
+<div class="overlay" id="overlayImage" onclick="if(event.target===this)window.closeModalImage()">
+  <div class="modal">
+    <div class="modal-title" id="modalTitleImage">🖼️ إضافة صورة</div>
+    <input class="inp" id="imgName" placeholder="عنوان الصورة *">
+    <div class="dz" id="imgDropZone">
+      📸 اسحب وأفلت أو اضغط للاختيار
+      <input type="file" id="imgFileInput" accept="image/*" style="display:none">
+    </div>
+    <div id="imgPreviewWrap" style="display:none;border-radius:14px;overflow:hidden;margin:10px 0;max-height:200px;">
+      <img id="imgPreviewEl" style="width:100%;max-height:200px;object-fit:contain;display:block;">
+    </div>
+    <div id="uploadBar" style="display:none;margin:8px 0;">
+      <div class="prog-track"><div class="prog-fill" id="uploadFill"></div></div>
+      <div style="font-size:12px;color:var(--muted2);text-align:center;margin-top:4px;" id="uploadPct"></div>
+    </div>
+    <input class="inp" id="imgNote" placeholder="ملاحظات (اختياري)">
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn-cancel flex1" onclick="window.closeModalImage()">إلغاء</button>
+      <button class="btn-primary flex2" id="btnSaveImage" onclick="window.saveImageEntry()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ مودال: اقتصاص الصورة ══ -->
+<div id="cropOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9500;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
+  <div style="color:#fff;font-size:16px;font-weight:900;margin-bottom:12px;">✂️ اقتصاص الصورة</div>
+  <div id="cropContainer" style="position:relative;width:100%;max-width:480px;aspect-ratio:1;background:#111;border-radius:20px;overflow:hidden;touch-action:none;">
+    <canvas id="cropCanvas" style="position:absolute;"></canvas>
+    <div id="cropBox" style="position:absolute;border:3px solid #f5a623;box-shadow:0 0 0 9999px rgba(0,0,0,0.55);border-radius:6px;cursor:move;touch-action:none;"></div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:16px;width:100%;max-width:480px;">
+    <button onclick="window.cancelCrop()" style="flex:1;padding:14px;background:#374151;border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px;color:#fff;font-weight:700;">إلغاء</button>
+    <button onclick="window.applyCrop()"  style="flex:2;padding:14px;background:linear-gradient(135deg,#f5a623,#e07b00);border-radius:40px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:15px;font-weight:900;color:#0a0e1a;">✂️ تطبيق</button>
+  </div>
+</div>
+
+<!-- ══ مودال: الأمان ══ -->
+<div class="overlay" id="securityOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">🔒 الأمان</div>
+    <button class="menu-item" onclick="window.openPinSetup()">🔢 إعداد رقم PIN</button>
+    <button class="menu-item" onclick="window.removePin()">❌ إزالة القفل</button>
+    <button class="btn-cancel w100 mt10" onclick="document.getElementById('securityOverlay').classList.remove('open')">إغلاق</button>
+  </div>
+</div>
+
+<!-- ══ مودال: إعداد PIN ══ -->
+<div class="overlay" id="pinSetupOverlay" onclick="if(event.target===this)window.closePinSetup()">
+  <div class="modal">
+    <div class="modal-title">🔢 رقم سري جديد</div>
+    <input class="inp" id="newPin"  type="password" inputmode="numeric" placeholder="أدخل الرقم (4+ أرقام)">
+    <input class="inp" id="newPin2" type="password" inputmode="numeric" placeholder="تأكيد الرقم">
+    <div style="display:flex;gap:12px;margin-top:14px;">
+      <button class="btn-cancel flex1" onclick="window.closePinSetup()">إلغاء</button>
+      <button class="btn-primary flex2" onclick="window.setupPin()">تفعيل</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ الشريط الجانبي ══ -->
+<div id="sidebarOverlay" class="sb-overlay" onclick="window.closeSidebar()"></div>
+<div id="sidebarPanel" class="sidebar">
+  <div class="sb-head">
+    <div class="avatar-circle" id="sidebarAvatar">👤</div>
+    <div id="sidebarUserName" class="sb-name">الزائر</div>
+    <div id="sidebarEmail"    class="sb-email"></div>
+  </div>
+  <div class="sb-body">
+    <button class="menu-item" onclick="document.getElementById('securityOverlay').classList.add('open');window.closeSidebar()">🔒 إعدادات الأمان</button>
+    <button class="menu-item" onclick="window.openShareApp();window.closeSidebar()">📤 مشاركة التطبيق</button>
+    <button class="menu-item" onclick="window.openSendMessage();window.closeSidebar()">✉️ إرسال رسالة</button>
+    <button class="menu-item" onclick="window.installPWA()">📲 تثبيت التطبيق</button>
+  </div>
+  <button class="btn-logout" onclick="window.logoutUser()">🚪 تسجيل الخروج</button>
+  <div class="sb-footer">👨‍💻 مطور عامر – مكة · v3.0</div>
+</div>
+
+<!-- ══ مودال: مشاركة التطبيق ══ -->
+<div class="overlay" id="shareAppOverlay" onclick="if(event.target===this)window.closeShareApp()">
+  <div class="modal">
+    <div class="modal-title">📤 مشاركة التطبيق</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;">
+      <button class="share-btn wa"    onclick="window.shareAppLink('wa')">💬 واتساب</button>
+      <button class="share-btn tg"    onclick="window.shareAppLink('tg')">✈️ تليجرام</button>
+      <button class="share-btn email" onclick="window.shareAppLink('em')">📧 بريد</button>
+      <button class="share-btn copy"  onclick="window.shareAppLink('cp')">📋 نسخ الرابط</button>
+    </div>
+    <button class="btn-cancel w100" onclick="window.closeShareApp()">إغلاق</button>
+  </div>
+</div>
+
+<!-- ══ مودال: إرسال رسالة ══ -->
+<div class="overlay" id="sendMessageOverlay" onclick="if(event.target===this)window.closeSendMessage()">
+  <div class="modal">
+    <div class="modal-title">✉️ إرسال رسالة</div>
+    <input class="inp" id="msgSubject" placeholder="الموضوع *">
+    <textarea class="inp" id="msgBody" rows="5" placeholder="نص الرسالة *"></textarea>
+    <div id="msgStatus" style="font-size:13px;text-align:center;margin:6px 0;min-height:18px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-cancel flex1" onclick="window.closeSendMessage()">إلغاء</button>
+      <button class="btn-primary flex2" id="btnSendMsg" onclick="window.sendMessageToEmail()">📨 إرسال</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ شريط تثبيت PWA ══ -->
+<div id="pwaInstallBar" style="position:fixed;bottom:0;left:0;right:0;z-index:9500;background:linear-gradient(135deg,#1e293b,#0f172a);border-top:2px solid #f5a623;border-radius:20px 20px 0 0;padding:14px 20px;display:flex;align-items:center;gap:12px;transform:translateY(100%);opacity:0;pointer-events:none;transition:all 0.4s cubic-bezier(0.34,1.28,0.64,1);max-width:480px;margin:0 auto;">
+  <div style="font-size:36px;">🔐</div>
+  <div style="flex:1;">
+    <div style="font-weight:900;font-size:14px;color:#fff;">ثبّت خزنة المرور</div>
+    <div style="font-size:11px;color:#94a3b8;">وصول سريع من شاشتك الرئيسية</div>
+  </div>
+  <button onclick="window.triggerInstallPrompt()" style="background:linear-gradient(135deg,#f5a623,#e07b00);border:none;border-radius:40px;padding:10px 16px;font-family:'Cairo',sans-serif;font-weight:900;font-size:13px;color:#0a0e1a;cursor:pointer;">تثبيت ⚡</button>
+  <button onclick="window.dismissInstallBar()" style="background:rgba(255,255,255,0.08);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;color:#94a3b8;font-size:16px;">✕</button>
+</div>
+
+<!-- ══ مودال: دليل تثبيت iOS/Android ══ -->
+<div class="overlay" id="iosInstallOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">📲 تثبيت التطبيق</div>
+    <div style="display:flex;gap:8px;background:var(--card2);border-radius:40px;padding:4px;margin:12px 0;">
+      <button id="installTabAndroid" class="tab active" onclick="window.showInstallTab('android')">🤖 Android</button>
+      <button id="installTabIos"     class="tab"        onclick="window.showInstallTab('ios')"> iOS</button>
+    </div>
+    <div id="installStepsAndroid">
+      <div class="install-step"><div class="step-num">1</div><div>اضغط النقاط الثلاث ⋮ في Chrome</div></div>
+      <div class="install-step"><div class="step-num">2</div><div>اختر "إضافة إلى الشاشة الرئيسية"</div></div>
+      <div class="install-step"><div class="step-num">3</div><div>اضغط "إضافة" للتأكيد ✅</div></div>
+    </div>
+    <div id="installStepsIos" style="display:none">
+      <div class="install-step"><div class="step-num">1</div><div>اضغط زر المشاركة ⬆️ في Safari</div></div>
+      <div class="install-step"><div class="step-num">2</div><div>اختر "إضافة إلى الشاشة الرئيسية"</div></div>
+      <div class="install-step"><div class="step-num">3</div><div>اضغط "إضافة" ✅</div></div>
+    </div>
+    <button class="btn-primary w100 mt14" onclick="document.getElementById('iosInstallOverlay').classList.remove('open')">فهمت ✅</button>
+  </div>
+</div>
+
+<!-- ══ Toast ══ -->
+<div id="toast" class="toast"></div>
+
+<!-- ══ JS ══ -->
+<script>
+window.switchAccountTab = tab => {
+  const basic = document.getElementById('tabBasic');
+  const adv   = document.getElementById('tabAdv');
+  const btnB  = document.getElementById('tabBasicBtn');
+  const btnA  = document.getElementById('tabAdvBtn');
+  if (tab === 'basic') {
+    basic.style.display = 'block'; adv.style.display = 'none';
+    btnB.classList.add('active');   btnA.classList.remove('active');
+  } else {
+    adv.style.display = 'block';   basic.style.display = 'none';
+    btnA.classList.add('active');   btnB.classList.remove('active');
+  }
+};
+window.pickAccountIcon = window.pickIcon;
+window.selectColorInModal = window.selectColor;
+
+// Canvas خلفية متحركة
+(function initBG() {
+  const canvas = document.getElementById('bgCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.r  = Math.random() * 2 + 0.5;
+      this.vx = (Math.random() - 0.5) * 0.4;
+      this.vy = (Math.random() - 0.5) * 0.4;
+      this.a  = Math.random() * 0.8 + 0.2;
+      this.gold = Math.random() > 0.5;
+    }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0||this.x > W||this.y < 0||this.y > H) this.reset();
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+      ctx.fillStyle = this.gold
+        ? `rgba(245,166,35,${this.a})`
+        : `rgba(255,255,255,${this.a*0.5})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+  // الوصلات بين الجزيئات القريبة
+  function drawLines() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i+1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d  = Math.sqrt(dx*dx+dy*dy);
+        if (d < 80) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(245,166,35,${0.12*(1-d/80)})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    // خلفية متدرجة
+    const grad = ctx.createLinearGradient(0,0,W,H);
+    grad.addColorStop(0,   '#0a0618');
+    grad.addColorStop(0.4, '#12082a');
+    grad.addColorStop(0.7, '#1a0820');
+    grad.addColorStop(1,   '#2d1200');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    // القمر
+    const moonGrad = ctx.createRadialGradient(W*0.85, H*0.1, 0, W*0.85, H*0.1, 50);
+    moonGrad.addColorStop(0, 'rgba(255,248,220,0.95)');
+    moonGrad.addColorStop(0.4,'rgba(255,215,0,0.7)');
+    moonGrad.addColorStop(1, 'rgba(245,166,35,0)');
+    ctx.beginPath(); ctx.arc(W*0.85, H*0.1, 50, 0, Math.PI*2);
+    ctx.fillStyle = moonGrad; ctx.fill();
+    // جزيئات
+    particles.forEach(p => { p.update(); p.draw(); });
+    drawLines();
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
