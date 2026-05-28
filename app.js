@@ -1,6 +1,6 @@
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1081,19 +1081,74 @@
   };
 
   // ── المصادقة ──
+  // ── مفتاح reCAPTCHA v3 (test key — يقبل كل الطلبات) ──
+  // استبدله بمفتاحك الحقيقي من: https://www.google.com/recaptcha/admin
+  const RECAPTCHA_SITE_KEY = '6LfB5v8sAAAAAEdQnTzd84S2MOg8q7ynIgblHFd1';
+
+  // ── دالة التحقق من reCAPTCHA ──
+  async function verifyRecaptcha(action) {
+    return new Promise((resolve) => {
+      if (typeof grecaptcha === 'undefined') {
+        // reCAPTCHA غير محمّل — نسمح بالمتابعة (fallback)
+        console.warn('reCAPTCHA not loaded — skipping');
+        return resolve(true);
+      }
+      grecaptcha.ready(async () => {
+        try {
+          const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
+          // token يُرسَل للـ server للتحقق — هنا نقبله في الـ client مباشرة
+          // للتحقق الكامل: أرسل token لـ server وتحقق من score > 0.5
+          console.log('reCAPTCHA token:', token ? '✅ OK' : '❌ Failed');
+          resolve(!!token);
+        } catch(e) {
+          console.warn('reCAPTCHA error:', e);
+          resolve(true); // fallback: اسمح بالمتابعة
+        }
+      });
+    });
+  }
+
   let _loginLoading = false;
   window.loginWithGoogle = async () => {
     if (_loginLoading) return;
     _loginLoading = true;
+
     const btn = document.querySelector('.social-btn.google');
-    if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; }
+    const originalHTML = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '⏳ جاري التوجيه لـ Google...';
+      btn.style.opacity = '0.8';
+    }
+
     try {
+      /* ── signInWithRedirect مباشرة — بدون await على أي شيء قبله ──
+         المتصفح يسمح فقط بالـ redirect إذا كان في نفس حدث الضغط
+         أي كود async قبله قد يكسر هذا */
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+
+      /* reCAPTCHA في الخلفية — لا ننتظره */
+      if (typeof grecaptcha !== 'undefined') {
+        grecaptcha.ready(() => {
+          grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'login' })
+            .then(token => console.log('reCAPTCHA ✅', token ? 'OK' : 'failed'))
+            .catch(() => {});
+        });
+      }
+
+      /* التحويل الفوري لـ Google */
       await signInWithRedirect(auth, provider);
+
     } catch(e) {
-      showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
+      console.error('Login error:', e);
+      showToast('فشل: ' + (e.message || e.code), '#ef4444');
       _loginLoading = false;
-      if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        btn.style.opacity = '';
+      }
     }
   };
 
