@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="light">
 <head>
@@ -936,6 +935,24 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
+  // ── معالجة نتيجة Redirect بعد العودة من Google ──
+  (async () => {
+    try {
+      const result = await getRedirectResult(auth);
+      if (result && result.user) {
+        localStorage.removeItem('vault_google_redirect_pending');
+        // onAuthStateChanged سيتولى الباقي تلقائياً
+      } else if (localStorage.getItem('vault_google_redirect_pending')) {
+        localStorage.removeItem('vault_google_redirect_pending');
+      }
+    } catch(e) {
+      localStorage.removeItem('vault_google_redirect_pending');
+      if (e.code && e.code !== 'auth/no-current-user') {
+        console.warn('Google Redirect Error:', e.code, e.message);
+      }
+    }
+  })();
 
   // ── Cloudinary ──
   const CLOUDINARY_CLOUD  = 'dwbhzpobd';
@@ -1998,11 +2015,50 @@
 
   // ── المصادقة ──
   window.loginWithGoogle = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
-    } catch(e) {
-      showToast('فشل تسجيل الدخول: ' + e.message, '#ef4444');
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    // الكشف عن بيئة PWA مثبّتة أو موبايل
+    const isStandaloneMode =
+      window.navigator.standalone === true ||
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches;
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+
+    if (isStandaloneMode || isMobile) {
+      // في بيئة PWA أو موبايل → استخدم Redirect مباشرة (لأن Popup يُحجب في هذه البيئات)
+      try {
+        localStorage.setItem('vault_google_redirect_pending', '1');
+        await signInWithRedirect(auth, provider);
+      } catch(e) {
+        localStorage.removeItem('vault_google_redirect_pending');
+        showToast('فشل تسجيل الدخول: ' + (e.message || e.code), '#ef4444');
+      }
+    } else {
+      // في المتصفح العادي → جرّب Popup أولاً، وعند الفشل انتقل إلى Redirect
+      try {
+        await signInWithPopup(auth, provider);
+      } catch(e) {
+        const redirectCodes = [
+          'auth/popup-blocked',
+          'auth/popup-closed-by-user',
+          'auth/cancelled-popup-request',
+          'auth/operation-not-supported-in-this-environment'
+        ];
+        if (redirectCodes.includes(e.code)) {
+          try {
+            showToast('⏳ جاري التحويل لتسجيل الدخول...', '#f5a623');
+            localStorage.setItem('vault_google_redirect_pending', '1');
+            await signInWithRedirect(auth, provider);
+          } catch(re) {
+            localStorage.removeItem('vault_google_redirect_pending');
+            showToast('فشل تسجيل الدخول: ' + (re.message || re.code), '#ef4444');
+          }
+        } else {
+          showToast('فشل تسجيل الدخول: ' + (e.message || e.code), '#ef4444');
+        }
+      }
     }
   };
 
@@ -2085,11 +2141,6 @@
       emailSpan.textContent = 'غير مسجل';
     }
   }
-
-  getRedirectResult(auth).catch(e => {
-    const ok = ['auth/no-current-user','auth/null-user','auth/missing-initial-state'];
-    if (e.code && !ok.includes(e.code)) showToast('فشل: ' + e.message, '#ef4444');
-  });
 
   onAuthStateChanged(auth, (user) => {
     if (user && !isDemo) {
@@ -2336,8 +2387,6 @@
     const bar = document.getElementById('pwaInstallBar');
     if (bar) { bar.style.transform = 'translateY(100%)'; bar.style.opacity = '0'; bar.style.pointerEvents = 'none'; }
   };
-
-  window.showInstallTab = (tab) => {
     const androidSteps = document.getElementById('installStepsAndroid');
     const iosSteps     = document.getElementById('installStepsIos');
     const btnA         = document.getElementById('installTabAndroid');
