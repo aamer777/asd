@@ -5,7 +5,7 @@ import { getFirestore }      from "https://www.gstatic.com/firebasejs/10.8.0/fir
 
 const cfg = {
   apiKey:            "AIzaSyCCPmhcxaq7-xGqnUBNR1vsFRsIWQjwchU",
-  authDomain:        "aamer777.github.io",
+  authDomain:        "asdf-736d2.firebaseapp.com",
   projectId:         "asdf-736d2",
   messagingSenderId: "462090265735",
   appId:             "1:462090265735:web:5fc5eeb8295bcea1568422"
